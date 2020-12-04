@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript: Scripting Documents</title>
+    <style type="text/css">
+    body {
+      margin: 0;
+      font: 100%/1.2 Georgia, "Times New Roman", serif;
+      padding-left: 15px;
+      padding-right: 15px;
+      max-width: 65%;
+    }
+
+    h1 {
+      color: #212121;
+      font-family: 'Lato', sans-serif;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: .975;
+      margin-bottom: .4125em;
+    }
+
+    h2,
+    h3 {
+      font-family: "Open Sans", sans-serif;
+      font-weight: 400;
+      font-size: 1.275em; /* 15px/16px */
+    }
+
+    p {
+      text-indent: 2em;
+    }
+
+    em,
+    li {
+        /* font-weight: bold; */
+    }
+
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+      font-size: 9.5pt;
+      font-weight: 300;
+    }
+
+    form {
+      border-radius: 5px;
+      background-color: #f2f2f2;
+      padding: 20px;
+      text-indent: 2em;
+    }
+
+    #TOC {
+        border: solid black 1px;
+        margin: 10px;
+        padding: 10px; 
+        position: fixed;
+        top: 1em;
+        right: 0.5em;
+        max-width: 30%;
+    }
+
+    .TOCEntry { font-family: sans-serif; }
+    .TOCEntry a { text-decoration: none; }
+    .TOCLevel1 { font-size: 9.5pt; font-weight: bold; }
+    .TOCLevel2 { font-size: 9.3pt; margin-left: .2in; }
+    .TOCLevel3 { font-size: 9pt; font-style: oblique; margin-left: .4in; }
+    .TOCSectNum:after { content: " "; }
+    </style>
+
+    <script>
+    /*
+     * Example: Invoking functions when the document is ready
+     *
+     * Pass a function to whenReady() and it will be invoked (as a method of the
+     * document) when the document is parsed and ready for manipulation. Registered
+     * functions are triggered by the first DOMContentLoaded, readystatechange, or
+     * load event that occurs. Once the document is ready and all functions have
+     * been invoked, any functions passed to whenReady() will be invoked
+     * immediately.
+     */
+    var whenReady = (function() { // This function returns the whenReady() function
+        var funcs = [];           // The functions to run when we get an event
+        var ready = false;        // Switches to true when the handler is triggered
+
+        // The event handler invoked when the document becomes ready
+        function handler(e) {
+            // If we ave already run once, just return
+            if (ready) return;
+
+            // If this was a readystatechange event where the state changed to
+            // something other than 'complete', then we are not ready yet
+            if (e.type === "readystatechange" && document.readyState !== "complete")
+                return;
+
+            // Run all registered functions.
+            // Note that we look up funcs.length each time, in case calling
+            // one of these functions causes more functions to be registered.
+            for(var i = 0; i < funcs.length; i++)
+                funcs[i].call(document);
+
+            // Now set the ready flag to true and forget the functions
+            ready = true;
+            funcs = null;
+        }
+
+        // Register the handler for any event we might receive
+        if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", handler, false);
+            document.addEventListener("readystatechange", handler, false);
+            window.addEventListener("load", handler, false);
+        }
+        else if (document.attachEvent) {
+            document.attachEvent("onreadystatechange", handler);
+            window.attachEvent("onload", handler);
+        }
+
+        // Return the whenReady function
+        return function whenReady(f) {
+            if (ready) f.call(document); // If already ready, just run it
+            else funcs.push(f);          // Otherwise, queue it for later.
+        }
+    }());
+
+    whenReady(function() { console.log("The first whenReady()"); });
+    </script>
+</head>
+<body>
+<div class="page">
+    <header class="masthead" role="banner">
+        <p>
+        HTTP requests are initiated
+        when a script sets the <em>location</em> property of a window object or calls the <em>submit</em>() method
+        of a form object. 
+        </p>
+    </header>
+
+    <main class="main" role="main">
+    <article>
+        <h1>Using XMLHttpRequest</h1>
+        <p>
+        Browsers define their HTTP API on an XMLHttpRequest class. Each instance of this
+        class represents a single request/response pair, and the properties and methods of the
+        object allow you to specify request details and extract response data.
+        </p>
+
+        <pre><code>
+        // To use this HTTP API, of course, is to instantiate an XMLHttpRequest object:
+        var request = new XMLHttpRequest();
+
+        // Emulate the XMLHttpRequest() constructor in IE5 and IE6
+        if (window.XMLHttpRequest === undefined) {
+            window.XMLHttpRequest = function() {
+                try {
+                    // Use the latest version of the ActiveX object if available
+                    return new ActiveXObject("Msxml2.XMLHTTP.6.0");
+                }
+                catch (e1) {
+                    try {
+                        // Otherwise fall back on an older version
+                        return new ActiveXObject("Msxml2.XMLHTTP.3.0");
+                    }
+                    catch(e2) {
+                        // Otherwise, throw an error
+                        throw new Error("XMLHttpRequest is not supported");
+                    }
+                }
+            };
+        }
+        </code></pre>
+
+
+        <h2>Specifying the Request</h2>
+        <p>
+        After creating an XMLHttpRequest object, the next step in making an HTTP request
+        is to call the open() method of your XMLHttpRequest object to specify the two required
+        parts of the request, the method and the URL:
+        <pre><code>
+        request.open("GET",       // Begin a HTTP GET request
+                     "data.csv"); // For the contents of this URL
+        </code></pre>
+
+        The next step in the request process is to set the request headers, if any. POST requests,
+        for example, need a “Content-Type” header to specify the MIME type of the request body:
+        <pre><code>
+        request.setRequestHeader("Content-Type", "text/plain");
+        </code></pre>
+
+        The final step in making an HTTP request with XMLHttpRequest is to specify the
+        optional request body and send it off to the server. Do this with the send() method:
+        <pre><code>
+        request.send(null);
+
+        // Example: POSTing plain text to a server
+        function postMessage(msg) {
+            var request = new XMLHttpRequest();             // New request
+            request.open("POST", "/cgi-bin/bashcgi", true); // POST a server-side script
+            // Send the message, in plain-text, as the request body
+            request.setRequestHeader("Content-Type",        // Request body will be plain text
+                                     "text/plain;charset=UTF-8");
+            request.send(msg); // Send msg as the request body
+            // The request is done. We ignore any response or any error.
+        }
+        </code></pre>
+        </p>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="postMessage('a=123&b=456');">postMessage('a=123&b=456');</button><br />
+        </fieldset>
+
+        <h2>Retrieving the Response</h2>
+        <p>
+        A complete HTTP response consists of a status code, a set of response headers, and a
+        response body. These are available through properties and methods of the
+        XMLHttpRequest object: 
+        <ul>
+        <li>
+        The <em>status</em> and <em>statusText</em> properties return the HTTP status in numeric and textual forms.<br />
+        These properties hold standard HTTP values like 200 and “OK” for
+        successful requests and 404 and “Not Found” for URLs that don’t match any resource on the server.
+        </li>
+        <li>
+        The response headers can be queried with <em>getResponseHeader</em>() and <em>getAllResponseHeaders</em>().
+        XMLHttpRequest handles cookies automatically: it filters cookie headers out of the set returned 
+        by <em>getAllResponseHeaders</em>() and returns null if you pass “Set-Cookie” or “Set-Cookie2” to <em>getResponseHeader</em>().
+        </li>
+        <li>
+        The response body is available in textual form from the <em>responseText</em> property or
+        in Document form from the <em>responseXML</em> property.
+        </li>
+        </ul>
+        </p>
+
+        <p>
+        The XMLHttpRequest object is usually used asynchronously: 
+        the <em>send</em>() method returns immediately after sending the request,
+        and the response methods and properties listed above aren’t valid until the response is received.
+        To be notified when the response is ready, you must listen for <em>readystatechange</em> events.
+        </p>
+
+        <p>
+        <table>
+            <caption>
+            <em>readyState</em> is an integer that specifies the status of an HTTP request.
+            </caption>
+            <tr>
+                <th>Constant</th>
+                <th>Value</th>
+                <th>Meaning</th>
+            </tr>
+            <tr>
+                <th>UNSENT</th>
+                <th>0</th>
+                <th>open() has not been called yet</th>
+            </tr>
+            <tr>
+                <th>OPENED</th>
+                <th>1</th>
+                <th>open() has been called </th>
+            </tr>
+            <tr>
+                <th>HEADERS_RECEIVED</th>
+                <th>2</th>
+                <th>Headers has been received</th>
+            </tr>
+            <tr>
+                <th>LOADING</th>
+                <th>3</th>
+                <th>The response body is being received</th>
+            </tr>
+            <tr>
+                <th>DONE</th>
+                <th>4</th>
+                <th>The response is compete</th>
+            </tr>
+        </table>
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Getting an HTTP response onreadystatechange
+         *
+         * Issue an HTTP GET request for the contents of the specified URL.
+         * When the response arrives successfully, verify that it is plain text
+         * and if so, pass it to the specified callback function
+         */
+        function getText(url, callback) {
+            var request = new XMLHttpRequest();       // Create new request
+            request.open("GET", url);                 // Specify URL to fetch
+            request.onreadystatechange = function() { // Define event listener
+                // If the request is compete and was successful
+                if (request.readyState === 4 && request.status === 200) {
+                    var type = request.getResponseHeader("Content-Type");
+                    if (type.match(/^text/))            // Make sure response is text
+                        callback(request.responseText); // Pass it to callback
+                }
+            };
+            request.send(null); // Send the request now
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="getText('/cgi-bin/bashcgi?a=b&c=d', alert);">getText("/cgi-bin/bashcgi?a=b&c=d", alert);</button><br />
+        </fieldset>
+
+        <h3>Synchronous responses</h3>
+        <p>
+        By their very nature, HTTP responses are best handled asynchronously. Nevertheless,
+        XMLHttpRequest also supports synchronous responses. If you pass <b>false</b> as the third
+        argument to <em>open</em>(), the <em>send</em>() method will block until the request completes.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Getting an HTTP response onreadystatechange
+         *
+         * Issue a synchronous HTTP GET request for the contents of the specified URL.
+         * Return the response text or throw an error if the request was not successful
+         * or if the response was not text.
+         */
+        function getTextSync(url) {
+            var request = new XMLHttpRequest(); // Create new request
+            request.open("GET", url, false);    // Pass false for Synchronous
+            request.send(null);                 // Send the request now
+
+            // Throw an error if the request was not 200 OK
+            if (request.status !== 200) throw new Error(request.statusText);
+
+            // Throw an error if the type was wrong
+            var type = request.getResponseHeader("Content-Type");
+            if (!type.match(/^text/))
+                throw new Error("Expected textual response; got: " + type);
+
+            return request.responseText;
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="alert(getTextSync('/cgi-bin/bashcgi?a=123&b=345'));">
+                alert(getTextSync('/cgi-bin/bashcgi?a=123&b=345'));
+            </button><br />
+        </fieldset>
+
+        <h3>Decoding the response</h3>
+        <p>
+        If the server sends an XML or XHTML document as its response, you can retrieve a parsed representation of
+        the XML document through the <em>responseXML</em> property.
+        </p>
+
+        <p>
+        If the server wants to send structured data, such as an object or array, as its response,
+        it might transmit that data as a JSON-encoded string. When you receive it, you
+        would then pass the <em>responseText</em> property to <em>JSON.parse</em>().
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Parsing the HTTP response
+         *
+         * Issue an HTTP GET request for the contents of the specified URL.
+         * When the response arrives, pass it to the callback function as a
+         * parsed XML Document object, a JSON-parsed object, or a string.
+         */
+        function get(url, callback) {
+            var request = new XMLHttpRequest();       // Create new request
+            request.open("GET", url);                 // Specify URL to fetch
+            request.onreadystatechange = function() { // Define event listener
+                // If the request is compete and was successful
+                if (request.readyState === 4 && request.status === 200) {
+                    // Get the type of the response
+                    var type = request.getResponseHeader("Content-Type");
+                    // Check type so we don't get HTML documents in the future
+                    if (type.indexOf("xml") !== -1 && request.responseXML)
+                        callback(request.responseXML);              // Document response
+                    else if (type === "application/json")
+                        callback(JSON.parse(request.responseText)); // JSON response
+                    else
+                        callback(request.responseText);             // String response
+                }
+            };
+            request.send(null); // Send the request now
+        }
+        </code></pre>
+
+        <p>
+        XHR2 defines an <em>overrideMimeType</em>() method and a number
+        of browsers have already implemented it. If you know the MIME type of a resource
+        better than the server does, pass the type of <em>overrideMimeType</em>() before you call <em>send</em>()—
+        this will make XMLHttpRequest ignore the content-type header and use the type you
+        specify instead. 
+        </p>
+
+        <code><pre>
+        // Suppose you’re downloading an XML file that you’re planning to treat
+        // as plain text. You can use setOverrideMimeType() to let the XMLHttpRequest know
+        // that it does not need to parse the file into an XML document:
+        request.overrideMimeType("text/plain; charset=utf-8")
+        </code></pre>
+
+        <h2>Encoding the Request Body</h2>
+
+        <h3>Form-encoded requests</h3>
+        <p>
+        By default, HTML forms are POSTed to the server, and the encoded form
+        data is used as the body of the request. The encoding of a simple form might look like this:
+        <pre><code>find=pizza&zipcode=02134&radius=1km</code></pre>
+        This form data encoding format has a formal MIME type:
+        <pre><code>application/x-www-form-urlencoded</code></pre>
+        You must set the “Content-Type” request header to this value when POSTing form
+        data of this sort.
+        </p>
+
+        <form method="post"
+              enctype="application/x-www-form-urlencoded"
+              action="http://upper.ink/cgi-bin/bashcgi"
+        <p><label> Customer Name: <input name="customername" required></label></p>
+        <p><label> Telephone Number: <input name="telephonenumber" required type=tel></label></p>
+        <p><label> Email Address: <input name="emailaddress" required type=email></label></p>
+        <fieldset>
+          <legend> Pizza Size: </legend>
+          <label> <input type=radio name=size required value=small> Small </label>
+          <label> <input type=radio name=size required value=medium> Medium </label>
+          <label> <input type=radio name=size required value=large> Large </label>
+        </fieldset>
+        <p><label> Delivery Instructions: <textarea name="comments" maxlength=1000></textarea></label></p>
+        <p><button>Submit Order: </button></p>
+        </form>
+
+        <pre><code>
+        /*
+         * Example: Encoding an object for an HTTP request
+         *
+         * Encode the properties of an object as if they were name/value pairs from
+         * an HTML form, using application/x-www-form-urlencoded format
+         */
+        function encodeFormData(data) {
+            if (!data) return "";   // Always return a string
+            var pairs = [];         // To hold name=value pairs
+            for(var name in data) { // For each name
+                if (!data.hasOwnProperty(name)) continue;            // Skip inherited
+                if (typeof data[name] === "function") continue;      // Skip methods
+                var value = data[name].toString();                   // Value as string
+                name = encodeURIComponent(name.replace(" ", "+"));   // Encode name
+                value = encodeURIComponent(value.replace(" ", "+")); // Encode value
+                pairs.push(name + "=" + value); // Remember name=value pair
+            }
+            return pairs.join('&'); // Return joined pairs separated with &
+        }
+
+        /*
+         * Example: Making an HTTP POST request with form-encoded data
+         */
+        function postData(url, data, callback) {
+            var request = new XMLHttpRequest();
+            request.open("POST", url);                    // POST to the specified url
+            request.onreadystatechange = function() {     // Simple event handler
+                if (request.readyState === 4 && callback) // When response is complete
+                    callback(request);                    // call the callback.
+            };
+            request.setRequestHeader("Content-Type",      // Set Content-Type
+                                     "application/x-www-form-urlencoded");
+            request.send(encodeFormData(data));           // Send form-encoded data
+        }
+
+        /*
+         * Example: Making a GET request with form-encoded data
+         */
+        function getData(url, data, callback) {
+            var request = new XMLHttpRequest();
+            request.open("GET", url +                 // GET the specified url
+                         "?" + encodeFormData(data)); // with encoded data added
+            request.onreadystatechange = function() { // Simple event handler
+                if (request.readyState === 4 && callback) callback(request);
+            };
+            request.send(null);                       // Send the request
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="alert(encodeFormData('123'));">alert(encodeFormData('123'));</button><br />
+            <button onclick="
+                function callback(request) { console.log(request.responseText); }
+                getData('/cgi-bin/bashcgi', '123', callback)
+                ">
+                function callback(request) { console.log(request.responseText); }
+                getData('/cgi-bin/bashcgi', '123', callback);
+            </button><br />
+            <button onclick="
+                function callback(request) { console.log(request.responseText); }
+                postData('/cgi-bin/bashcgi', '123', callback)
+                ">
+                function callback(request) { console.log(request.responseText); }
+                postData('/cgi-bin/bashcgi', '123', callback);
+            </button><br />
+        </fieldset>
+
+        <h3>JSON-encoded requests</h3>
+        <p>
+        In recent years, the JSON format has gained popularity as a web interchange format. 
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Making an HTTP POST request with a JSON-encoded body
+         */
+        function postJSON(url, data, callback) {
+            var request = new XMLHttpRequest();
+            request.open("POST", url);                   // POST to the specified url
+            request.onreadystatechange = function() {    // Simple event handler
+               if (request.readyState === 4 && callback) // When response is complete
+                   callback(request);                    // call the callback.
+            };
+            request.setRequestHeader("Content-Type", "application/json");
+            request.send(JSON.stringify(data));
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="postJSON('/cgi-bin/bashcgi', { uno: 1, dos: '2' }, console.log);">
+                postJSON('/cgi-bin/bashcgi', { uno: 1, dos: '2' }, console.log);
+            </button><br />
+        </fieldset>
+
+        <h3>XML-encoded requests</h3>
+        <p>
+        When you pass an XML document to the send() method, without previously specifying
+        a <em>Content-Type</em> header, the XMLHttpRequest object automatically sets an appropriate
+        header for you.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: An HTTP POST request with an XML document as its body
+         *
+         * Encode what, where, and radius in an XML document and post them to the
+         * specified url, invoking callback when the response is received
+         */
+        function postQuery(url, what, where, radius, callback) {
+            var request = new XMLHttpRequest();
+            request.open("POST", url);                // POST to the specified url
+            request.onreadystatechange = function() { // Simple event handler
+                if (request.readyState === 4 && callback) callback(request);
+            };
+
+            // Create an XML document with root element &lt;query&gt;
+            var doc = document.implementation.createDocument("", "query", null);
+            var query = doc.documentElement;            // The &lt;query&gt; element
+            var find = doc.createElement("find");       // Create a &lt;find&gt; element
+            query.appendChild(find);                    // And add it to the &lt;query&gt;
+            find.setAttribute("zipcode", where);        // Set attributes on &lt;find&gt;
+            find.setAttribute("radius", radius);
+            find.appendChild(doc.createTextNode(what)); // And set content of &lt;find&gt;
+
+            // Now send the XML-encoded data to the server.
+            // Note that the Content-Type will be automatically set.
+            request.send(doc);
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="postQuery('/cgi-bin/bashcgi', 'pizza', '02134', '1km', console.log);">
+                postQuery('/cgi-bin/bashcgi', 'pizza', '02134', '1km', console.log);
+            </button><br />
+        </fieldset>
+
+        <h3>Uploading a file</h3>
+        <script type="text/javascript" language="JavaScript">
+        function check() {
+            var ext = document.f.pic.value;
+            ext = ext.substring(ext.length-3,ext.length);
+            ext = ext.toLowerCase();
+            if(ext != 'jpg') {
+                alert('You selected a .'+ext+
+                      ' file; please select a .jpg file instead!');
+                return false; 
+            }
+            else {
+                return true; 
+            }
+        }
+        </script>
+
+        <form method="post" name=f
+            enctype="multipart/form-data"
+            onsubmit="return check();"
+            action="/cgi-bin/bashcgi">
+            <p>
+            Please select a JPEG (.jpg) file to be sent:<br>
+            <input type="file" name="pic" size="40" accept="image/jpeg">
+            <p>
+            Please include a short explanation:<br>
+            <textarea name="expl" rows="3" cols="40">
+            </textarea>
+            <p>
+            <input type="submit" value="Send">
+        </form>
+
+        <p>
+        HTML forms have always been able to upload files, but
+        until recently it was not possible to do the same thing with the XMLHttpRequest API.
+        The XHR2 API, however, allows you to upload files by passing a File object to the
+        <em>send</em>() method.<br />
+        In browsers that support File objects, every &lt;input type="file"&gt; element has a
+        <em>files</em> property that is an array-like object of File objects.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: File upload with an HTTP POST request
+         *
+         * Find all &lt;input type="file"&gt; elements with a data-uploadto attribute
+         * and register an onchange handler so that any selected file is
+         * automatically POSTED to the specified "uploadto" URL. The server is
+         * response is ignored.
+         */
+        function uploadFile() {
+            var input = document.getElementById("input");  // input element
+            console.log(input);
+            if (input.type !== "file") return;             // Skip all but file upload elts
+            var url = input.getAttribute("data-uploadto"); // Get upload URL
+            if (!url) return;                              // Skip any without a url
+
+            input.addEventListener("change", function() {  // When user selects file
+                var file = this.files[0];                  // Assume a single file selection
+                console.log(file);
+                if (!file) return;                         // If no file, do nothing
+                var xhr = new XMLHttpRequest();            // Create a new request
+                xhr.open("POST", url);                     // POST to the URL
+                xhr.send(file);                            // Send the file as body
+            }, false);
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <input type="file" data-uploadto="/cgi-bin/bashcgi" id="input" size="40" accept="image/jpeg">
+            <pre><code>
+            &lt;input type="file" data-uploadto="/cgi-bin/bashcgi" id="input" size="40" accept="image/jpeg"&gt;
+            </pre></code>
+
+            <button onclick="uploadFile();">uploadFile();</button><br />
+        </fieldset>
+
+        <h3>multipart/form-data requests</h3>
+        <p>
+        When HTML forms include file upload elements and other elements as well, the
+        browser cannot use ordinary form encoding and must POST the form using a special
+        <em>content-type</em> known as “<em>multipart/form-data</em>”. 
+        </p>
+
+        <p>
+        XHR2 defines a new <em>FormData</em> API that makes multipart request bodies simple. First,
+        create a <em>FormData</em> object with the <em>FormData</em>() constructor and then call the <em>append</em>()
+        method of that object as many times as necessary to add the individual “parts” (these
+        can be strings or File or Blob objects) to the request. Finally, pass the <em>FormData</em> object
+        to the <em>send</em>() method. The <em>send</em>() method will define an appropriate boundary string
+        and set the “Content-Type” header for the request.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: POSTing multipart/form-data request body
+         */
+        function postFormData(url, data, callback) {
+            if (typeof FormData === "undefined")
+                throw new Error("FormData is not implemented");
+
+            var request = new XMLHttpRequest();            // New HTTP request
+            request.open("POST", url);                     // POST to the specified url
+            request.onreadystatechange = function() {      // A simple event handler.
+                if (request.readyState === 4 && callback)  // When response is complete
+                    callback(request);                     // ...call the callback.
+            };
+            var formdata = new FormData();
+            for(var name in data) {
+                if (!data.hasOwnProperty(name)) continue;  // Skip inherited properties
+                var value = data[name];
+                if (typeof value === "function") continue; // Skip methods
+                // Each property becomes one "part" of the request.
+                // File objects are allowed here
+                formdata.append(name, value);              // Add name/value as one part
+            }
+            // Send the name/value pairs in a multipart/form-data request body. Each
+            // pair is one part of the request. Note that send automatically sets
+            // the Content-Type header when you pass it a FormData object
+            request.send(formdata);
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="postFormData('/cgi-bin/bashcgi', {a:1, b:2}, console.log);">
+                postFormData('/cgi-bin/bashcgi', {a:1, b:2}, console.log);
+            </button><br />
+        </fieldset>
+
+        <h2>HTTP Progress Events</h2>
+        <p>
+        In the examples above, we’ve used the <em>readystatechange</em> event to detect the completion
+        of an HTTP request. The <em>XHR2</em> draft specification defines a more useful set of events
+        and these have already been implemented by Firefox, Chrome, and Safari. 
+        </p>
+
+        <p>
+        When the <em>send</em>() method is called, a single <em>loadstart</em> event is fired. While the server’s response is
+        being downloaded, the XMLHttpRequest object fires <em>progress</em> events, typically every
+        50 milliseconds or so, and you can use these events to give the user feedback about the
+        progress of the request. If a request completes very quickly, it may never fire a progress
+        event. When a request is complete, a <em>load</em> event is fired.
+        </p>
+
+        <p>
+        A complete request is not necessarily a successful request, and your handler for the <em>load</em>
+        event should check the <em>status</em> code of the XMLHttpRequest object to ensure that you
+        received a HTTP “200 OK” response rather than a “404 Not Found” response, for
+        example.
+        </p>
+
+        <p>
+        There are three ways that an HTTP request can fail to complete, and three corresponding events.
+        If a request times out, the <em>timeout</em> event is triggered. If a request is aborted,
+        the <em>abort</em> event is triggered. Finally, other network errors, such as too many redirects, can prevent the
+        completion of a request, and the <em>error</em> event is triggered when this happens.
+        </p>
+
+        <pre><code>
+        // If you have only one handler for each kind of event,
+        // it is generally easier to just set the corresponding handler property, such as onprogress and onload.
+        // You can even use the existence of these event properties to test whether a browser supports progress events:
+        if ("onprogress" in (new XMLHttpRequest())) {
+            // Progress events are supported
+        }
+
+        // The loaded property is the number of bytes that have been transferred so far.
+        // The total property is the total length (in bytes) of the data to be transferred,
+        // from the “Content-Length” header, or 0 if the content length is not known.
+        // Finally, the lengthComputable property is true if the content length is known and is false otherwise.
+        // Obviously, the total and loaded properties are particularly useful in progress event handlers:
+        request.onprogress = function(e) {
+            if (e.lengthComputable)
+                progress.innerHTML = Math.round(100*e.loaded/e.total) + "% Complete";
+        }
+        </code></pre>
+
+        <h3>Upload progress events</h3>
+        <p>
+        In addition to defining these useful events for monitoring the download of an HTTP
+        response, XHR2 also allows the events to be used to monitor the upload of an HTTP
+        request. In browsers that have implemented this feature, the XMLHttpRequest object
+        will have an <em>upload</em> property. The value of the <em>upload</em> property is an object that defines
+        an <em>addEventListener</em>() method and defines a full set of progress event properties, such
+        as <em>onprogress</em> and <em>onload</em>. 
+        </p>
+        <p>
+        You can use the <em>upload</em> event handlers just as you would use the regular progress event
+        handlers. For an XMLHttpRequest object <b>x</b>, set <b>x.onprogress</b> to monitor the download
+        progress of the response. And set <b>x.upload.onprogress</b> to monitor the upload progress
+        of the request.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Monitoring HTTP upload progress
+         *
+         * Find all elements of class "fileDropTarget" and register DnD event handlers
+         * to make them respond to file drops. When files are dropped, upload them to
+         * the URL specified in the data-uploadto attribute.
+         */
+        whenReady(function() {
+            var elts = document.getElementsByClassName("fileDropTarget");
+
+            for(var i = 0; i &lt; elts.length; i++) {
+                var target = elts[i];
+                var url = target.getAttribute("data-uploadto");
+                if (!url) continue;
+                createFileUploadDropTarget(target, url);
+            }
+
+            function createFileUploadDropTarget(target, url) {
+                // Keep track of whether we are currently uploading something so we can
+                // reject drops. We could handle multiple concurrent uploads, but
+                // that would make progress notification too tricky for this example.
+                var uploading = false;
+
+                console.log(target, url);
+
+                target.ondragenter = function(e) {
+                    console.log("dragenter");
+                    if (uploading) return; // Ignore drags if we are busy
+                    var types = e.dataTransfer.types;
+                    if (types &&
+                        ((types.contains && types.contains("Files")) ||
+                         (types.indexOf && types.indexOf("Files") !== -1))) {
+                        target.classList.add("wantdrop");
+                        return false;
+                    }
+                };
+                target.ondragover = function(e) { if (!uploading) return false; };
+                target.ondragleave = function(e) {
+                    if (!uploading) target.classList.remove("wantdrop");
+                };
+                target.ondrop = function(e) {
+                    if (uploading) return false;
+                    var files = e.dataTransfer.files;
+                    if (files && files.length) {
+                        uploading = true;
+                        var message = "Uploading files:&lt;ul&gt;";
+                        for (var i = 0; i &lt; files.length; i++)
+                            message += "&lt;li&gt;" + files[i].name + "&lt;/li&gt;";
+                        message += "&lt;/ul&gt;";
+
+                        target.innerHTML = message;
+                        target.classList.remove("wantdrop");
+                        target.classList.add("uploading");
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", url);
+                        var body = new FormData();
+                        for(var i = 0; i &lt; files.length; i++) body.append(i, files[i]);
+                        xhr.upload.onprogress = function(e) {
+                            if (e.lengthComputable) {
+                                target.innerHTML = message +
+                                    Math.round(e.loaded/e.total*100) +
+                                    "% Complete";
+                            }
+                        };
+                        xhr.upload.onload = function(e) {
+                            uploading = false;
+                            target.classList.remove("uploading");
+                            target.innerHTML = "Drop files to upload";
+                        };
+                        xhr.send(body);
+
+                        return false;
+                    }
+                    target.classList.remove("wantdrop");
+                }
+            }
+        });
+        </code></pre>
+
+
+        <h2>Aborting Requests and Timeouts</h2>
+        <p>
+        The primary reason to call <em>abort</em>() is to cancel or time-out requests that have taken too
+        long to complete or when the responses become irrelevant. <br />
+        XHR2 defines a <em>timeout</em> property that specifies a time in milliseconds after which a
+        request will automatically be aborted and also defines a <em>timeout</em> event that is supposed
+        to be triggered (instead of the abort event) when such a timeout occurs. 
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Implementing timeouts
+         *
+         * Issue an HTTP GET request for the contents of the specified URL.
+         * If the response arrives successfully, pass responseText to the callback.
+         * If the response does not arrive in less than timeout ms, abort the request.
+         * Browsers may fire "readystatechange" after abort(), and if a partial 
+         * request has been received, the status property may even be set, so 
+         * we need to set a flag so that we do not invoke the callback for a partial,
+         * timed-out response. This problem does not arise if we use the load event.
+         */
+        function timedGetText(url, timeout, callback) {
+            var request = new XMLHttpRequest();         // Create new request.
+            var timedout = false;                       // Whether we timed out or not.
+            // Start a timer that will abort the request after timeout ms.
+            var timer = setTimeout(function() {         // Start a timer. If triggered,
+                                       timedout = true; // set a flag and then
+                                       request.abort(); // abort the request.
+                                   },
+                                   timeout);            // How long before we do this
+            request.open("GET", url);                   // Specify URL to fetch
+            request.onreadystatechange = function() {   // Define event listener.
+                if (request.readyState !== 4) return;   // Ignore incomplete requests.
+                if (timedout) return;                   // Ignore aborted requests.
+                clearTimeout(timer);                    // Cancel pending timeout.
+                if (request.status === 200)             // If request was successful
+                    callback(request.responseText);     // pass response to callback.
+            };
+            request.send(null);                         // Send the request now
+        }
+        </code></pre>
+
+        <h2>Cross-Origin HTTP Requests</h2>
+        <p>
+        As part of the same-origin security policy, the XMLHttpRequest object can
+        normally issue HTTP requests only to the server from which the document that uses it
+        was downloaded. This restriction closes security holes, but it is heavy-handed and also
+        prevents a number of legitimate uses for cross-origin requests.<br />
+        You can use cross-origin URLs with &lt;form&gt; and &lt;iframe&gt; elements, and the browser will display the resulting
+        cross-origin document. But because of the same-origin policy, the browser won’t allow
+        the original script to inspect the contents of the cross-origin document. With
+        XMLHttpRequest, document contents are always exposed through the <em>responseText</em>
+        property, so the same-origin policy cannot allow XMLHttpRequest to make crossorigin requests. <br />
+        (Note that the &lt;script&gt; element has never really been subject to the
+        same-origin policy: it will download and execute any script, regardless of origin.
+        This freedom to make cross-origin requests makes the &lt;script&gt; element an attractive
+        Ajax transport alternative to XMLHttpRequest.)
+        </p>
+
+        <p>
+        XHR2 allows cross-origin requests to websites that opt-in by sending appropriate
+        CORS (Cross-Origin Resource Sharing) headers in their HTTP responses. At the time
+        of this writing, current versions of Firefox, Safari, and Chrome support CORS and IE8
+        supports it through a proprietary <em>XDomainRequest</em> object that is not documented here.
+        </p>
+
+        <p>
+        Although there is nothing you have to do to make CORS-enabled cross-origin requests
+        work, there are a few security details worth understanding. First, if you pass a username
+        and password to the XMLHttpRequest <em>open</em>() method, they will never be sent with a
+        cross-origin request. In addition, cross-origin requests do not normally include any other
+        user credentials either: cookies and HTTP authentication tokens are not normally sent as part of the
+        request and any cookies received as part of a cross-origin response are discarded. If
+        your cross-origin request requires these kinds of credentials to succeed, you must set
+        the <em>withCredentials</em> property of the XMLHttpRequest to true before you send() the
+        request. 
+        </p>
+
+        <pre><code>
+        /**
+         * linkdetails.js
+         *
+         * This unobtrusive JavaScript module finds all <a> elements that have an href
+         * attribute but no title attribute and adds an onmouseover event handler to 
+         * them. The event handler makes an XMLHttpRequest HEAD request to fetch 
+         * details about the linked resource, and then sets those details in the title
+         * attribute of the link so that they will be displayed as a tooltip.
+         */
+        whenReady(function() { 
+            // Is there any chance that cross-origin requests will succeed?
+            var supportsCORS = (new XMLHttpRequest()).withCredentials !== undefined;
+
+            // Loop through all links in the document
+            var links = document.getElementsByTagName('a');
+            for(var i = 0; i < links.length; i++) {
+                var link = links[i];
+                if (!link.href) continue; // Skip anchors that are not hyperlinks
+                if (link.title) continue; // Skip links that already have tooltips
+
+                // If this is a cross-origin link
+                if (link.host !== location.host || link.protocol !== location.protocol)
+                {
+                    link.title = "Off-site link";  // Assume we can't get any more info 
+                    if (!supportsCORS) continue;   // Quit now if no CORS support
+                    // Otherwise, we might be able to learn more about the link
+                    // So go ahead and register the event handlers so we can try.
+                }
+
+                // Register event handler to download link details on mouse over
+                if (link.addEventListener)
+                    link.addEventListener("mouseover", mouseoverHandler, false);
+                else
+                    link.attachEvent("onmouseover", mouseoverHandler);
+            }
+
+            function mouseoverHandler(e) {
+                var link = e.target || e.srcElement;      // The <a> element
+                var url = link.href;                      // The link URL
+
+                var req = new XMLHttpRequest();           // New request
+                req.open("HEAD", url);                    // Ask for just the headers
+                req.onreadystatechange = function() {     // Event handler
+                    if (req.readyState !== 4) return;     // Ignore incomplete requests
+                    if (req.status === 200) {             // If successful
+                        var type = req.getResponseHeader("Content-Type");   // Get
+                        var size = req.getResponseHeader("Content-Length"); // link
+                        var date = req.getResponseHeader("Last-Modified");  // details
+                        // Display the details in a tooltip. 
+                        link.title = "Type: " + type + "   \n" +  
+                            "Size: " + size + "   \n" + "Date: " + date;
+                    }
+                    else {
+                        // If request failed, and the link doesn't already have an
+                        // "Off-site link" tooltip, then display the error.
+                        if (!link.title)
+                            link.title = "Couldn't fetch details: \n" +
+                                req.status + " " + req.statusText;
+                    }
+                };
+                req.send(null);
+                
+                // Remove handler: we only want to fetch these headers once.
+                if (link.removeEventListener)
+                    link.removeEventListener("mouseover", mouseoverHandler, false);
+                else
+                    link.detachEvent("onmouseover", mouseoverHandler);
+            }
+        });
+        </code></pre>
+    </article>
+
+    <article>
+        <h1>HTTP by &lt;script&gt; JSONP</h1>
+        <p>
+        The introduction to this chapter mentioned that a &lt;script&gt; element can be used as an
+        Ajax transport mechanism: simply set the src attribute of a &lt;script&gt;
+        and the browser will generate an HTTP request
+        to download the URL you specify. &lt;script&gt; elements are useful Ajax transports for one
+        primary reason: they are not subject to the same origin policy, so you can use them to
+        request data from servers other than your own. A secondary reason to use &lt;script&gt;
+        elements is that they automatically decode response bodies that consist
+        of JSON-encoded data.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Making a JSONP request with a script element
+         *
+         * Make a JSONP request to the specified URL and pass the parsed response
+         * data to the specified callback. Add a query parameter named "jsonp" to
+         * the URL to specify the name of the callback function for the request.
+         */
+        function getJSONP(url, callback) {
+            // Create a unique callback name just for this request
+            var cbnum = "cb" + getJSONP.counter++; // Increment counter each time
+            var cbname = "getJSONP." + cbnum;      // As a property of this function
+            
+            // Add the callback name to the url query string using form-encoding
+            // We use the parameter name "jsonp".  Some JSONP-enabled services 
+            // may require a different parameter name, such as "callback".
+            if (url.indexOf("?") === -1)   // URL doesn't already have a query section
+                url += "?jsonp=" + cbname; // add parameter as the query section
+            else                           // Otherwise, 
+                url += "&jsonp=" + cbname; // add it as a new parameter.
+
+            // Create the script element that will send this request
+            var script = document.createElement("script");
+
+            // Define the callback function that will be invoked by the script
+            getJSONP[cbnum] = function(response) {
+                try {
+                    callback(response); // Handle the response data
+                }
+                finally {               // Even if callback or response threw an error
+                    delete getJSONP[cbnum];                // Delete this function
+                    script.parentNode.removeChild(script); // Remove script
+                }
+            };
+
+            // Now trigger the HTTP request
+            script.src = url;                  // Set script url
+            document.body.appendChild(script); // Add it to the document
+        }
+
+        getJSONP.counter = 0;  // A counter we use to create unique callback names
+        </code></pre>
+    </article>
+
+    <article>
+        <h1>Comet with Server-Sent Events</h1>
+        <p>
+        The Server-Sent Event protocol is straightforward. The client initiates a connection to
+        the server (when it creates the EventSource object) and the server keeps this connection
+        open. When an event occurs, the server writes lines of text to the connection. An event
+        going over the wire might look like this:
+        <pre><code>
+        event: bid   sets the type of the event object
+        data: GOOG   sets the data property
+        data: 999    appends a newline and more data
+                     a blank line triggers the message event
+        </code></pre>
+        </p>
+
+        <pre><code>
+        // The Server-Sent Events draft standard defines an EventSource object that makes Comet
+        // applications trivial to write. Simply pass a URL to the EventSource() constructor and
+        // then listen for message events on the returned object:
+        var ticker = new EventSource("stockprices.php");
+        ticker.onmessage = function(e) {
+            var type = e.type;
+            var data = e.data;
+            // Now process the event type and event data strings.
+        }
+        </code></pre>
+
+        <p>
+        One obvious application for the <em>Comet</em> architecture is online chat: a chat client can
+        post new messages to the chat room with XMLHttpRequest and can subscribe to the
+        stream of chatter with an <em>EventSource</em> object. 
+        </p>
+
+        <code><pre>
+        /*
+         * Example: A simple chat client, using EventSource
+         */
+        var chatClient = function() {
+            // Take care of some UI details
+            var nick = prompt("Enter your nickname");     // Get user's nickname
+            var input = document.getElementById("input"); // Find the input field
+            input.focus();                                // Set keyboard focus
+
+            // Register for notification of new messages using EventSource
+            var chat = new EventSource("/chat");
+            chat.onmessage = function(event) {            // When a new message arrives
+                var msg = event.data;                     // Get text from event object
+                var node = document.createTextNode(msg);  // Make it into a text node
+                var div = document.createElement("div");  // Create a &lt;div&gt;
+                div.appendChild(node);                    // Add text node to div
+                document.body.insertBefore(div, input);   // And add div before input
+                input.scrollIntoView();                   // Ensure input elt is visible
+            }
+
+            // Post the user's messages to the server using XMLHttpRequest
+            input.onchange = function() {                 // When user strikes return
+                var msg = nick + ": " + input.value;      // Username plus user's input
+                var xhr = new XMLHttpRequest();           // Create a new XHR
+                xhr.open("POST", "/chat");                // to POST to /chat.
+                xhr.setRequestHeader("Content-Type",      // Specify plain UTF-8 text 
+                                     "text/plain;charset=UTF-8");
+                xhr.send(msg);                            // Send the message
+                input.value = "";                         // Get ready for more input
+            }
+        };
+
+        &lt;!-- The chat UI is just a single text input field --&gt;
+        &lt;!-- New chat messages will be inserted before this input field --&gt;
+        &lt;input id="input" style="width:100%"/&gt;
+        </code></pre>
+
+
+        <code><pre>
+        /*
+         * Example: A custom Server-Sent Events chat server
+         *
+         * This is server-side JavaScript, intended to be run with NodeJS.
+         * It implements a very simple, completely anonymous chat room.
+         * POST new messages to /chat, or GET a text/event-stream of messages
+         * from the same URL. Making a GET request to / returns a simple HTML file
+         * that contains the client-side chat UI.
+         */
+        var http = require('http');  // NodeJS HTTP server API
+
+        // The HTML file for the chat client. Used below.
+        var clientui = require('fs').readFileSync("chatclient.html");
+        var emulation = require('fs').readFileSync("EventSourceEmulation.js");
+
+        // An array of ServerResponse objects that we're going to send events to
+        var clients = [];
+
+        // Send a comment to the clients every 20 seconds so they don't 
+        // close the connection and then reconnect
+        setInterval(function() {
+            clients.forEach(function(client) {
+                client.write(":ping\n");
+            });
+        }, 20000);
+
+        // Create a new server
+        var server = new http.Server();  
+
+        // When the server gets a new request, run this function
+        server.on("request", function (request, response) {
+            // Parse the requested URL
+            var url = require('url').parse(request.url);
+
+            // If the request was for "/", send the client-side chat UI.
+            if (url.pathname === "/") {  // A request for the chat UI
+                response.writeHead(200, {"Content-Type": "text/html"});
+                response.write("<script>" + emulation + "</script>");
+                response.write(clientui);
+                response.end();
+                return;
+            }
+            // Send 404 for any request other than "/chat"
+            else if (url.pathname !== "/chat") {
+                response.writeHead(404);
+                response.end();
+                return;
+            }
+
+            // If the request was a post, then a client is posting a new message
+            if (request.method === "POST") {
+                request.setEncoding("utf8");
+                var body = "";
+                // When we get a chunk of data, add it to the body
+                request.on("data", function(chunk) { body += chunk; });
+
+                // When the request is done, send an empty response 
+                // and broadcast the message to all listening clients.
+                request.on("end", function() {
+                    response.writeHead(200);   // Respond to the request
+                    response.end();
+
+                    // Format the message in text/event-stream format
+                    // Make sure each line is prefixed with "data:" and that it is
+                    // terminated with two newlines.
+                    message = 'data: ' + body.replace('\n', '\ndata: ') + "\r\n\r\n";
+                    // Now send this message to all listening clients
+                    clients.forEach(function(client) { client.write(message); });
+                });
+            }
+            // Otherwise, a client is requesting a stream of messages
+            else {
+                // Set the content type and send an initial message event 
+                response.writeHead(200, {'Content-Type': "text/event-stream" });
+                response.write("data: Connected\n\n");
+
+                // If the client closes the connection, remove the corresponding
+                // response object from the array of active clients
+                request.connection.on("end", function() {
+                    clients.splice(clients.indexOf(response), 1);
+                    response.end();
+                });
+
+                // Remember the response object so we can send future messages to it
+                clients.push(response);
+            }
+        });
+
+        // Run the server on port 8000. Connect to http://localhost:8000/ to use it.
+        server.listen(8000);
+        </code></pre>
+
+        <p>
+        In browsers (like Firefox)
+        whose XMLHttpRequest implementation fires a <em>readystatechange</em> event (for ready
+        State 3) whenever there is <em>download</em> progress, it is relatively easy to emulate
+        EventSource with XMLHttpRequest.
+        </p>
+
+        <code><pre>
+        /*
+         * Example: Emulating EventSource with XMLHttpRequest
+         *
+         * Emulate the EventSource API for browsers that do not support it.
+         * Requires an XMLHttpRequest that sends readystatechange events whenever
+         * there is new data written to a long-lived HTTP connection. Note that
+         * this is not a complete implementation of the API: it does not support the
+         * readyState property, the close() method, nor the open and error events.
+         * Also event registration for message events is through the onmessage 
+         * property only--this version does not define an addEventListener method.
+         */
+        if (window.EventSource === undefined) {     // If EventSource is not defined,
+            window.EventSource = function(url) {    // emulate it like this.
+                var xhr;                        // Our HTTP connection...
+                var evtsrc = this;              // Used in the event handlers.
+                var charsReceived = 0;          // So we can tell what is new.
+                var type = null;                // To check property response type.
+                var data = "";                  // Holds message data
+                var eventName = "message";      // The type field of our event objects
+                var lastEventId = "";           // For resyncing with the server
+                var retrydelay = 1000;          // Delay between connection attempts
+                var aborted = false;            // Set true to give up on connecting
+
+                // Create an XHR object
+                xhr = new XMLHttpRequest(); 
+
+                // Define an event handler for it
+                xhr.onreadystatechange = function() {
+                    switch(xhr.readyState) {
+                    case 3: processData(); break;   // When a chunk of data arrives
+                    case 4: reconnect(); break;     // When the request closes
+                    }
+                };
+
+                // And establish a long-lived connection through it
+                connect();
+
+                // If the connection closes normally, wait a second and try to restart
+                function reconnect() {
+                    if (aborted) return;             // Don't reconnect after an abort
+                    if (xhr.status >= 300) return;   // Don't reconnect after an error
+                    setTimeout(connect, retrydelay); // Wait a bit, then reconnect
+                };
+
+                // This is how we establish a connection
+                function connect() {
+                    charsReceived = 0; 
+                    type = null;
+                    xhr.open("GET", url);
+                    xhr.setRequestHeader("Cache-Control", "no-cache");
+                    if (lastEventId) xhr.setRequestHeader("Last-Event-ID", lastEventId);
+                    xhr.send();
+                }
+
+                // Each time data arrives, process it and trigger the onmessage handler
+                // This function handles the details of the Server-Sent Events protocol
+                function processData() {
+                    if (!type) {   // Check the response type if we haven't already
+                        type = xhr.getResponseHeader('Content-Type');
+                        if (type !== "text/event-stream") {
+                            aborted = true;
+                            xhr.abort();
+                            return; 
+                        }
+                    }
+                    // Keep track of how much we've received and get only the
+                    // portion of the response that we haven't already processed.
+                    var chunk = xhr.responseText.substring(charsReceived);
+                    charsReceived = xhr.responseText.length;
+
+                    // Break the chunk of text into lines and iterate over them.
+                    var lines = chunk.replace(/(\r\n|\r|\n)$/, "").split(/\r\n|\r|\n/);
+                    for(var i = 0; i < lines.length; i++) {
+                        var line = lines[i], pos = line.indexOf(":"), name, value="";
+                        if (pos == 0) continue;               // Ignore comments
+                        if (pos > 0) {                        // field name:value
+                            name = line.substring(0,pos);
+                            value = line.substring(pos+1);
+                            if (value.charAt(0) == " ") value = value.substring(1);
+                        }
+                        else name = line;                     // field name only
+
+                        switch(name) {
+                        case "event": eventName = value; break;
+                        case "data": data += value + "\n"; break;
+                        case "id": lastEventId = value; break;
+                        case "retry": retrydelay = parseInt(value) || 1000; break; 
+                        default: break;  // Ignore any other line
+                        }
+
+                        if (line === "") {  // A blank line means send the event
+                            if (evtsrc.onmessage && data !== "") {
+                                // Chop trailing newline if there is one
+                                if (data.charAt(data.length-1) == "\n")
+                                    data = data.substring(0, data.length-1);
+                                evtsrc.onmessage({    // This is a fake Event object
+                                    type: eventName,  // event type
+                                    data: data,       // event data
+                                    origin: url       // the origin of the data
+                                });
+                            }
+                            data = "";
+                            continue;
+                        }
+                    }
+                }
+            };
+        }
+        </code></pre>
+    </article>
+    </main>
+
+    <footer role="contentinfo">
+        <p class="copyright"><small>&copy; copyright 2018 upper. all rights reserved.</small></p>
+    </footer>
+</div>
+
+<script>
+/**
+ * Example: An automatically generated table of contents
+ *
+ * TOC.js: create a table of contents for a document.
+ *
+ * This module registers an anonymous function that runs automatically
+ * when the document finishes loading. When it runs, the function first
+ * looks for a document element with an id of "TOC". If there is no
+ * such element it creates one at the start of the document.
+ *
+ * Next, the function finds all &lt;h1&gt; through &lt;h6&gt; tags, treats them as
+ * section titles, and creates a table of contents within the TOC 
+ * element. The function adds section numbers to each section heading
+ * and wraps the headings in named anchors so that the TOC can link to
+ * them. The generated anchors have names that begin with "TOC", so
+ * you should avoid this prefix in your own HTML.
+ *
+ * The entries in the generated TOC can be styled with CSS. All entries have
+ * a class 'TOCEntry'. Entries also have a class that corresponds to the level
+ * of the section heading. &lt;h1&gt; tags generate entries of class "TOCLevel1",
+ * &lt;h2&gt; tags generate entries of class "TOCLevel2", and so on. Section numbers
+ * inserted into headings have class "TOCSectNum".
+ *
+ * You might use this module with a stylesheet like this:
+ *
+ * #TOC { border: solid black 1px; margin: 10px; padding: 10px; }
+ * .TOCEntry { font-family: sans-serif; }
+ * .TOCEntry a { text-decoration: none; }
+ * .TOCLevel1 { font-size: 16pt; font-weight: bold; }
+ * .TOCLevel2 { font-size: 12pt; margin-left: .5in; }
+ * .TOCSectNum:after { content: ": "; }
+ *
+ * That final line generates a colon and space after section numbers. To hide
+ * the section numbers, use this:
+ *
+ * .TOCSectNum { display: none }
+ *
+ * This module requires the onLoad() utility function.
+ **/
+window.onload = function() {
+    // Find the TOC container element.
+    // If there isn't one, create one at the start of the document.
+    var toc = document.getElementById("TOC");
+    if (!toc) {
+        toc = document.createElement("div");
+        toc.id = "TOC";
+        document.body.insertBefore(toc, document.body.firstChild);
+    }
+
+    // Find all section heading elements
+    var headings;
+    if (document.querySelectorAll) // Can we do it the easy way?
+        headings = document.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    else // Otherwise, find the headings the hard way
+        headings = findHeadings(document.body, []);
+
+    // Recursively traverse the document body looking for headings
+    function findHeadings(root, sects) {
+        for(var c = root.firstChild; c != null; c = c.nextSibling) {
+            if (c.nodeType !== 1) continue;
+            if (c.tagName.length == 2 && c.tagName.charAt(0) == "H")
+                sects.push(c);
+            else
+                findHeadings(c, sects);
+        }
+        return sects;
+    }
+
+    // Initialize an array that keeps track of section numbers.
+    var sectionNumbers = [0,0,0,0,0,0];
+
+    // Now loop through the section header elements we found.
+    for(var h = 0; h < headings.length; h++) {
+        var heading = headings[h];
+
+        // Skip the section heading if it is inside the TOC container.
+        if (heading.parentNode == toc) continue;
+
+        // Figure out what level heading it is.
+        var level = parseInt(heading.tagName.charAt(1));
+        if (isNaN(level) || level < 1 || level > 6) continue;
+
+        // Increment the section number for this heading level
+        // and reset all lower heading level numbers to zero.
+        sectionNumbers[level-1]++;
+        for(var i = level; i < 6; i++) sectionNumbers[i] = 0;
+
+        // Now combine section numbers for all heading levels
+        // to produce a section number like 2.3.1.
+        var sectionNumber = sectionNumbers.slice(0,level).join(".")
+
+        // Add the section number to the section header title.
+        // We place the number in a <span> to make it styleable.
+        var span = document.createElement("span");
+        span.className = "TOCSectNum";
+        span.innerHTML = sectionNumber;
+        heading.insertBefore(span, heading.firstChild);
+
+        // Wrap the heading in a named anchor so we can link to it.
+        var anchor = document.createElement("a");
+        anchor.name = "TOC"+sectionNumber;
+        heading.parentNode.insertBefore(anchor, heading);
+        anchor.appendChild(heading);
+
+        // Now create a link to this section.
+        var link = document.createElement("a");
+        link.href = "#TOC" + sectionNumber; // Link destination
+        link.innerHTML = heading.innerHTML; // Link text is same as heading
+
+        // Place the link in a div that is styleable based on the level.
+        var entry = document.createElement("div");
+        entry.className = "TOCEntry TOCLevel" + level;
+        entry.appendChild(link);
+
+        // And add the div to the TOC container.
+        toc.appendChild(entry);
+    }
+
+    // set indent for p element
+    var list = document.getElementsByTagName('p');
+    for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        var html = item.outerHTML.replace(/<br ?\/?>/gi, '</p><p>');
+        item.outerHTML = html;
+    }
+}
+
+
+/*
+ * Display error messages in a dialog box, but never more than 3.
+ * During development, used to explicitly notify when an error occurs.
+ */
+window.onerror = function(msg, url, line) {
+    if (onerror.num++ < onerror.max) {
+        alert("[ERROR]\nmsg> " + msg + "\nurl> " + url + "\nline> " + line);
+        return true;
+    }
+}
+onerror.max = 3;
+onerror.num = 0;
+
+
+/*
+ * Example: POSTing plain text to a server
+ */
+function postMessage(msg) {
+    var request = new XMLHttpRequest();             // New request
+    request.open("POST", "/cgi-bin/bashcgi", true); // POST a server-side script
+    // Send the message, in plain-text, as the request body
+    request.setRequestHeader("Content-Type",        // Request body will be plain text
+                             "text/plain;charset=UTF-8");
+    request.send(msg); // Send msg as the request body
+    // The request is done. We ignore any response or any error.
+}
+
+/*
+ * Example: Getting an HTTP response onreadystatechange
+ *
+ * Issue an HTTP GET request for the contents of the specified URL.
+ * When the response arrives successfully, verify that it is plain text
+ * and if so, pass it to the specified callback function
+ */
+function getText(url, callback) {
+    var request = new XMLHttpRequest();       // Create new request
+    request.open("GET", url);                 // Specify URL to fetch
+    request.onreadystatechange = function() { // Define event listener
+        // If the request is compete and was successful
+        if (request.readyState === 4 && request.status === 200) {
+            var type = request.getResponseHeader("Content-Type");
+            if (type.match(/^text/))            // Make sure response is text
+                callback(request.responseText); // Pass it to callback
+        }
+    };
+    request.send(null); // Send the request now
+}
+
+/*
+ * Example: Getting an HTTP response onreadystatechange
+ *
+ * Issue a synchronous HTTP GET request for the contents of the specified URL.
+ * Return the response text or throw an error if the request was not successful
+ * or if the response was not text.
+ */
+function getTextSync(url) {
+    var request = new XMLHttpRequest(); // Create new request
+    request.open("GET", url, false);    // Pass false for Synchronous
+    request.send(null);                 // Send the request now
+
+    // Throw an error if the request was not 200 OK
+    if (request.status !== 200) throw new Error(request.statusText);
+
+    // Throw an error if the type was wrong
+    var type = request.getResponseHeader("Content-Type");
+    if (!type.match(/^text/))
+        throw new Error("Expected textual response; got: " + type);
+
+    return request.responseText;
+}
+
+/*
+ * Example: Parsing the HTTP response
+ *
+ * Issue an HTTP GET request for the contents of the specified URL.
+ * When the response arrives, pass it to the callback function as a
+ * parsed XML Document object, a JSON-parsed object, or a string.
+ */
+function get(url, callback) {
+    var request = new XMLHttpRequest();       // Create new request
+    request.open("GET", url);                 // Specify URL to fetch
+    request.onreadystatechange = function() { // Define event listener
+        // If the request is compete and was successful
+        if (request.readyState === 4 && request.status === 200) {
+            // Get the type of the response
+            var type = request.getResponseHeader("Content-Type");
+            // Check type so we don't get HTML documents in the future
+            if (type.indexOf("xml") !== -1 && request.responseXML)
+                callback(request.responseXML);              // Document response
+            else if (type === "application/json")
+                callback(JSON.parse(request.responseText)); // JSON response
+            else
+                callback(request.responseText);             // String response
+        }
+    };
+    request.send(null); // Send the request now
+}
+
+/*
+ * Example: Encoding an object for an HTTP request
+ *
+ * Encode the properties of an object as if they were name/value pairs from
+ * an HTML form, using application/x-www-form-urlencoded format
+ */
+function encodeFormData(data) {
+    if (!data) return "";   // Always return a string
+    var pairs = [];         // To hold name=value pairs
+    for(var name in data) { // For each name
+        if (!data.hasOwnProperty(name)) continue;            // Skip inherited
+        if (typeof data[name] === "function") continue;      // Skip methods
+        var value = data[name].toString();                   // Value as string
+        name = encodeURIComponent(name.replace(" ", "+"));   // Encode name
+        value = encodeURIComponent(value.replace(" ", "+")); // Encode value
+        pairs.push(name + "=" + value); // Remember name=value pair
+    }
+    return pairs.join('&'); // Return joined pairs separated with &
+}
+
+/*
+ * Example: Making an HTTP POST request with form-encoded data
+ */
+function postData(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.open("POST", url);                    // POST to the specified url
+    request.onreadystatechange = function() {     // Simple event handler
+        if (request.readyState === 4 && callback) // When response is complete
+            callback(request);                    // call the callback.
+    };
+    request.setRequestHeader("Content-Type",      // Set Content-Type
+                             "application/x-www-form-urlencoded");
+    request.send(encodeFormData(data));           // Send form-encoded data
+}
+
+/*
+ * Example: Making a GET request with form-encoded data
+ */
+function getData(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.open("GET", url +                 // GET the specified url
+                 "?" + encodeFormData(data)); // with encoded data added
+    request.onreadystatechange = function() { // Simple event handler
+        if (request.readyState === 4 && callback) callback(request);
+    };
+    request.send(null);                       // Send the request
+}
+
+
+/*
+ * Example: Making an HTTP POST request with a JSON-encoded body
+ */
+function postJSON(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.open("POST", url);                   // POST to the specified url
+    request.onreadystatechange = function() {    // Simple event handler
+       if (request.readyState === 4 && callback) // When response is complete
+           callback(request);                    // call the callback.
+    };
+    request.setRequestHeader("Content-Type", "application/json");
+    request.send(JSON.stringify(data));
+}
+
+/*
+ * Example: An HTTP POST request with an XML document as its body
+ *
+ * Encode what, where, and radius in an XML document and post them to the
+ * specified url, invoking callback when the response is received
+ */
+function postQuery(url, what, where, radius, callback) {
+    var request = new XMLHttpRequest();
+    request.open("POST", url);                // POST to the specified url
+    request.onreadystatechange = function() { // Simple event handler
+        if (request.readyState === 4 && callback) callback(request);
+    };
+
+    // Create an XML document with root element &lt;query&gt;
+    var doc = document.implementation.createDocument("", "query", null);
+    var query = doc.documentElement;            // The &lt;query&gt; element
+    var find = doc.createElement("find");       // Create a &lt;find&gt; element
+    query.appendChild(find);                    // And add it to the &lt;query&gt;
+    find.setAttribute("zipcode", where);        // Set attributes on &lt;find&gt;
+    find.setAttribute("radius", radius);
+    find.appendChild(doc.createTextNode(what)); // And set content of &lt;find&gt;
+
+    // Now send the XML-encoded data to the server.
+    // Note that the Content-Type will be automatically set.
+    request.send(doc);
+}
+
+/*
+ * Example: File upload with an HTTP POST request
+ *
+ * Find all &lt;input type="file"&gt; elements with a data-uploadto attribute
+ * and register an onchange handler so that any selected file is
+ * automatically POSTED to the specified "uploadto" URL. The server is
+ * response is ignored.
+ */
+function uploadFile() {
+    var input = document.getElementById("input");  // input element
+    console.log(input);
+    if (input.type !== "file") return;             // Skip all but file upload elts
+    var url = input.getAttribute("data-uploadto"); // Get upload URL
+    if (!url) return;                              // Skip any without a url
+
+    input.addEventListener("change", function() {  // When user selects file
+        var file = this.files[0];                  // Assume a single file selection
+        console.log(file);
+        if (!file) return;                         // If no file, do nothing
+        var xhr = new XMLHttpRequest();            // Create a new request
+        xhr.open("POST", url);                     // POST to the URL
+        xhr.send(file);                            // Send the file as body
+    }, false);
+}
+
+/*
+ * Example: POSTing multipart/form-data request body
+ */
+function postFormData(url, data, callback) {
+    if (typeof FormData === "undefined")
+        throw new Error("FormData is not implemented");
+
+    var request = new XMLHttpRequest();            // New HTTP request
+    request.open("POST", url);                     // POST to the specified url
+    request.onreadystatechange = function() {      // A simple event handler.
+        if (request.readyState === 4 && callback)  // When response is complete
+            callback(request);                     // ...call the callback.
+    };
+    var formdata = new FormData();
+    for(var name in data) {
+        if (!data.hasOwnProperty(name)) continue;  // Skip inherited properties
+        var value = data[name];
+        if (typeof value === "function") continue; // Skip methods
+        // Each property becomes one "part" of the request.
+        // File objects are allowed here
+        formdata.append(name, value);              // Add name/value as one part
+    }
+    // Send the name/value pairs in a multipart/form-data request body. Each
+    // pair is one part of the request. Note that send automatically sets
+    // the Content-Type header when you pass it a FormData object
+    request.send(formdata);
+}
+
+/*
+ * Example: Monitoring HTTP upload progress
+ *
+ * Find all elements of class "fileDropTarget" and register DnD event handlers
+ * to make them respond to file drops. When files are dropped, upload them to
+ * the URL specified in the data-uploadto attribute.
+ */
+whenReady(function() {
+    var elts = document.getElementsByClassName("fileDropTarget");
+
+    for(var i = 0; i < elts.length; i++) {
+        var target = elts[i];
+        var url = target.getAttribute("data-uploadto");
+        if (!url) continue;
+        createFileUploadDropTarget(target, url);
+    }
+
+    function createFileUploadDropTarget(target, url) {
+        // Keep track of whether we are currently uploading something so we can
+        // reject drops. We could handle multiple concurrent uploads, but
+        // that would make progress notification too tricky for this example.
+        var uploading = false;
+
+        console.log(target, url);
+
+        target.ondragenter = function(e) {
+            console.log("dragenter");
+            if (uploading) return; // Ignore drags if we are busy
+            var types = e.dataTransfer.types;
+            if (types &&
+                ((types.contains && types.contains("Files")) ||
+                 (types.indexOf && types.indexOf("Files") !== -1))) {
+                target.classList.add("wantdrop");
+                return false;
+            }
+        };
+        target.ondragover = function(e) { if (!uploading) return false; };
+        target.ondragleave = function(e) {
+            if (!uploading) target.classList.remove("wantdrop");
+        };
+        target.ondrop = function(e) {
+            if (uploading) return false;
+            var files = e.dataTransfer.files;
+            if (files && files.length) {
+                uploading = true;
+                var message = "Uploading files:<ul>";
+                for (var i = 0; i < files.length; i++)
+                    message += "<li>" + files[i].name + "</li>";
+                message += "</ul>";
+
+                target.innerHTML = message;
+                target.classList.remove("wantdrop");
+                target.classList.add("uploading");
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", url);
+                var body = new FormData();
+                for(var i = 0; i < files.length; i++) body.append(i, files[i]);
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        target.innerHTML = message +
+                            Math.round(e.loaded/e.total*100) +
+                            "% Complete";
+                    }
+                };
+                xhr.upload.onload = function(e) {
+                    uploading = false;
+                    target.classList.remove("uploading");
+                    target.innerHTML = "Drop files to upload";
+                };
+                xhr.send(body);
+
+                return false;
+            }
+            target.classList.remove("wantdrop");
+        }
+    }
+});
+
+/*
+ * Example: Implementing timeouts
+ *
+ * Issue an HTTP GET request for the contents of the specified URL.
+ * If the response arrives successfully, pass responseText to the callback.
+ * If the response does not arrive in less than timeout ms, abort the request.
+ * Browsers may fire "readystatechange" after abort(), and if a partial 
+ * request has been received, the status property may even be set, so 
+ * we need to set a flag so that we do not invoke the callback for a partial,
+ * timed-out response. This problem does not arise if we use the load event.
+ */
+function timedGetText(url, timeout, callback) {
+    var request = new XMLHttpRequest();         // Create new request.
+    var timedout = false;                       // Whether we timed out or not.
+    // Start a timer that will abort the request after timeout ms.
+    var timer = setTimeout(function() {         // Start a timer. If triggered,
+                               timedout = true; // set a flag and then
+                               request.abort(); // abort the request.
+                           },
+                           timeout);            // How long before we do this
+    request.open("GET", url);                   // Specify URL to fetch
+    request.onreadystatechange = function() {   // Define event listener.
+        if (request.readyState !== 4) return;   // Ignore incomplete requests.
+        if (timedout) return;                   // Ignore aborted requests.
+        clearTimeout(timer);                    // Cancel pending timeout.
+        if (request.status === 200)             // If request was successful
+            callback(request.responseText);     // pass response to callback.
+    };
+    request.send(null);                         // Send the request now
+}
+
+
+/**
+ * linkdetails.js
+ *
+ * This unobtrusive JavaScript module finds all <a> elements that have an href
+ * attribute but no title attribute and adds an onmouseover event handler to 
+ * them. The event handler makes an XMLHttpRequest HEAD request to fetch 
+ * details about the linked resource, and then sets those details in the title
+ * attribute of the link so that they will be displayed as a tooltip.
+ */
+whenReady(function() { 
+    // Is there any chance that cross-origin requests will succeed?
+    var supportsCORS = (new XMLHttpRequest()).withCredentials !== undefined;
+
+    // Loop through all links in the document
+    var links = document.getElementsByTagName('a');
+    for(var i = 0; i < links.length; i++) {
+        var link = links[i];
+        if (!link.href) continue; // Skip anchors that are not hyperlinks
+        if (link.title) continue; // Skip links that already have tooltips
+
+        // If this is a cross-origin link
+        if (link.host !== location.host || link.protocol !== location.protocol)
+        {
+            link.title = "Off-site link";  // Assume we can't get any more info 
+            if (!supportsCORS) continue;   // Quit now if no CORS support
+            // Otherwise, we might be able to learn more about the link
+            // So go ahead and register the event handlers so we can try.
+        }
+
+        // Register event handler to download link details on mouse over
+        if (link.addEventListener)
+            link.addEventListener("mouseover", mouseoverHandler, false);
+        else
+            link.attachEvent("onmouseover", mouseoverHandler);
+    }
+
+    function mouseoverHandler(e) {
+        var link = e.target || e.srcElement;      // The <a> element
+        var url = link.href;                      // The link URL
+
+        var req = new XMLHttpRequest();           // New request
+        req.open("HEAD", url);                    // Ask for just the headers
+        req.onreadystatechange = function() {     // Event handler
+            if (req.readyState !== 4) return;     // Ignore incomplete requests
+            if (req.status === 200) {             // If successful
+                var type = req.getResponseHeader("Content-Type");   // Get
+                var size = req.getResponseHeader("Content-Length"); // link
+                var date = req.getResponseHeader("Last-Modified");  // details
+                // Display the details in a tooltip. 
+                link.title = "Type: " + type + "   \n" +  
+                    "Size: " + size + "   \n" + "Date: " + date;
+            }
+            else {
+                // If request failed, and the link doesn't already have an
+                // "Off-site link" tooltip, then display the error.
+                if (!link.title)
+                    link.title = "Couldn't fetch details: \n" +
+                        req.status + " " + req.statusText;
+            }
+        };
+        req.send(null);
+        
+        // Remove handler: we only want to fetch these headers once.
+        if (link.removeEventListener)
+            link.removeEventListener("mouseover", mouseoverHandler, false);
+        else
+            link.detachEvent("onmouseover", mouseoverHandler);
+    }
+});
+
+/*
+ * Example: Making a JSONP request with a script element
+ *
+ * Make a JSONP request to the specified URL and pass the parsed response
+ * data to the specified callback. Add a query parameter named "jsonp" to
+ * the URL to specify the name of the callback function for the request.
+ */
+function getJSONP(url, callback) {
+    // Create a unique callback name just for this request
+    var cbnum = "cb" + getJSONP.counter++; // Increment counter each time
+    var cbname = "getJSONP." + cbnum;      // As a property of this function
+    
+    // Add the callback name to the url query string using form-encoding
+    // We use the parameter name "jsonp".  Some JSONP-enabled services 
+    // may require a different parameter name, such as "callback".
+    if (url.indexOf("?") === -1)   // URL doesn't already have a query section
+        url += "?jsonp=" + cbname; // add parameter as the query section
+    else                           // Otherwise, 
+        url += "&jsonp=" + cbname; // add it as a new parameter.
+
+    // Create the script element that will send this request
+    var script = document.createElement("script");
+
+    // Define the callback function that will be invoked by the script
+    getJSONP[cbnum] = function(response) {
+        try {
+            callback(response); // Handle the response data
+        }
+        finally {               // Even if callback or response threw an error
+            delete getJSONP[cbnum];                // Delete this function
+            script.parentNode.removeChild(script); // Remove script
+        }
+    };
+
+    // Now trigger the HTTP request
+    script.src = url;                  // Set script url
+    document.body.appendChild(script); // Add it to the document
+}
+
+getJSONP.counter = 0;  // A counter we use to create unique callback names
+
+
+/*
+ * Example: A simple chat client, using EventSource
+ */
+var chatClient = function() {
+    // Take care of some UI details
+    var nick = prompt("Enter your nickname");     // Get user's nickname
+    var input = document.getElementById("input"); // Find the input field
+    input.focus();                                // Set keyboard focus
+
+    // Register for notification of new messages using EventSource
+    var chat = new EventSource("/chat");
+    chat.onmessage = function(event) {            // When a new message arrives
+        var msg = event.data;                     // Get text from event object
+        var node = document.createTextNode(msg);  // Make it into a text node
+        var div = document.createElement("div");  // Create a <div>
+        div.appendChild(node);                    // Add text node to div
+        document.body.insertBefore(div, input);   // And add div before input
+        input.scrollIntoView();                   // Ensure input elt is visible
+    }
+
+    // Post the user's messages to the server using XMLHttpRequest
+    input.onchange = function() {                 // When user strikes return
+        var msg = nick + ": " + input.value;      // Username plus user's input
+        var xhr = new XMLHttpRequest();           // Create a new XHR
+        xhr.open("POST", "/chat");                // to POST to /chat.
+        xhr.setRequestHeader("Content-Type",      // Specify plain UTF-8 text 
+                             "text/plain;charset=UTF-8");
+        xhr.send(msg);                            // Send the message
+        input.value = "";                         // Get ready for more input
+    }
+};
+
+/*
+ * Example: Emulating EventSource with XMLHttpRequest
+ *
+ * Emulate the EventSource API for browsers that do not support it.
+ * Requires an XMLHttpRequest that sends readystatechange events whenever
+ * there is new data written to a long-lived HTTP connection. Note that
+ * this is not a complete implementation of the API: it does not support the
+ * readyState property, the close() method, nor the open and error events.
+ * Also event registration for message events is through the onmessage 
+ * property only--this version does not define an addEventListener method.
+ */
+if (window.EventSource === undefined) {     // If EventSource is not defined,
+    window.EventSource = function(url) {    // emulate it like this.
+        var xhr;                        // Our HTTP connection...
+        var evtsrc = this;              // Used in the event handlers.
+        var charsReceived = 0;          // So we can tell what is new.
+        var type = null;                // To check property response type.
+        var data = "";                  // Holds message data
+        var eventName = "message";      // The type field of our event objects
+        var lastEventId = "";           // For resyncing with the server
+        var retrydelay = 1000;          // Delay between connection attempts
+        var aborted = false;            // Set true to give up on connecting
+
+        // Create an XHR object
+        xhr = new XMLHttpRequest(); 
+
+        // Define an event handler for it
+        xhr.onreadystatechange = function() {
+            switch(xhr.readyState) {
+            case 3: processData(); break;   // When a chunk of data arrives
+            case 4: reconnect(); break;     // When the request closes
+            }
+        };
+
+        // And establish a long-lived connection through it
+        connect();
+
+        // If the connection closes normally, wait a second and try to restart
+        function reconnect() {
+            if (aborted) return;             // Don't reconnect after an abort
+            if (xhr.status >= 300) return;   // Don't reconnect after an error
+            setTimeout(connect, retrydelay); // Wait a bit, then reconnect
+        };
+
+        // This is how we establish a connection
+        function connect() {
+            charsReceived = 0; 
+            type = null;
+            xhr.open("GET", url);
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            if (lastEventId) xhr.setRequestHeader("Last-Event-ID", lastEventId);
+            xhr.send();
+        }
+
+        // Each time data arrives, process it and trigger the onmessage handler
+        // This function handles the details of the Server-Sent Events protocol
+        function processData() {
+            if (!type) {   // Check the response type if we haven't already
+                type = xhr.getResponseHeader('Content-Type');
+                if (type !== "text/event-stream") {
+                    aborted = true;
+                    xhr.abort();
+                    return; 
+                }
+            }
+            // Keep track of how much we've received and get only the
+            // portion of the response that we haven't already processed.
+            var chunk = xhr.responseText.substring(charsReceived);
+            charsReceived = xhr.responseText.length;
+
+            // Break the chunk of text into lines and iterate over them.
+            var lines = chunk.replace(/(\r\n|\r|\n)$/, "").split(/\r\n|\r|\n/);
+            for(var i = 0; i < lines.length; i++) {
+                var line = lines[i], pos = line.indexOf(":"), name, value="";
+                if (pos == 0) continue;               // Ignore comments
+                if (pos > 0) {                        // field name:value
+                    name = line.substring(0,pos);
+                    value = line.substring(pos+1);
+                    if (value.charAt(0) == " ") value = value.substring(1);
+                }
+                else name = line;                     // field name only
+
+                switch(name) {
+                case "event": eventName = value; break;
+                case "data": data += value + "\n"; break;
+                case "id": lastEventId = value; break;
+                case "retry": retrydelay = parseInt(value) || 1000; break; 
+                default: break;  // Ignore any other line
+                }
+
+                if (line === "") {  // A blank line means send the event
+                    if (evtsrc.onmessage && data !== "") {
+                        // Chop trailing newline if there is one
+                        if (data.charAt(data.length-1) == "\n")
+                            data = data.substring(0, data.length-1);
+                        evtsrc.onmessage({    // This is a fake Event object
+                            type: eventName,  // event type
+                            data: data,       // event data
+                            origin: url       // the origin of the data
+                        });
+                    }
+                    data = "";
+                    continue;
+                }
+            }
+        }
+    };
+}
+</script>
+
+</body>
+</html>

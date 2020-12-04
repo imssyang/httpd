@@ -1,0 +1,9 @@
+javascript=/usr/local/apache2/htdocs CD=. filter="*.js *.html *.css" {
+ index.html
+ template=template {
+  window-object.js
+  basic.html
+  scripting-documents.html
+  window-object.html
+ }
+}

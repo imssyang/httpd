@@ -1,0 +1,504 @@
+❯ ./configure --prefix=/opt/httpd 2>../configure.log 1>&2
+checking for chosen layout... Apache
+checking for working mkdir -p... yes
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking target system type... x86_64-pc-linux-gnu
+configure: 
+configure: Configuring Apache Portable Runtime library...
+configure: 
+checking for APR... yes
+  setting CC to "gcc"
+  setting CPP to "gcc -E"
+  setting CFLAGS to " -g -O2 -pthread"
+  setting CPPFLAGS to " -DLINUX -D_REENTRANT -D_GNU_SOURCE"
+  setting LDFLAGS to " "
+configure: 
+configure: Configuring Apache Portable Runtime Utility library...
+configure: 
+checking for APR-util... yes
+  adding "-L/opt/expat/lib" to LDFLAGS
+  adding "-L/opt/apr-iconv/lib" to LDFLAGS
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking how to run the C preprocessor... gcc -E
+checking for gcc option to accept ISO C99... none needed
+checking for pcre-config... /usr/bin/pcre-config
+configure: Using external PCRE library from /usr/bin/pcre-config
+  setting PCRE_INCLUDES to ""
+  setting PCRE_LIBS to "-lpcre"
+configure: 
+configure: Configuring Apache httpd...
+configure: 
+  setting INCLUDES to "-I."
+  adding "-I$(top_srcdir)/os/$(OS_DIR)" to INCLUDES
+  adding "-I$(top_srcdir)/include" to INCLUDES
+  adding "-I/opt/apr/include/apr-1" to INCLUDES
+  adding "-I/opt/apr-util/include/apr-1" to INCLUDES
+  adding "-I/opt/expat/include" to INCLUDES
+  adding "-I/opt/apr-iconv/include/apr-1" to INCLUDES
+  adding "-I/opt/apr-iconv/include" to INCLUDES
+configure: 
+configure: Applying OS-specific hints for httpd...
+configure: 
+  forcing SINGLE_LISTEN_UNSERIALIZED_ACCEPT to "1"
+  forcing AP_NONBLOCK_WHEN_MULTI_LISTEN to "1"
+checking for rm... /usr/bin/rm
+checking for pkg-config... /usr/bin/pkg-config
+checking for rsync... no
+checking for gawk... no
+checking for mawk... mawk
+checking whether ln -s works... yes
+checking for ranlib... ranlib
+checking for lynx... no
+checking for links... no
+checking for elinks... no
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for library containing strerror... none required
+checking for APR version 1.3.0 or later... yes
+checking for APR-util version 1.3.0 or later... yes
+checking for ANSI C header files... (cached) yes
+checking for string.h... (cached) yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking for limits.h... yes
+checking for unistd.h... (cached) yes
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking pwd.h usability... yes
+checking pwd.h presence... yes
+checking for pwd.h... yes
+checking grp.h usability... yes
+checking grp.h presence... yes
+checking for grp.h... yes
+checking for strings.h... (cached) yes
+checking sys/prctl.h usability... yes
+checking sys/prctl.h presence... yes
+checking for sys/prctl.h... yes
+checking sys/processor.h usability... no
+checking sys/processor.h presence... no
+checking for sys/processor.h... no
+checking sys/sem.h usability... yes
+checking sys/sem.h presence... yes
+checking for sys/sem.h... yes
+checking sys/sdt.h usability... no
+checking sys/sdt.h presence... no
+checking for sys/sdt.h... no
+checking sys/loadavg.h usability... no
+checking sys/loadavg.h presence... no
+checking for sys/loadavg.h... no
+checking for sys/wait.h that is POSIX.1 compatible... yes
+checking for an ANSI C-conforming const... yes
+checking for library containing sqrt... -lm
+checking for library containing crypt... -lcrypt
+checking for getpwnam... yes
+checking for getgrnam... yes
+checking for initgroups... yes
+checking for bindprocessor... no
+checking for prctl... yes
+checking for timegm... yes
+checking for getpgid... yes
+checking for fopen64... yes
+checking for getloadavg... yes
+checking for void pointer length... no
+checking for gettid()... yes
+checking for tm_gmtoff in struct tm... yes
+checking for sd_notify in -lsystemd-daemon... no
+checking whether to enable mod_authn_file... shared
+checking whether to enable mod_authn_dbm... shared (most)
+checking whether to enable mod_authn_anon... shared (most)
+checking whether to enable mod_authn_dbd... shared (most)
+checking whether to enable mod_authn_socache... shared (most)
+checking whether to enable mod_authn_core... shared
+checking whether to enable mod_authz_host... shared
+checking whether to enable mod_authz_groupfile... shared
+checking whether to enable mod_authz_user... shared
+checking whether to enable mod_authz_dbm... shared (most)
+checking whether to enable mod_authz_owner... shared (most)
+checking whether to enable mod_authz_dbd... shared (most)
+checking whether to enable mod_authz_core... shared
+checking whether to enable mod_authnz_ldap... checking dependencies
+checking for ldap support in apr/apr-util... no
+configure: WARNING: apr/apr-util is compiled without ldap support
+checking whether to enable mod_authnz_ldap... no (disabled)
+checking whether to enable mod_authnz_fcgi... no
+checking whether to enable mod_access_compat... shared
+checking whether to enable mod_auth_basic... shared
+checking whether to enable mod_auth_form... shared (most)
+checking whether to enable mod_auth_digest... checking dependencies
+checking whether to enable mod_auth_digest... shared (most)
+checking whether to enable mod_allowmethods... shared (most)
+  adding "-I$(top_srcdir)/modules/aaa" to INCLUDES
+checking whether to enable mod_isapi... no
+checking whether to enable mod_file_cache... shared (most)
+checking whether to enable mod_cache... shared (most)
+checking whether to enable mod_cache_disk... checking dependencies
+checking whether to enable mod_cache_disk... shared (most)
+checking whether to enable mod_cache_socache... shared (most)
+checking whether to enable mod_socache_shmcb... shared (most)
+checking whether to enable mod_socache_dbm... shared (most)
+checking whether to enable mod_socache_memcache... shared (most)
+checking whether to enable mod_socache_redis... shared (most)
+checking whether to enable mod_socache_dc... no
+  adding "-I$(top_srcdir)/modules/cache" to INCLUDES
+  setting HTTPD_LDFLAGS to "-export-dynamic"
+checking whether to enable mod_so... static
+  setting AP_LIBS to "$(MOD_SO_LDADD)"
+checking whether to enable mod_watchdog... checking dependencies
+checking whether to enable mod_watchdog... shared (most)
+checking whether to enable mod_macro... shared (most)
+  adding "-I$(top_srcdir)/modules/core" to INCLUDES
+checking whether to enable mod_dbd... shared (most)
+  adding "-I$(top_srcdir)/modules/database" to INCLUDES
+checking whether to enable mod_bucketeer... no
+checking whether to enable mod_dumpio... shared (most)
+checking whether to enable mod_echo... no
+checking whether to enable mod_example_hooks... no
+checking whether to enable mod_case_filter... no
+checking whether to enable mod_case_filter_in... no
+checking whether to enable mod_example_ipc... no
+checking whether to enable mod_buffer... shared (most)
+checking whether to enable mod_data... no
+checking whether to enable mod_ratelimit... shared (most)
+checking whether to enable mod_reqtimeout... shared
+checking whether to enable mod_ext_filter... shared (most)
+checking whether to enable mod_request... shared (most)
+checking whether to enable mod_include... shared (most)
+checking whether to enable mod_filter... shared
+checking whether to enable mod_reflector... no
+checking whether to enable mod_substitute... shared (most)
+checking whether to enable mod_sed... checking dependencies
+  setting MOD_SED_LDADD to "-export-symbols-regex sed_module"
+checking whether to enable mod_sed... shared (most)
+checking whether to enable mod_charset_lite... no
+checking whether to enable mod_deflate... checking dependencies
+checking for zlib location... /usr
+  setting LIBS to "-lz"
+checking for zlib library... found
+  setting MOD_DEFLATE_LDADD to " -lz"
+  nulling LIBS
+checking whether to enable mod_deflate... shared (most)
+checking whether to enable mod_xml2enc... no
+checking whether to enable mod_proxy_html... no
+checking whether to enable mod_brotli... checking dependencies
+checking for Brotli library >= 0.6.0 via pkg-config... no
+checking whether to enable mod_brotli... no (disabled)
+  adding "-I$(top_srcdir)/modules/filters" to INCLUDES
+checking whether to enable mod_http... static
+  adding "$(MOD_HTTP_LDADD)" to AP_LIBS
+checking whether to enable mod_mime... shared
+checking whether to enable mod_ldap... checking dependencies
+checking for ldap support in apr/apr-util... (cached) no
+configure: WARNING: apr/apr-util is compiled without ldap support
+checking whether to enable mod_ldap... no (disabled)
+  adding "-I$(top_srcdir)/modules/ldap" to INCLUDES
+checking whether to enable mod_log_config... shared
+checking whether to enable mod_log_debug... shared (most)
+checking whether to enable mod_log_forensic... no
+checking whether to enable mod_logio... shared (most)
+  adding "-I$(top_srcdir)/modules/loggers" to INCLUDES
+checking whether to enable mod_lua... no
+  adding "-I$(top_srcdir)/modules/lua" to INCLUDES
+checking whether to enable mod_env... shared
+checking whether to enable mod_mime_magic... no
+checking whether to enable mod_cern_meta... no
+checking whether to enable mod_expires... shared (most)
+checking whether to enable mod_headers... shared
+checking whether to enable mod_ident... no
+checking whether to enable mod_usertrack... no
+checking whether to enable mod_unique_id... shared (most)
+checking whether to enable mod_setenvif... shared
+checking whether to enable mod_version... shared
+checking whether to enable mod_remoteip... shared (most)
+checking whether to enable mod_proxy... shared (most)
+checking whether to enable mod_proxy_connect... checking dependencies
+checking whether to enable mod_proxy_connect... shared (most)
+checking whether to enable mod_proxy_ftp... checking dependencies
+checking whether to enable mod_proxy_ftp... shared (most)
+checking whether to enable mod_proxy_http... checking dependencies
+checking whether to enable mod_proxy_http... shared (most)
+checking whether to enable mod_proxy_fcgi... checking dependencies
+checking whether to enable mod_proxy_fcgi... shared (most)
+checking whether to enable mod_proxy_scgi... checking dependencies
+checking whether to enable mod_proxy_scgi... shared (most)
+checking whether to enable mod_proxy_uwsgi... checking dependencies
+checking whether to enable mod_proxy_uwsgi... shared (most)
+checking whether to enable mod_proxy_fdpass... checking dependencies
+checking whether CMSG_DATA is declared... yes
+checking whether to enable mod_proxy_fdpass... shared (most)
+checking whether to enable mod_proxy_wstunnel... checking dependencies
+checking whether to enable mod_proxy_wstunnel... shared (most)
+checking whether to enable mod_proxy_ajp... checking dependencies
+checking whether to enable mod_proxy_ajp... shared (most)
+checking whether to enable mod_proxy_balancer... checking dependencies
+checking whether to enable mod_proxy_balancer... shared (most)
+checking whether to enable mod_proxy_express... checking dependencies
+checking whether to enable mod_proxy_express... shared (most)
+checking whether to enable mod_proxy_hcheck... checking dependencies
+checking whether to enable mod_proxy_hcheck... shared (most)
+  adding "-I$(top_srcdir)/modules/proxy" to INCLUDES
+  adding "-I$(top_srcdir)/modules/http2" to INCLUDES
+checking whether to enable mod_session... shared (most)
+checking whether to enable mod_session_cookie... checking dependencies
+checking whether to enable mod_session_cookie... shared (most)
+configure: WARNING: Your APR does not include SSL/EVP support. To enable it: configure --with-crypto
+checking whether to enable mod_session_crypto... no
+checking whether to enable mod_session_dbd... checking dependencies
+checking whether to enable mod_session_dbd... shared (most)
+  adding "-I$(top_srcdir)/modules/session" to INCLUDES
+checking whether to enable mod_slotmem_shm... shared (most)
+checking whether to enable mod_slotmem_plain... no
+checking whether to enable mod_ssl... checking dependencies
+checking for OpenSSL... checking for user-provided OpenSSL base directory... none
+  setting MOD_CFLAGS to ""
+  setting ab_CFLAGS to ""
+  setting MOD_LDFLAGS to ""
+  setting MOD_LDFLAGS to ""
+checking for OpenSSL version >= 0.9.8a... OK
+  setting MOD_LDFLAGS to "-lssl -lcrypto  -lrt -lcrypt  -lpthread -ldl"
+  setting LIBS to "-lssl -lcrypto  -lrt -lcrypt  -lpthread -ldl"
+  forcing ab_LIBS to "-lssl -lcrypto  -lrt -lcrypt  -lpthread -ldl"
+checking openssl/engine.h usability... yes
+checking openssl/engine.h presence... yes
+checking for openssl/engine.h... yes
+checking for SSL_CTX_new... yes
+checking for OPENSSL_init_ssl... yes
+checking for ENGINE_init... yes
+checking for ENGINE_load_builtin_engines... yes
+checking for RAND_egd... no
+yes
+  setting MOD_CFLAGS to ""
+  setting MOD_SSL_LDADD to "-export-symbols-regex ssl_module"
+checking whether to enable mod_ssl... shared (most)
+  adding "-I$(top_srcdir)/modules/ssl" to INCLUDES
+checking whether to enable mod_optional_hook_export... no
+checking whether to enable mod_optional_hook_import... no
+checking whether to enable mod_optional_fn_import... no
+checking whether to enable mod_optional_fn_export... no
+checking whether to enable mod_dialup... no
+  adding "-I$(top_srcdir)/modules/test" to INCLUDES
+checking for target platform... unix
+checking for rlim_t... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking sys/resource.h usability... yes
+checking sys/resource.h presence... yes
+checking for sys/resource.h... yes
+checking for sys/sem.h... (cached) yes
+checking sys/ipc.h usability... yes
+checking sys/ipc.h presence... yes
+checking for sys/ipc.h... yes
+checking for setsid... yes
+checking for killpg... yes
+checking bstring.h usability... no
+checking bstring.h presence... no
+checking for bstring.h... no
+checking for unistd.h... (cached) yes
+checking for syslog... yes
+checking sys/times.h usability... yes
+checking sys/times.h presence... yes
+checking for sys/times.h... yes
+checking for times... yes
+  adding "-I$(top_srcdir)/server" to INCLUDES
+checking whether APR supports thread-safe pollsets... checking for kqueue... no
+checking for port_create... no
+checking for epoll_create... yes
+yes
+checking if event MPM supports this platform... yes
+checking if mpmt_os2 MPM supports this platform... no
+checking if prefork MPM supports this platform... yes
+checking if WinNT MPM supports this platform... no
+checking if worker MPM supports this platform... yes
+checking whether to enable mod_http2... checking dependencies
+checking for OpenSSL... (cached) yes
+  setting MOD_LDFLAGS to "-lssl -lcrypto  -lrt -lcrypt  -lpthread -ldl"
+  setting MOD_CFLAGS to ""
+  setting MOD_CPPFLAGS to "-DH2_OPENSSL"
+checking for nghttp2... checking for user-provided nghttp2 base directory... none
+checking for pkg-config along ... checking for nghttp2 version >= 1.2.1... FAILED
+configure: WARNING: nghttp2 version is too old
+no
+checking whether to enable mod_http2... no (disabled)
+checking whether to enable mod_proxy_http2... no
+  adding "-I$(top_srcdir)/modules/md" to INCLUDES
+checking whether to enable mod_md... checking dependencies
+checking for OpenSSL... (cached) yes
+  setting MOD_LDFLAGS to "-lssl -lcrypto  -lrt -lcrypt  -lpthread -ldl"
+  setting MOD_CFLAGS to ""
+checking for jansson... checking for user-provided jansson base directory... none
+checking for pkg-config along ... FAILED
+no
+configure: WARNING: libjansson not found
+checking for curl... checking for user-provided curl base directory... none
+checking for pkg-config along ... checking curl/curl.h usability... no
+checking curl/curl.h presence... no
+checking for curl/curl.h... no
+checking for curl version >= 7.50... FAILED
+no
+configure: WARNING: libcurl not found
+checking for arc4random_buf... no
+checking whether to enable mod_md... no (disabled)
+checking whether to enable mod_lbmethod_byrequests... checking dependencies
+checking whether to enable mod_lbmethod_byrequests... shared
+checking whether to enable mod_lbmethod_bytraffic... checking dependencies
+checking whether to enable mod_lbmethod_bytraffic... shared
+checking whether to enable mod_lbmethod_bybusyness... checking dependencies
+checking whether to enable mod_lbmethod_bybusyness... shared
+checking whether to enable mod_lbmethod_heartbeat... checking dependencies
+checking whether to enable mod_lbmethod_heartbeat... shared
+checking which MPM to use by default... event
+  adding "$(MOD_MPM_EVENT_LDADD)" to AP_LIBS
+checking for pthread_kill... yes
+checking whether to enable mod_unixd... shared
+checking whether to enable mod_privileges... no
+checking whether to enable mod_systemd... no
+  adding "-I$(top_srcdir)/modules/arch/unix" to INCLUDES
+checking whether to enable mod_heartbeat... no
+checking whether to enable mod_heartmonitor... no
+checking whether to enable mod_dav... shared (most)
+  adding "-I$(top_srcdir)/modules/dav/main" to INCLUDES
+checking whether to enable mod_status... shared
+checking whether to enable mod_autoindex... shared
+checking whether to enable mod_asis... no
+checking whether to enable mod_info... shared (most)
+checking whether to enable mod_suexec... no
+checking whether to enable mod_cgid... checking dependencies
+checking whether to enable mod_cgid... shared (most)
+checking whether to enable mod_cgi... no
+  adding "-I$(top_srcdir)/modules/generators" to INCLUDES
+checking whether to enable mod_dav_fs... checking dependencies
+checking whether to enable mod_dav_fs... shared
+checking whether to enable mod_dav_lock... no
+checking for extra modules... none
+checking whether to enable mod_vhost_alias... shared (most)
+checking whether to enable mod_negotiation... shared (most)
+checking whether to enable mod_dir... shared
+checking whether to enable mod_imagemap... no
+checking whether to enable mod_actions... shared (most)
+checking whether to enable mod_speling... shared (most)
+checking whether to enable mod_userdir... shared (most)
+checking whether to enable mod_alias... shared
+checking whether to enable mod_rewrite... shared (most)
+  adding "-I$(top_srcdir)/modules/mappers" to INCLUDES
+configure: 
+configure: Restore user-defined environment settings...
+configure: 
+  restoring CPPFLAGS to ""
+  setting EXTRA_CPPFLAGS to " -DLINUX -D_REENTRANT -D_GNU_SOURCE"
+  restoring CFLAGS to ""
+  setting EXTRA_CFLAGS to " -g -O2 -pthread"
+  restoring CXXFLAGS to ""
+  setting EXTRA_CXXFLAGS to ""
+  restoring LDFLAGS to ""
+  setting EXTRA_LDFLAGS to "  -L/opt/expat/lib -L/opt/apr-iconv/lib"
+  restoring LIBS to ""
+  setting EXTRA_LIBS to ""
+  restoring INCLUDES to ""
+  setting EXTRA_INCLUDES to "-I. -I$(top_srcdir)/os/$(OS_DIR) -I$(top_srcdir)/include -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -I$(top_srcdir)/modules/aaa -I$(top_srcdir)/modules/cache -I$(top_srcdir)/modules/core -I$(top_srcdir)/modules/database -I$(top_srcdir)/modules/filters -I$(top_srcdir)/modules/ldap -I$(top_srcdir)/modules/loggers -I$(top_srcdir)/modules/lua -I$(top_srcdir)/modules/proxy -I$(top_srcdir)/modules/http2 -I$(top_srcdir)/modules/session -I$(top_srcdir)/modules/ssl -I$(top_srcdir)/modules/test -I$(top_srcdir)/server -I$(top_srcdir)/modules/md -I$(top_srcdir)/modules/arch/unix -I$(top_srcdir)/modules/dav/main -I$(top_srcdir)/modules/generators -I$(top_srcdir)/modules/mappers"
+configure: 
+configure: Construct makefiles and header files...
+configure: 
+configure: creating config_vars.mk
+configure: creating ./config.status
+creating modules/aaa/Makefile
+creating modules/arch/win32/Makefile
+creating modules/cache/Makefile
+creating modules/core/Makefile
+creating modules/database/Makefile
+creating modules/debugging/Makefile
+creating modules/echo/Makefile
+creating modules/examples/Makefile
+creating modules/experimental/Makefile
+creating modules/filters/Makefile
+creating modules/http/Makefile
+creating modules/ldap/Makefile
+creating modules/loggers/Makefile
+creating modules/lua/Makefile
+creating modules/metadata/Makefile
+creating modules/proxy/Makefile
+creating modules/session/Makefile
+creating modules/slotmem/Makefile
+creating modules/ssl/Makefile
+creating modules/test/Makefile
+creating os/unix/Makefile
+creating modules/http2/Makefile
+creating modules/md/Makefile
+creating modules/proxy/balancers/Makefile
+creating server/mpm/Makefile
+creating server/mpm/event/Makefile
+creating modules/arch/unix/Makefile
+creating modules/cluster/Makefile
+creating modules/dav/main/Makefile
+creating modules/generators/Makefile
+creating modules/dav/fs/Makefile
+creating modules/dav/lock/Makefile
+creating modules/mappers/Makefile
+creating Makefile
+creating modules/Makefile
+creating srclib/Makefile
+creating os/Makefile
+creating server/Makefile
+creating support/Makefile
+creating test/Makefile
+config.status: creating docs/conf/httpd.conf
+config.status: creating docs/conf/extra/httpd-autoindex.conf
+config.status: creating docs/conf/extra/httpd-dav.conf
+config.status: creating docs/conf/extra/httpd-default.conf
+config.status: creating docs/conf/extra/httpd-info.conf
+config.status: creating docs/conf/extra/httpd-languages.conf
+config.status: creating docs/conf/extra/httpd-manual.conf
+config.status: creating docs/conf/extra/httpd-mpm.conf
+config.status: creating docs/conf/extra/httpd-multilang-errordoc.conf
+config.status: creating docs/conf/extra/httpd-ssl.conf
+config.status: creating docs/conf/extra/httpd-userdir.conf
+config.status: creating docs/conf/extra/httpd-vhosts.conf
+config.status: creating docs/conf/extra/proxy-html.conf
+config.status: creating include/ap_config_layout.h
+config.status: creating support/apxs
+config.status: creating support/apachectl
+config.status: creating support/dbmmanage
+config.status: creating support/envvars-std
+config.status: creating support/log_server_status
+config.status: creating support/logresolve.pl
+config.status: creating support/phf_abuse_log.cgi
+config.status: creating support/split-logfile
+config.status: creating build/rules.mk
+config.status: creating build/pkg/pkginfo
+config.status: creating build/config_vars.sh
+config.status: creating include/ap_config_auto.h
+config.status: executing default commands
+configure: summary of build options:
+
+    Server Version: 2.4.46
+    Install prefix: /opt/httpd
+    C compiler:     gcc
+    CFLAGS:          -g -O2 -pthread  
+    CPPFLAGS:        -DLINUX -D_REENTRANT -D_GNU_SOURCE  
+    LDFLAGS:          -L/opt/expat/lib -L/opt/apr-iconv/lib  
+    LIBS:             
+    C preprocessor: gcc -E
+

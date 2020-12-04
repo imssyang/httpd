@@ -1,0 +1,51 @@
+❯ ./configure.apxs                                                                                                                                                                master ◼
+Configuring mod_fcgid for APXS in /opt/httpd/bin/apxs
+Detecting features
+
+Finished, run 'make' to compile mod_fcgid
+
+Run 'make install' to install mod_fcgid
+
+
+❯ make                                                                                                                                                                            master ◼
+Making all in modules/fcgid
+make[1]: Entering directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c mod_fcgid.c && touch mod_fcgid.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_bridge.c && touch fcgid_bridge.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_conf.c && touch fcgid_conf.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_pm_main.c && touch fcgid_pm_main.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_protocol.c && touch fcgid_protocol.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_spawn_ctl.c && touch fcgid_spawn_ctl.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_proctbl_unix.c && touch fcgid_proctbl_unix.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_pm_unix.c && touch fcgid_pm_unix.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_proc_unix.c && touch fcgid_proc_unix.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_bucket.c && touch fcgid_bucket.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_filter.c && touch fcgid_filter.slo
+/opt/apr/build-1/libtool --silent --mode=compile gcc  -g -O2 -pthread   -DFCGID_APXS_BUILD   -DLINUX -D_REENTRANT -D_GNU_SOURCE    -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid -I/opt/httpd/archive/source/mod_fcgid-2.3.9/include -I/opt/httpd/include -I. -I/opt/apr/include/apr-1 -I/opt/apr-util/include/apr-1 -I/opt/expat/include -I/opt/apr-iconv/include/apr-1 -I/opt/apr-iconv/include -prefer-pic -c fcgid_mutex_unix.c && touch fcgid_mutex_unix.slo
+/opt/apr/build-1/libtool --silent --mode=link gcc  -g -O2 -pthread     -L/opt/expat/lib -L/opt/apr-iconv/lib      -o mod_fcgid.la -rpath /opt/httpd/modules -module -avoid-version mod_fcgid.lo fcgid_bridge.lo fcgid_conf.lo fcgid_pm_main.lo fcgid_protocol.lo fcgid_spawn_ctl.lo  fcgid_proctbl_unix.lo fcgid_pm_unix.lo fcgid_proc_unix.lo fcgid_bucket.lo fcgid_filter.lo fcgid_mutex_unix.lo
+ar: `u' modifier ignored since `D' is the default (see `U')
+make[1]: Leaving directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+
+
+
+❯ make install                                                                                                                                                                    master ◼
+Making install in modules/fcgid
+make[1]: Entering directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+make[2]: Entering directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+/opt/apr/build-1/libtool --silent --mode=install install mod_fcgid.la /opt/httpd/modules/
+make[2]: Leaving directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+make[1]: Leaving directory '/opt/httpd/archive/source/mod_fcgid-2.3.9/modules/fcgid'
+make[1]: Entering directory '/opt/httpd/archive/source/mod_fcgid-2.3.9'
+Installing configuration files
+for i in /opt/httpd/conf/httpd.conf /opt/httpd/conf/original/httpd.conf; do \
+    if test -f $i; then \
+	(mawk -f /opt/httpd/archive/source/mod_fcgid-2.3.9/build/addloadexample.awk \
+	    -v MODULE=fcgid -v DSO=.so -v LIBPATH=modules \
+	    < $i > $i.new && \
+	 mv $i $i.bak && mv $i.new $i \
+        ) || true; \
+    fi; \
+done
+Installing online manual
+make[1]: Leaving directory '/opt/httpd/archive/source/mod_fcgid-2.3.9'
+

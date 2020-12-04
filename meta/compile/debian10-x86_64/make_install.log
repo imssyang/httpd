@@ -1,0 +1,381 @@
+❯ make install 2>../make_install.log 1>&2
+Making install in srclib
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/srclib'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/srclib'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/srclib'
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/srclib'
+Making install in os
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+Making install in unix
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+Making install in server
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+Making install in mpm
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+Making install in event
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+mkdir /opt/httpd/modules
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+Making install in modules
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+Making install in aaa
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_file.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_dbm.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_anon.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_dbd.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_socache.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authn_core.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_host.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_groupfile.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_user.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_dbm.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_owner.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_dbd.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_authz_core.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_access_compat.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_auth_basic.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_auth_form.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_auth_digest.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_allowmethods.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+Making install in cache
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+/opt/apr/build-1/libtool --silent --mode=install install mod_file_cache.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_cache.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_cache_disk.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_cache_socache.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_socache_shmcb.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_socache_dbm.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_socache_memcache.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_socache_redis.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+Making install in core
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+/opt/apr/build-1/libtool --silent --mode=install install mod_watchdog.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_macro.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+Making install in database
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+/opt/apr/build-1/libtool --silent --mode=install install mod_dbd.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+Making install in debugging
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+/opt/apr/build-1/libtool --silent --mode=install install mod_dumpio.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+Making install in filters
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+/opt/apr/build-1/libtool --silent --mode=install install mod_buffer.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_ratelimit.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_reqtimeout.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_ext_filter.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_request.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_include.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_filter.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_substitute.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_sed.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_deflate.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+Making install in http
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+/opt/apr/build-1/libtool --silent --mode=install install mod_mime.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+Making install in loggers
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+/opt/apr/build-1/libtool --silent --mode=install install mod_log_config.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_log_debug.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_logio.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+Making install in metadata
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+/opt/apr/build-1/libtool --silent --mode=install install mod_env.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_expires.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_headers.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_unique_id.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_setenvif.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_version.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_remoteip.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+Making install in proxy
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_connect.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_ftp.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_http.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_fcgi.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_scgi.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_uwsgi.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_fdpass.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_wstunnel.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_ajp.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_balancer.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_express.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_proxy_hcheck.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+Making install in session
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+/opt/apr/build-1/libtool --silent --mode=install install mod_session.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_session_cookie.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_session_dbd.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+Making install in slotmem
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+/opt/apr/build-1/libtool --silent --mode=install install mod_slotmem_shm.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+Making install in ssl
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+/opt/apr/build-1/libtool --silent --mode=install install mod_ssl.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+Making install in proxy/balancers
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+/opt/apr/build-1/libtool --silent --mode=install install mod_lbmethod_byrequests.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_lbmethod_bytraffic.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_lbmethod_bybusyness.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_lbmethod_heartbeat.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+Making install in arch/unix
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+/opt/apr/build-1/libtool --silent --mode=install install mod_unixd.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+Making install in dav/main
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+/opt/apr/build-1/libtool --silent --mode=install install mod_dav.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+Making install in generators
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+/opt/apr/build-1/libtool --silent --mode=install install mod_status.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_autoindex.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_info.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_cgid.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+Making install in dav/fs
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+/opt/apr/build-1/libtool --silent --mode=install install mod_dav_fs.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+Making install in mappers
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+/opt/apr/build-1/libtool --silent --mode=install install mod_vhost_alias.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_negotiation.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_dir.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_actions.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_speling.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_userdir.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_alias.la /opt/httpd/modules/
+/opt/apr/build-1/libtool --silent --mode=install install mod_rewrite.la /opt/httpd/modules/
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+Making install in support
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+mkdir /opt/httpd/bin
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+make[1]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46'
+
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os/unix'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/os'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm/event'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server/mpm'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/server'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+Building shared: mod_authn_file.la mod_authn_dbm.la mod_authn_anon.la mod_authn_dbd.la mod_authn_socache.la mod_authn_core.la mod_authz_host.la mod_authz_groupfile.la mod_authz_user.la mod_authz_dbm.la mod_authz_owner.la mod_authz_dbd.la mod_authz_core.la mod_access_compat.la mod_auth_basic.la mod_auth_form.la mod_auth_digest.la mod_allowmethods.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/aaa'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+Building shared: mod_file_cache.la mod_cache.la mod_cache_disk.la mod_cache_socache.la mod_socache_shmcb.la mod_socache_dbm.la mod_socache_memcache.la mod_socache_redis.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/cache'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+Building shared: mod_watchdog.la mod_macro.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/core'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+Building shared: mod_dbd.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/database'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+Building shared: mod_dumpio.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/debugging'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+Building shared: mod_buffer.la mod_ratelimit.la mod_reqtimeout.la mod_ext_filter.la mod_request.la mod_include.la mod_filter.la mod_substitute.la mod_sed.la mod_deflate.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/filters'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+Building shared: mod_mime.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/http'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+Building shared: mod_log_config.la mod_log_debug.la mod_logio.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/loggers'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+Building shared: mod_env.la mod_expires.la mod_headers.la mod_unique_id.la mod_setenvif.la mod_version.la mod_remoteip.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/metadata'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+Building shared: mod_proxy.la mod_proxy_connect.la mod_proxy_ftp.la mod_proxy_http.la mod_proxy_fcgi.la mod_proxy_scgi.la mod_proxy_uwsgi.la mod_proxy_fdpass.la mod_proxy_wstunnel.la mod_proxy_ajp.la mod_proxy_balancer.la mod_proxy_express.la mod_proxy_hcheck.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+Building shared: mod_session.la mod_session_cookie.la mod_session_dbd.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/session'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+Building shared: mod_slotmem_shm.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/slotmem'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+Building shared: mod_ssl.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/ssl'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+Building shared: mod_lbmethod_byrequests.la mod_lbmethod_bytraffic.la mod_lbmethod_bybusyness.la mod_lbmethod_heartbeat.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/proxy/balancers'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+Building shared: mod_unixd.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/arch/unix'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+Building shared: mod_dav.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/main'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+Building shared: mod_status.la mod_autoindex.la mod_info.la mod_cgid.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/generators'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+Building shared: mod_dav_fs.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/dav/fs'
+make[3]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+Building shared: mod_vhost_alias.la mod_negotiation.la mod_dir.la mod_actions.la mod_speling.la mod_userdir.la mod_alias.la mod_rewrite.la
+make[4]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[4]: Nothing to be done for 'local-shared-build'.
+make[4]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[3]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules/mappers'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/modules'
+make[2]: Entering directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+make[2]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46/support'
+
+Installing configuration files
+mkdir /opt/httpd/conf
+mkdir /opt/httpd/conf/extra
+mkdir /opt/httpd/conf/original
+mkdir /opt/httpd/conf/original/extra
+Installing HTML documents
+mkdir /opt/httpd/htdocs
+Installing error documents
+mkdir /opt/httpd/error
+Installing icons
+mkdir /opt/httpd/icons
+mkdir /opt/httpd/logs
+Installing CGIs
+mkdir /opt/httpd/cgi-bin
+Installing header files
+mkdir /opt/httpd/include
+Installing build system files
+mkdir /opt/httpd/build
+Installing man pages and online manual
+mkdir /opt/httpd/man
+mkdir /opt/httpd/man/man1
+mkdir /opt/httpd/man/man8
+mkdir /opt/httpd/manual
+make[1]: Leaving directory '/opt/httpd/archive/source/httpd-2.4.46'

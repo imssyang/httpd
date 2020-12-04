@@ -1,0 +1,48 @@
+#!/bin/sh
+
+VERBOSE=$1
+APP=httpd
+PBIN=/opt/$APP/bin
+PMAN=/opt/$APP/man
+SYSD=/etc/systemd/system
+LDCONF=/etc/ld.so.conf.d/opt.conf
+LIBPATHS=(
+  /opt/$APP/modules
+)
+
+if [[ $PATH != *$PBIN && $PATH != *$PBIN:* ]]; then
+  if [[ -z $PATH ]]; then
+    export PATH=$PBIN
+  else
+    export PATH=$PBIN:$PATH
+  fi
+  [[ -z $VERBOSE ]] && echo -e "\033[91m($APP)\033[0m add to PATH: $PBIN"
+fi
+
+if [[ $MANPATH != *$PMAN && $MANPATH != *$PMAN:* ]]; then
+  if [[ -z $MANPATH ]]; then
+    export MANPATH=$PMAN
+  else
+    export MANPATH=$PMAN:$MANPATH
+  fi
+  [[ -z $VERBOSE ]] && echo -e "\033[91m($APP)\033[0m add to MANPATH: $PMAN"
+fi
+
+for directory in $LIBPATHS; do
+  sed_directory=${directory//\//\\/}
+  if [[ -z $(sed -n "/${sed_directory}$/p" $LDCONF) ]]; then
+    sed -i "\$a\\${sed_directory}" $LDCONF
+  fi
+done
+
+if [[ ! -s $SYSD/httpd.service ]]; then
+  ln -s /opt/$APP/setup/httpd.service $SYSD/httpd.service
+  [[ -z $VERBOSE ]] && echo -e "\033[91m($APP)\033[0m create symlink: $SYSD/httpd.service --> /opt/$APP/setup/httpd.service"
+fi
+
+#pgrep -x $APP >/dev/null
+#if [[ $? != 0 ]]; then
+#  apachectl start
+#  echo -e "\033[91m($APP)\033[0m run $APP: `pgrep -x $APP | tr '\n' ' '`"
+#fi
+

@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript: Scripting Documents</title>
+    <style type="text/css">
+    body {
+      margin: 0;
+      font: 100%/1.2 Georgia, "Times New Roman", serif;
+      padding-left: 15px;
+      padding-right: 15px;
+      max-width: 65%;
+    }
+
+    h1 {
+      color: #212121;
+      font-family: 'Lato', sans-serif;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: .975;
+      margin-bottom: .4125em;
+    }
+
+    h2,
+    h3 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 400;
+      font-size: 1.275em; /* 15px/16px */
+    }
+
+    p {
+      text-indent: 2em;
+    }
+
+    em,
+    li {
+        /* font-weight: bold; */
+    }
+
+    #TOC {
+        border: solid black 1px;
+        margin: 10px;
+        padding: 10px; 
+        position: fixed;
+        top: 1em;
+        right: 0.5em;
+        max-width: 30%;
+    }
+
+    .TOCEntry { font-family: sans-serif; }
+    .TOCEntry a { text-decoration: none; }
+    .TOCLevel1 { font-size: 9.5pt; font-weight: bold; }
+    .TOCLevel2 { font-size: 9pt; margin-left: .2in; }
+    .TOCSectNum:after { content: " "; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="masthead" role="banner">
+        <p>
+        Scripting the content of web pages is the central(主要的) purpose of JavaScript.<br />
+        Every web browser window, tab, and frame is represented by a Window object.
+        Every Window object has a <em>document</em> property that refers to a Document object.<br />
+        The Document object is the central object in a larger API, known as the <em>Document Object Model</em>, or <em>DOM</em>, for representing(表示) and manipulating(操作) document content.<br />
+        </p>
+        <!--
+        <nav role="navigation">
+            <ul style="font-size: 1.1em;">
+                <li><a href="#selecting-document-elements">Selecting Document Elements</a></li>
+                <li><a href="#document-structure-and-traversal">Document Structure and Traversal(遍历)</a></li>
+                <li><a href="#attributes">Attributes</a></li>
+                <li><a href="#element-content">Element Content</a></li>
+                <li><a href="#creating-inserting-and-deleting-nodes">Creating, Inserting, and Deleting Nodes</a></li>
+                <li><a href="#document-and-element-geometry-and-scrolling">Document and Element Geometry and Scrolling</a></li>
+                <li><a href="#html-forms">HTML Forms</a></li>
+                <li><a href="#other-document-features">Other Document Features</a></li>
+            </ul>
+        </nav>
+        -->
+    </header>
+
+    <main class="main" role="main">
+    <article>
+        <h1 id="selecting-document-elements">Selecting Document Elements</h1>
+
+        <h2 id="selecting-element-by-id">Selecting Element by ID</h2>
+        <p>
+        Any HTML element can have an <em>id</em> attribute. The value of this attribute must be <b>unique
+        within the document</b>—no two elements in the same document can have the same ID.
+        You can select an element based on this unique ID with the <em>getElementById</em>() method
+        of the Document object. This is the simplest and most commonly used way to select elements.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Looking up multiple elements by ID
+         *
+         * This function expects any number of string arguments. It treats each
+         * argument as an element id and calls document.getElementById() for each.
+         * Returns an object that maps ids to the corresponding Element object.
+         * Throws an Error object if any of the ids is undefined.
+         */
+        function getElements(/*ids...*/) {
+            var elements = {};                          // Start with an empty map
+            for(var i = 0; i < arguments.length; i++) { // For each argument
+                var id = arguments[i];                  // Argument is an element id
+                var elt = document.getElementById(id);  // Look up the Element
+                if (elt == null)                        // If not defined,
+                throw new Error("No element with id: " + id); // throw an error
+                elements[id] = elt;                     // Map id to element
+            }
+            return elements;                            // Return id to element map
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: getElements()</legend>
+            <input type="text" id="getelements-0" style="display: none;" onclick="
+                var h1_elements = getElements('selecting-document-elements');
+                var h1_json = JSON.stringify(h1_elements);
+                alert(h1_json);
+            "/>
+            <label for="getelements-0">getElements('selecting-document-elements')</label><br />
+            <input type="text" id="getelements-1" style="display: none;" onclick="
+                var h1_elements = getElements('selecting-document-elements', 'document-structure-and-traversal');
+                var h1_json = JSON.stringify(h1_elements);
+                alert(h1_json);
+            "/>
+            <label for="getelements-1">getElements('selecting-document-elements', 'document-structure-and-traversal')</label><br />
+        </fieldset>
+
+        <h2 id="selecting-element-by-name">Selecting Element by Name</h2>
+        <p>
+        Unlike <em>id</em>, however, the value of a <em>name</em> attribute does not have to be unique: 
+        multiple elements may have the same name, and this is common in the case of radio buttons and checkboxes in <em>forms</em>. 
+        Also, unlike id, the name attribute is only valid on a handful(少数) of HTML elements, including <b>forms</b>,
+        <b>form elements</b>, <b>iframe</b>, and <b>img elements</b>.
+        </p>
+
+        <pre><code>
+        // To select HTML elements based on the value of their name attributes,
+        // you can use the getElementsByName() method of the Document object:
+        var radiobuttons = document.getElementsByName("favorite_color");
+        // In IE, getElementsByName() will also return elements that have an id attribute with the specified value. 
+        // For compatibility, you should be careful not to use the same string as both a name and an ID.
+
+        // If there is only a single element with a given name, the value of the automatically created document property is the element itself.
+        // If there is more than one element, then the value of the property is a NodeList object that acts as an array of elements.
+        // Get the Element object for the &lt;form name="shipping_address"&gt; element
+        var form = document.shipping_address;
+        </code></pre>
+
+        <form name="shipping_address">EXAMPLE 1: <em>form</em> element with the value of <em>name</em> attribute is 'shipping_address'</form>
+        <iframe name="shipping_name" id="iframe-0" width="660px" height="33px" scrolling="no"></iframe>
+        <iframe name="shipping_name" id="iframe-1" width="660px" height="33px" scrolling="no"></iframe>
+        <script>
+        var html = "EXAMPLE 2: <em>iframe</em> element with the value of <em>name</em> attribute is 'shipping_name'";
+        var html1 = "EXAMPLE 3: <em>iframe</em> element with the value of <em>name</em> attribute is 'shipping_name'";
+        var doc = document.getElementById('iframe-0').contentWindow.document;
+        var doc1 = document.getElementById('iframe-1').contentWindow.document;
+        doc.open(); doc.write(html); doc.close();
+        doc1.open(); doc1.write(html1); doc1.close();
+        </script>
+
+        <h2 id="selecting-element-by-type">Selecting Element by Type</h2>
+        <p>
+        You can select all HTML or XML elements of a specified type (or tag name) using the <em>getElementsByTagName()</em> method of the Document object. Like <em>getElementsByName()</em>, <em>getElementsByTagName()</em> returns a NodeList object. The elements of the returned NodeList are in document order. HTML tags are case-insensitive(不区分大小写), and when <em>getElementsByTagName()</em> is used on an HTML document, it performs a case-insensitive tag name comparison. The Element class also defines a <em>getElementsByTagName()</em> method. It works in the same way as the Document version, but it only selects elements that are descendants(后代) of the element on which it is invoked.
+        </p>
+
+        <pre><code>
+        // To obtain a read-only arraylike object containing the Element objects for all &lt;span&gt; elements in a document
+        var spans = document.getElementsByTagName("span");
+
+        // you can select the first &lt;p&gt; element of a document
+        var firstpara = document.getElementsByTagName("p")[0];
+
+        // You can obtain a NodeList that represents all elements in a document by passing the wildcard argument “*”
+        var allelements = document.getElementsByTagName("*")[0];
+
+        // Find all &lt;span&gt; elements inside the first &lt;p&gt; element of a document
+        var firstParaSpans = firstpara.getElementsByTagName("span");
+        </code></pre>
+
+        <p>
+        For historical reasons, the HTMLDocument class defines shortcut properties to access
+        certain kinds of nodes. The <em>images</em>, <em>forms</em>, and <em>links</em> properties, for example, refer to
+        objects that behave like read-only arrays of &lt;img&gt;, &lt;form&gt;, and &lt;a&gt; elements
+        (but only &lt;a&gt; tags that have an href attribute). 
+        </p>
+
+        <p>
+        The HTMLDocument object also defines synonymous(同义的) <em>embeds</em> and <em>plugins</em> properties
+        that are HTMLCollections of <embed> elements. The <em>anchors</em> property is nonstandard
+        but refers to &lt;a&gt; elements that have a <em>name</em> attribute rather than an <em>href</em> attribute. The
+        <em>scripts</em> property is standardized by HTML5 to be an HTMLCollection of &lt;script&gt; elements.
+        </p>
+
+        <p>
+        HTMLDocument also defines two properties that refer to special single elements rather
+        than element collections. <em>document.body</em> is the &lt;body&gt; element of an HTML document,
+        and <em>document.head</em> is the &lt;head&gt; element. These properties are always defined: if the
+        document source does not explicitly include &lt;head&gt; and &lt;body&gt; elements, the browser
+        creates them implicitly. The <em>documentElement</em> property of the Document class refers to
+        the root element of the document. In HTML documents, this is always an &lt;html&gt; element.
+        </p>
+
+        <pre><code>
+        // With the document.forms property, you can also refer more specifically to the named (or ID’ed) form
+        document.forms.shipping_address;
+        </code></pre>
+
+        <h2 id="selecting-element-by-css-class">Selecting Element by CSS Class</h2>
+        <p>
+        The class attribute of an HTML is a space-separated list of zero or more identifiers.<br />
+        <em>class</em> is a reserved word in JavaScript, so client-side JavaScript uses the <em>className</em> property to hold the value of the HTML class attribute.<br />
+        HTML5 defines a method, <em>getElementsByClassName()</em>, that allows us to select sets of document elements based on the identifiers in their class attribute.<br />
+        <em>getElementsByClassName()</em> takes a single string argument, but the string may specify multiple space-separated identifiers. Only elements that include all of the specified identifiers in their class attribute are matched. The order of the identifiers does not matter.<br />
+        </p>
+
+        <pre><code>
+        // Find all elements that have "warning" in their class attribute
+        var warnings = document.getElementsByClassName("warning");
+
+        // Find all descendants of the element named "log" that have the class "error" and the class "fatal"
+        var log = document.getElementById("log");
+        var fatal = log.getElementsByClassName("fatal error");
+        </code></pre>
+
+        <p>
+        Today’s web browsers display HTML documents in “quirks mode” or “standards mode” depending on how strict the <b><!DOCTYPE></b> declaration at the start of the document is. Quirks mode exists for backward compatibility, and one of its quirks is that class identifiers in the <em>class</em> attribute and in CSS stylesheets are case-insensitive. <em>getElementsByClassName</em>() follows the matching algorithm used by stylesheets. If the document is rendered in quirks mode, the method performs a case-insensitive string comparison. Otherwise, the comparison is case sensitive.
+        </p>
+
+        <h2 id="selecting-element-by-css-selectors">Selecting Element by CSS Selectors</h2>
+        <p>
+        CSS stylesheets have a very powerful syntax, known as selectors, for describing elements or sets of elements within a document.  Along with the standardization of CSS3 selectors, another W3C standard, known as “Selectors API” defines JavaScript methods for obtaining the elements that match a given selector. The key to this API is the Document method <em>querySelectorAll</em>(). It takes a single string argument containing a CSS selector and returns a NodeList that represents all elements in the document that match the selector.
+        </p>
+
+        <pre><code>
+        // some examples will demonstrate the basics. Elements can be described by ID, tag name, or class:
+        #nav         // An element with id="nav"
+        div          // Any &lt;div&gt; element
+        .warning     // Any element with "warning" in its class attribute
+
+        // More generally, elements can be selected based on attribute values:
+        p[lang="fr"] // A paragraph written in French: &lt;p lang="fr"&gt;
+        *[name="x"]  // Any element with a name="x" attribute
+
+        // These basic selectors can be combined:
+        span.fatal.error        // Any &lt;span&gt; with "warning" and "fatal" in its class
+        span[lang="fr"].warning // Any warning in French
+
+        // Selectors can also specify document structure:
+        #log span            // Any &lt;span&gt; descendant of the element with id="log"
+        #log&gt;span            // Any &lt;span&gt; child of the element with id="log"
+        body&gt;h1:first-child  // The first &lt;h1&gt; child of the &lt;body&gt;
+
+        // Selectors can be combined to select multiple elements or multiple sets of elements:
+        div, #log            // All &lt;div&gt; elements plus the element with id="log"
+        </code></pre>
+
+        <p>
+        Unlike previously described element selection methods, the NodeList returned by <em>querySelectorAll</em>() is not live: it holds the elements that match the selector at the time the method was invoked, but it does not update as the document changes. If no elements match, <em>querySelectorAll</em>() returns an empty NodeList. If the selector string is invalid, <em>querySelectorAll</em>() throws an exception. The document object also defines <em>querySelector</em>(), which is like <em>querySelectorAll</em>(), but returns only the first (in document order) matching element or null if there is no matching element.
+        </p>
+
+        <p>
+        Note that CSS defines <em>:first-line</em> and <em>:first-letter</em> pseudoelements(伪元素). In CSS, these match portions of text nodes rather than actual elements. They will not match if used with <em>querySelectorAll</em>() or <em>querySelector</em>(). Also, many browsers will refuse to return matches for the <em>:link</em> and <em>:visited</em> pseudoclasses, as this could expose information about the user’s browsing history.
+        </p>
+
+        <p>
+        The <b>jQuery</b> library uses this kind of CSS selector-based query as its central programming paradigm. Web applications based on jQuery use a portable, cross-browser equivalent to querySelectorAll() named $().
+        </p>
+
+
+        <h2 id="document-all">document.all[]</h2>
+        <p>
+        Before the DOM was standardized, IE4 introduced the <b>document.all[]</b> collection that represented all elements (but not Text nodes) in the document. document.all[] has been replaced by standard methods like <em>getElementById</em>() and <em>getElementsByTagName</em>() and is now obsolete and should not be used.
+        </p>
+
+        <pre><code>
+        // however, it was revolutionary, and you may still see existing code that uses it in any of these ways:
+        document.all[0]           // The first element in the document
+        document.all["navbar"]    // Element (or elements) with id or name "navbar"
+        document.all.navbar       // Ditto
+        document.all.tags("div")  // All &lt;div&gt; elements in the document
+        document.all.tags("p")[0] // The first &lt;p&gt; in the document 
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="document-structure-and-traversal">Document Structure and Traversal</h1>
+
+        <h2 id="documents-as-trees-of-nodes">Documents As Trees of Nodes</h2>
+        <p>
+        The Document object, its Element objects, and the Text objects that represent runs of text in the document are all Node objects. Node defines the following important properties:
+        <ul>
+            <li>parentNode</li>
+            <p>
+            The Node that is the parent of this one, or null for nodes like the Document object that have no parent.
+            </p>
+            <li>childNodes</li>
+            <p>
+            A read-only array-like object (a NodeList) that is a live representation of a Node’s child nodes.
+            </p>
+            <li>firstChild, lastChild</li>
+            <p>
+            The first and last child nodes of a node, or null if the node has no children.
+            </p>
+            <li>nextSibling, previousSibling</li>
+            <p>
+            The next and previous sibling node of a node. Two nodes with the same parent are siblings. Their order reflects the order in which they appear in the document. These properties connect nodes in a doubly linked list.
+            </p>
+            <li>nodeType</li>
+            <p>
+            The kind of node this is. Document nodes have the value 9. Element nodes have the value 1. Text nodes have the value 3. Comments nodes are 8 and DocumentFragment nodes are 11.
+            </p>
+            <li>nodeValue</li>
+            <p>
+            The textual content of a Text or Comment node.
+            </p>
+            <li>nodeName</li>
+            <p>
+            The tag name of an Element, converted to uppercase.
+            </p>
+        </ul>
+        </p>
+
+        <pre><code>
+        // the second child node of the first child of the Document can be referred to with expressions like these:
+        document.childNodes[0].childNodes[1]
+        document.firstChild.firstChild.nextSibling
+
+        // Suppose the document in question is the following:
+        &lt;html&gt;&lt;head&gt;&lt;title&gt;Test&lt;/title&gt;&lt;/head&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt; 
+        // Then the second child of the first child is the &lt;body&gt; element. It has a nodeType of 1 and a nodeName of “BODY”.
+        </code></pre>
+
+        <p>
+        Note, however, that this API is extremely sensitive to variations in the document text.
+        If the document is modified by inserting a single newline between the &lt;html&gt; and the
+        &lt;head&gt; tag, for example, the Text node that represents that newline becomes the first
+        child of the first child, and the second child is the &lt;head&gt; element instead of the
+        &lt;body&gt; body.
+        </p>
+
+
+        <h2 id="documents-as-trees-of-elements">Documents As Trees of Elements</h2>
+        <p>
+        We are primarily interested in the Elements of a document，it is helpful to use an API that allows us to treat a document as a tree of Element objects, ignoring Text and Comment nodes that are also part of the document.<br />
+        1. The <em>children</em> property of Element objects. Like <b>childNodes</b>, this is a NodeList. Unlike <b>childNodes</b>, however, the children list contains only Element objects.<br />
+        2. Element properties that are analogs(类似于) to the child and sibling properties of the Node object:
+        <ul>
+            <li>firstElementChild, lastElementChild</li>
+            <p>
+            Like firstChild and lastChild, but for Element children only.
+            </p>
+            <li>nextElementSibling, previousElementSibling</li>
+            <p>
+            Like nextSibling and previousSibling, but for Element siblings only.
+            </p>
+            <li>childElementCount</li>
+            <p>
+            The number of element children. Returns the same value as <em>children.length</em>.
+            </p>
+        </ul>
+        </p>
+
+        <pre><code>
+        /*
+         * Example-1: Portable document traversal functions
+         *
+         * Return the nth ancestor of e, or null if there is no such ancestor
+         * or if that ancestor is not an Element (a Document or DocumentFragment e.g.).
+         * If n is 0 return e itself. If n is 1 (or
+         * omitted) return the parent. If n is 2, return the grandparent, etc.
+         */
+        function parent(e, n) {
+            if (n === undefined) n = 1;
+            while(n-- && e) e = e.parentNode;
+            if (!e || e.nodeType !== 1) return null;
+            return e;
+        }
+
+        /*
+         * Example-2: Portable document traversal functions
+         *
+         * Return the nth sibling element of Element e.
+         * If n is postive return the nth next sibling element.
+         * If n is negative, return the -nth previous sibling element.
+         * If n is zero, return e itself.
+         */
+        function sibling(e,n) {
+            while(e && n !== 0) { // If e is not defined we just return it
+                if (n > 0) {      // Find next element sibling
+                    if (e.nextElementSibling) e = e.nextElementSibling;
+                    else {
+                        for(e=e.nextSibling; e && e.nodeType !== 1; e=e.nextSibling)
+                            /* empty loop */ ;
+                    }
+                    n--;
+                }
+                else {             // Find the previous element sibling
+                    if (e.previousElementSibing) e = e.previousElementSibling;
+                    else {
+                        for(e=e.previousSibling; e&&e.nodeType!==1; e=e.previousSibling)
+                            /* empty loop */ ;
+                    }
+                    n++;
+                }
+            }
+            return e;
+        }
+
+        /*
+         * Example-3: Portable document traversal functions
+         *
+         * Return the nth element child of e, or null if it doesn't have one.
+         * Negative values of n count from the end. 0 means the first child, but
+         * -1 means the last child, -2 means the second to last, and so on.
+         */
+        function child(e, n) {
+            if (e.children) {                      // If children array exists
+                if (n < 0) n += e.children.length; // Convert negative n to array index
+                if (n < 0) return null;            // If still negative, no child
+                return e.children[n];              // Return specified child
+            }
+
+            // If e does not have a children array, find the first child and count
+            // forward or find the last child and count backwards from there.
+            if (n >= 0) { // n is non-negative: count forward from the first child
+                // Find the first child element of e
+                if (e.firstElementChild) e = e.firstElementChild;
+                else {
+                    for(e = e.firstChild; e && e.nodeType !== 1; e = e.nextSibling)
+                        /* empty */;
+                }
+                return sibling(e, n); // Return the nth sibling of the first child
+            }
+            else { // n is negative, so count backwards from the end
+                if (e.lastElementChild) e = e.lastElementChild;
+                else {
+                    for(e = e.lastChild; e && e.nodeType !== 1; e=e.previousSibling)
+                        /* empty */;
+                }
+                return sibling(e, n+1); // +1 to convert child -1 to sib 0 of last
+            }
+        }
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="attributes">Attributes</h1>
+        <p>
+        The attribute values of HTML elements are available as properties of the HTMLElement objects that represent those elements. 
+        </p>
+
+        <h2 id="html-attributes-as-element-properties">HTML Attributes As Element Properties</h2>
+        <p>
+        The HTMLElement objects that represent the elements of an HTML document define read/write properties that mirror the HTML attributes of the elements. <br />
+        HTML attributes are not case sensitive, but JavaScript property names are. To convert
+        an attribute name to the JavaScript property, write it in lowercase. If the attribute is
+        more than one word long, however, put the first letter of each word after the first in
+        uppercase: defaultChecked and tabIndex, for example.<br />
+        Some HTML attribute names are reserved words in JavaScript. For these, the general
+        rule is to prefix the property name with “html”. The HTML for attribute (of the
+        &lt;label&gt; element), for example, becomes the JavaScript htmlFor property. “class” is a
+        reserved (but unused) word in JavaScript, and the very important HTML class attribute
+        is an exception to the rule above: it becomes className in JavaScript code. <br />
+        </p>
+
+        <pre><code>
+        // To query the URL of an image, for example, you can use the src property of the HTMLElement 
+        // that represents the &lt;img&gt; element:
+        var image = document.getElementById("myimage");
+        var imgurl = image.src;    // The src attribute is the URL of the image
+        image.id === "myimage"     // Since we looked up the image by id
+
+        // Similarly, you might set the form-submission attributes of a &lt;form&gt; element with code like this:
+        var f = document.forms[0]; // First &lt;form&gt; in the document
+        f.action = "http://www.example.com/submit.php"; // Set URL to submit it to.
+        f.method = "POST";         // HTTP request type
+        </code></pre>
+
+        <h2 id="getting-and-setting-non-html-attributes">Getting and Setting Non-HTML Attributes</h2>
+        <p>
+        The Element type also defines <em>getAttribute</em>() and <em>setAttribute</em>() methods that you can use to query and set nonstandard HTML attributes.<br />
+        Element also defines two related methods, <em>hasAttribute</em>() and <em>removeAttribute</em>(), which check for the presence of a named attribute and remove an attribute entirely.<br />
+        </p>
+
+        <pre><code>
+        var image = document.images[0];
+        var width = parseInt(image.getAttribute("WIDTH"));
+        image.setAttribute("class", "thumbnail");
+        </code></pre>
+
+
+        <h2 id="dataset-attributes">Dataset Attributes</h2>
+        <p>
+        In an HTML5 document, any attribute whose name is lowercase and begins with the prefix “data-” is considered valid. <br />
+        HTML5 also defines a <em>dataset</em> property on Element objects. This property refers to an object, which has properties that correspond to the <b>data-</b> attributes with their prefix removed. Thus <em>dataset.x</em> would hold the value of the <em>data-x</em> attribute. Hyphenated(带有连字符的) attributes map to camel-case(驼峰拼写法) property names: the attribute <b>data-jquery-test</b> becomes the property <b>dataset.jqueryTest</b>.<br />
+        </p>
+
+        <pre><code>
+        // As a more concrete example, suppose that a document contains the following markup:
+        &lt;span class="sparkline" data-ymin="0" data-ymax="10"&gt;
+        1 1 1 2 2 3 4 5 5 4 3 5 6 7 7 4 2 1
+        &lt;/span&gt;
+
+        // In order to generate a sparkline, you might extract the value of the dataset attributes above with code like this:
+        // Assumes the ES5 Array.map() method (or a work-alike) is defined
+        var sparklines = document.getElementsByClassName("sparkline");
+        for(var i = 0; i < sparklines.length; i++) {
+            var dataset = sparklines[i].dataset;
+            var ymin = parseFloat(dataset.ymin);
+            var ymax = parseFloat(dataset.ymax);
+            var data = sparklines[i].textContent.split(" ").map(parseFloat);
+            drawSparkline(sparklines[i], ymin, ymax, data); // Not yet implemented
+        }
+
+        // when the dataset property is not implemented in browsers, and the code above would have to be written like this:
+        var sparklines = document.getElementsByClassName("sparkline");
+        for(var i = 0; i < sparklines.length; i++) {
+            var elt = sparklines[i];
+            var ymin = parseFloat(elt.getAttribute("data-ymin"));
+            var ymin = parseFloat(elt.getAttribute("data-ymax"));
+            var points = elt.getAttribute("data-points");
+            var data = elt.textContent.split(" ").map(parseFloat);
+            drawSparkline(elt, ymin, ymax, data); // Not yet implemented
+        }
+        </code></pre>
+
+        <h2 id="attributes-as-attr-nodes">Attributes As Attr Nodes</h2>
+        <p>
+        The Node type defines an attributes property. This property is null for any nodes that are not Element objects. For Element objects, attributes is a read-only array-like object that represents all the attributes of the element. 
+        </p>
+
+        <pre><code>
+        document.body.attributes[0]        // The first attribute of the <body> elt
+        document.body.attributes.bgcolor   // The bgcolor attribute of the <body> elt
+        document.body.attributes["ONLOAD"] // The onload attribute of the <body> elt
+        </code></pre>
+
+        <p>
+        The values obtained when you index the <b>attributes</b> object are <b>Attr</b> objects. Attr objects
+        are a specialized kind of Node but are never really used like one. The name and value
+        properties of an Attr return the name and value of the attribute.
+        </p>
+    </article>
+
+    <article>
+        <h1 id="element-content">Element Content</h1>
+
+        <h2 id="element-content-as-html">Element Content As HTML</h2>
+        <p>
+        Reading the <b>innerHTML</b> property of an Element returns the content of that element as a string of markup. Although the <b>innerHTML</b> property has long been supported by all browsers, it has only become standardized with the advent of HTML5. HTML5 says that innerHTML should work on Document nodes as well as Element nodes, but this is not universally supported yet.<br />
+        HTML5 also standardizes a property named <b>outerHTML</b>. When you query outerHTML, the string of HTML or XML markup that is returned includes the opening and closing tags of the element on which you queried it. <br />
+        Another feature introduced by IE and standardized by HTML5 is the insertAdjacentHTML() method, which allows you to insert a string of arbitrary HTML markup “adjacent” to the specified element. <br />
+        </p>
+
+        <h2 id="element-content-as-plain-text">Element Content As Plain Text</h2>
+        <p>
+        Sometimes you want to query the content of an element as plain text, or to insert plaintext into a document. The standard way to do this is with the <b>textContent</b> property of Node. The <b>textContent</b> property is supported by all current browsers except IE. In IE, you can use the Element property <b>innerText</b> instead. 
+        </p>
+
+        <pre><code>
+        var para = document.getElementsByTagName("p")[0]; // First &lt;p&gt; in the document
+        var text = para.textContent;                      // Text is "This is a simple document."
+        para.textContent = "Hello World!";                // Alter paragraph content
+
+        /*
+         * With one argument, return the textContent or innerText of the element.
+         * With two arguments, set the textContent or innerText of element to value.
+         */
+        function textContent(element, value) {
+            var content = element.textContent; // Check if textContent is defined
+            if (value === undefined) { // No value passed, so return current text
+                if (content !== undefined) return content;
+                else return element.innerText;
+            }
+            else { // A value was passed, so set text
+                if (content !== undefined) element.textContent = value;
+                else element.innerText = value;
+            }
+        }
+        </code></pre>
+
+        <p>
+        Inline &lt;script&gt; elements (i.e., those that do not have a src attribute) have a <b>text</b> property that you can use to retrieve their text.
+        </p>
+
+        <h2 id="element-content-as-text-nodes">Element Content As Text Nodes</h2>
+        <p>
+        Another way to work with the content of an element is as a list of child nodes, each of which may have its own set of children. The <em>nodeValue</em> property (defined by the Node type) holds the content of a Text node.<br />
+        The <em>nodeValue</em> property is read/write and you can set it to change the content displayed by a Text or CDATASection node. Both Text and CDATASection are subtypes of <b>CharacterData</b>. <b>CharacterData</b> defines a <em>data</em> property, which is the same text as <em>nodeValue</em>.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Finding all Text node descendants of an element
+         *
+         * Return the plain-text content of element e, recursing into child elements.
+         * This method works like the textContent property
+         */
+        function textContent(e) {
+            var child, type, s = "";          // s holds the text of all children
+            for(child = e.firstChild; child != null; child = child.nextSibling) {
+                type = child.nodeType;
+                if (type === 3 || type === 4) // Text and CDATASection nodes
+                    s += child.nodeValue;
+                else if (type === 1)          // Recurse for Element nodes
+                    s += textContent(child);
+            }
+            return s;
+        }
+
+        // Recursively convert all Text node descendants of n to uppercase.
+        function upcase(n) {
+            if (n.nodeType == 3 || n.nodeTyep == 4) // If n is Text or CDATA
+                n.data = n.data.toUpperCase();      // ...convert content to uppercase.
+            else                                    // Otherwise, recurse on child nodes
+                for(var i = 0; i < n.childNodes.length; i++)
+                    upcase(n.childNodes[i]);
+        }
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="creating-inserting-and-deleting-nodes">Creating, Inserting, and Deleting Nodes</h1>
+        <p>
+        The Document type defines methods for creating Element and Text objects, and the Node type defines methods for inserting, deleting, and replacing nodes in the tree. 
+        </p>
+
+        <pre><code>
+        // Asynchronously load and execute a script from a specified URL
+        function loadasync(url) {
+            var head = document.getElementsByTagName("head")[0]; // Find document &lt;head&gt;
+            var s = document.createElement("script"); // Create a &lt;script&gt; element
+            s.src = url; // Set its src attribute
+            head.appendChild(s); // Insert the &lt;script&gt; into head
+        }
+        </code></pre>
+
+        <h2 id="creating-nodes">Creating Nodes</h2>
+        <p>
+        you can create new Element nodes with the <em>createElement</em>() method of the Document object.<br />
+        Text nodes are created with a similar method: <code>var newnode = document.createTextNode("text node content");</code><br />
+        Document defines other factory methods, such as the infrequently used <em>createComment</em>(), as well. We’ll use the <em>createDocumentFragment</em>() method.<br />
+        Every node has a <em>cloneNode</em>() method that returns a new copy of the node. Pass <b>true</b> to recursively copy all descendants as well, or <b>false</b> to only make a shallow copy. In browsers other than IE, the Document object also defines a similar method named <em>importNode</em>(). If you pass it a node from another document, it returns a copy suitable for insertion into this document. Pass <b>true</b> as the second argument to recursively import all descendants.<br />
+        </p>
+
+        <h2 id="inserting-nodes">Inserting Nodes</h2>
+        <p>
+        Once you have a new node, you can insert it into the document with the Node methods <em>appendChild</em>() or <em>insertBefore</em>(). <br />
+        <em>appendChild</em>() is invoked on the Element node that you want to insert into, and it inserts the specified node so that it becomes the last Child of that node.<br />
+        <em>insertBefore</em>() is like <em>appendChild</em>(), but it takes two arguments. The first argument is the node to be inserted. The second argument is the node before which that node is to be inserted. This method is invoked on the node that will be the parent of the new node, and the second argument must be a child of that parent node. If you pass <b>null</b> as that second argument, the <em>insertBefore</em>() behaves like <em>appendChild</em>() and inserts at the end.
+        </p>
+
+        <pre><code>
+        // Insert the child node into parent so that it becomes child node n
+        function insertAt(parent, child, n) {
+            if (n < 0 || n > parent.childNodes.length) throw new Error("invalid index");
+            else if (n == parent.childNodes.length) parent.appendChild(child);
+            else parent.insertBefore(child, parent.childNodes[n]);
+        }
+        </code></pre>
+
+        <p>
+        If you call <em>appendChild</em>() or <em>insertBefore</em>() to insert a node that is already in the document, that node will automatically be removed from its current position and reinserted at its new position: there is no need to explicitly remove the node. 
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Sorting the rows of a table
+         *
+         * Sort the rows in first &lt;tbody&gt; of the specified table according to
+         * the value of nth cell within each row. Use the comparator function
+         * if one is specified. Otherwise, compare the values alphabetically.
+         */
+        function sortrows(table, n, comparator) {
+            var tbody = table.tBodies[0]; // First &lt;tbody&gt;; may be implicitly created
+            var rows = tbody.getElementsByTagName("tr"); // All rows in the tbody
+            rows = Array.prototype.slice.call(rows,0);   // Snapshot in a true array
+
+            // Now sort the rows based on the text in the nth &lt;td&gt; element
+            rows.sort(function(row1,row2) {
+                var cell1 = row1.getElementsByTagName("td")[n];  // Get nth cell
+                var cell2 = row2.getElementsByTagName("td")[n];  // of both rows
+                var val1 = cell1.textContent || cell1.innerText; // Get text content
+                var val2 = cell2.textContent || cell2.innerText; // of the two cells
+                if (comparator) return comparator(val1, val2);   // Compare them!
+                if (val1 &lt; val2) return -1;
+                else if (val1 &gt; val2) return 1;
+                else return 0;
+            });
+
+            // Now append the rows into the tbody in their sorted order.
+            // This automatically moves them from their current location, so there
+            // is no need to remove them first. If the &lt;tbody&gt; contains any
+            // nodes other than &lt;tr&gt; elements, those nodes will float to the top.
+            for(var i = 0; i &lt; rows.length; i++) tbody.appendChild(rows[i]);
+        }
+
+        /*
+         * Find the &lt;th&gt; elements of the table (assuming there is only one row of them)
+         * and make them clickable so that clicking on a column header sorts
+         * by that column.
+         */
+        function makeSortable(table) {
+            var headers = table.getElementsByTagName("th");
+            for(var i = 0; i &lt; headers.length; i++) {
+                (function(n) { // Nested funtion to create a local scope
+                headers[i].onclick = function() { sortrows(table, n); };
+                }(i));         // Assign value of i to the local variable n
+            }
+        }
+        </code></pre>
+
+        <h2 id="removing-and-replacing-nodes">Removing and Replacing Nodes</h2>
+        <p>
+        The <em>removeChild</em>() method removes a node from the document tree. Be careful, however: this method isn’t invoked on the node to be removed but on the parent of that node. To remove the node n from the document, you’d write: <code>n.parentNode.removeChild(n);</code>.<br />
+        <em>replaceChild</em>() removes one child node and replaces it with a new one. Invoke this method on the parent node, passing the new node as the first argument and the node to be replaced as the second argument. To replace the node n with a string of text, for example, you could write: <code>n.parentNode.replaceChild(document.createTextNode("[ REDACTED ]"), n);</code><br />
+        </p>
+
+        <pre><code>
+        // Replace the node n with a new &lt;b&gt; element and make n a child of that element.
+        function embolden(n) {
+            // If we're passed a string instead of a node, treat it as an element id
+            if (typeof n == "string") n = document.getElementById(n);
+            var parent = n.parentNode;           // Get the parent of n
+            var b = document.createElement("b"); // Create a &lt;b&gt; element
+            parent.replaceChild(b, n);           // Replace n with the &lt;b&gt; element
+            b.appendChild(n);                    // Make n a child of the &lt;b&gt; element
+        }
+
+        /*
+         * Example: Implementing the outerHTML property using innerHTML
+         *
+         * Implement the outerHTML property for browsers that don't support it.
+         * Assumes that the browser does support innerHTML, has an extensible
+         * Element.prototype, and allows getters and setters to be defined.
+         */
+        (function() {
+            // If we already have outerHTML return without doing anything
+            if (document.createElement("div").outerHTML) return;
+
+            // Return the outer HTML of the element referred to by this
+            function outerHTMLGetter() {
+                var container = document.createElement("div"); // Dummy element
+                container.appendChild(this.cloneNode(true));   // Copy this to dummy
+                return container.innerHTML;                    // Return dummy content
+            }
+
+            // Set the outer HTML of the this element to the specified value
+            function outerHTMLSetter(value) {
+                // Create a dummy element and set its content to the specified value
+                var container = document.createElement("div");
+                container.innerHTML = value;
+                // Move each of the nodes from the dummy into the document
+                while(container.firstChild) // Loop until container has no more kids
+                    this.parentNode.insertBefore(container.firstChild, this);
+                    // And remove the node that has been replaced
+                    this.parentNode.removeChild(this);
+            }
+
+            // Now use these two functions as getters and setters for the
+            // outerHTML property of all Element objects. Use ES5 Object.defineProperty
+            // if it exists and otherwise fall back on __defineGetter__ and Setter__.
+            if (Object.defineProperty) {
+                Object.defineProperty(Element.prototype, "outerHTML", {
+                    get: outerHTMLGetter,
+                    set: outerHTMLSetter,
+                    enumerable: false, configurable: true
+                });
+            }
+            else {
+                Element.prototype.__defineGetter__("outerHTML", outerHTMLGetter);
+                Element.prototype.__defineSetter__("outerHTML", outerHTMLSetter);
+            }
+        }());
+        </code></pre>
+
+        <h2 id="using-documentfragments">Using DocumentFragments</h2>
+        <p>
+        A DocumentFragment is a special kind of Node that serves as a temporary container for other nodes. Create a DocumentFragment like this: <code>var frag = document.createDocumentFragment();</code>.<br />
+        Like a Document node, a DocumentFragment stands alone and is not part of any other document. Its <em>parentNode</em> is always null. Like an Element, however, a DocumentFragment can have any number of children, which you can manipulate with <em>appendChild</em>(), <em>insertBefore</em>(), and so on.<br />
+        The special thing about DocumentFragment is that it allows a set of nodes to be treated as a single node: if you pass a DocumentFragment to <em>appendChild</em>(), <em>insertBefore</em>(), or <em>replaceChild</em>(), it is the children of the fragment that are inserted into the document, not the fragment itself. (The children are moved from the fragment into the document, and the fragment becomes empty and ready for reuse.) 
+        </p>
+
+        <pre><code>
+        // Reverse the order of the children of Node n
+        function reverse(n) {
+            // Create an empty DocumentFragment as a temporary container
+            var f = document.createDocumentFragment();
+            // Now loop backward through the children, moving each one to the fragment.
+            // The last child of n becomes the first child of f, and vice-versa.
+            // Note that appending a child to f automatically removes it from n.
+            while(n.lastChild) f.appendChild(n.lastChild);
+
+            // Finally, move the children of f all at once back to n, all at once.
+            n.appendChild(f);
+        }
+
+        /*
+         * Example: Implementing insertAdjacentHTML() using innerHTML
+         *
+         * This module defines Element.insertAdjacentHTML for browsers that don't
+         * support it, and also defines portable HTML insertion functions that have
+         * more logical names than insertAdjacentHTML:
+         *     Insert.before(), Insert.after(), Insert.atStart(), Insert.atEnd()
+         */
+        var Insert = (function() {
+            // If elements have a native insertAdjacentHTML, use it in four HTML
+            // insertion functions with more sensible names.
+            if (document.createElement("div").insertAdjacentHTML) {
+                return {
+                    before: function(e,h) {e.insertAdjacentHTML("beforebegin",h);},
+                    after: function(e,h) {e.insertAdjacentHTML("afterend",h);},
+                    atStart: function(e,h) {e.insertAdjacentHTML("afterbegin",h);},
+                    atEnd: function(e,h) {e.insertAdjacentHTML("beforeend",h);}
+                };
+            }
+
+            // Otherwise, we have no native insertAdjacentHTML. Implement the same
+            // four insertion functions and then use them to define insertAdjacentHTML.
+
+            // First, define a utility method that takes a string of HTML and returns
+            // a DocumentFragment containing the parsed representation of that HTML.
+            function fragment(html) {
+                var elt = document.createElement("div");      // Create empty element
+                var frag = document.createDocumentFragment(); // Create empty fragment
+                elt.innerHTML = html;                         // Set element content
+                while(elt.firstChild)                         // Move all nodes
+                    frag.appendChild(elt.firstChild);         // from elt to frag
+                return frag;                                  // And return the frag
+            }
+
+            var Insert = {
+                before: function(elt, html) {
+                    elt.parentNode.insertBefore(fragment(html), elt);
+                },
+                after: function(elt, html) {
+                    elt.parentNode.insertBefore(fragment(html),elt.nextSibling);
+                },
+                atStart: function(elt, html) {
+                    elt.insertBefore(fragment(html), elt.firstChild);
+                },
+                atEnd: function(elt, html) { elt.appendChild(fragment(html)); }
+            };
+
+            // Now implement insertAdjacentHTML based on the functions above
+            Element.prototype.insertAdjacentHTML = function(pos, html) {
+                switch(pos.toLowerCase()) {
+                case "beforebegin": return Insert.before(this, html);
+                case "afterend": return Insert.after(this, html);
+                case "afterbegin": return Insert.atStart(this, html);
+                case "beforeend": return Insert.atEnd(this, html);
+                }
+            };
+            return Insert; // Finally return the four insertion function
+        }());
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="document-and-element-geometry-and-scrolling">Document and Element Geometry and Scrolling</h1>
+        <p>
+        When a browser renders(渲染) a document within a window, it creates a visual representation of the document in which each element has a position and a size.
+        </p>
+
+        <h2 id="document-coordinates-and-viewport-coordinates">Document Coordinates and Viewport Coordinates</h2>
+        <p>
+        The position of an element is measured(基于标准的) in pixels, with the X coordinate increasing to
+        the right and the Y coordinate increasing as we go down. There are two different points
+        we can use as the coordinate system origin, however:
+        </p>
+        <ul>
+        <li> the X and Y coordinates of an element can be relative to the top-left corner of the document. </li>
+        <li> the X and Y coordinates of an element can be relative to the top-left corner of the viewport in which the document is displayed. </li>
+        </ul>
+        <p>
+        In top-level windows and tabs, the “viewport” is the portion of the browser that actually displays document content: it excludes browser “chrome” such as menus, toolbars, and tabs. For documents displayed in frames, the viewport is the &lt;iframe&gt; element that defines the frame.<br />
+        If the document is smaller than the viewport, or if it has not been scrolled, the upper-left corner of the document is in the upper-left corner of the viewport and the document and viewport coordinate systems are the same. <br />
+        Document coordinates are more fundamental than viewport coordinates, and they do not change when the user scrolls. We use document coordinates when we specify an element position using CSS. Similarly, when we register handler functions for mouse events, the coordinates of the mouse pointer are reported in viewport coordinates.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Querying the scrollbar positions of a window
+         * Return the current scrollbar offsets as the x and y properties of an object
+         */
+        function getScrollOffsets(w) {
+            // Use the specified window or the current window if no argument
+            w = w || window;
+
+            // This works for all browsers except IE versions 8 and before
+            if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+
+            // For IE (or any browser) in Standards mode
+            var d = w.document;
+            if (document.compatMode == "CSS1Compat")
+                return {x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
+
+            // For browsers in Quirks mode
+            return { x: d.body.scrollLeft, y: d.body.scrollTop };
+        }
+
+        /*
+         * Example: Querying the viewport size of a window
+         * Return the viewport size as w and h properties of an object
+         */
+        function getViewportSize(w) {
+            // Use the specified window or the current window if no argument
+            w = w || window;
+
+            // This works for all browsers except IE8 and before
+            if (w.innerWidth != null) return {w: w.innerWidth, h:w.innerHeight};
+
+            // For IE (or any browser) in Standards mode
+            var d = w.document;
+            if (document.compatMode == "CSS1Compat")
+                return { w: d.documentElement.clientWidth,
+                         h: d.documentElement.clientHeight };
+
+            // For browsers in Quirks mode
+            return { w: d.body.clientWidth, h: d.body.clientWidth };
+        }
+        </code></pre>
+
+        <h2 id="querying-the-geometry-of-an-element">Querying the Geometry of an Element</h2>
+        <p>
+        The easiest way to determine the size and position of an element is to call its <em>getBoundingClientRect</em>() method. This method returns element positions in <b>viewport</b> coordinates. To convert to document coordinates that remain valid even if the user scrolls the browser window, add the scroll offsets:
+        <pre><code>
+        var box = e.getBoundingClientRect();  // Get position in viewport coordinates
+        var offsets = getScrollOffsets();     // Utility function  defined above
+        var x = box.left + offsets.x;         // Convert to document coordinates
+        var y = box.top + offsets.y;
+
+        // For portability, you can compute the element width and height like this:
+        var box = e.getBoundingClientRect();
+        var w = box.width || (box.right - box.left);
+        var h = box.height || (box.bottom - box.top);
+        </code></pre>
+        </p>
+
+        <p>
+        The coordinates returned by <em>getBoundingClientRect</em>() include the <b>border</b> and the <b>padding</b> of the element but do not include the element <b>margins</b>.<br />
+        If you want to query the individual rectangles of inline elements, call the
+        getClientRects() method to obtain a read-only array-like object whose elements are
+        rectangle objects. <br />
+        The rectangle objects returned by getBoundingClientRect() and getClientRects() are not live. They are static
+        snapshots of the visual state of document when the methods are called. They are not
+        updated when the user scrolls or resizes the browser window.<br />
+        </p>
+
+        <h2 id="determining-the-element-at-a-point">Determining the Element at a Point</h2>
+        <p>
+        Sometimes we want to go in the other direction and determine which element is at a given location in the viewport.
+        You can determine this with the <em>elementFromPoint</em>() method of the Document object. 
+        Pass X and Y coordinates (using viewport coordinates, not document coordinates) and this method returns an Element
+        object that is at the specified position. <br />
+        </p>
+
+        <h2 id="scrolling">Scrolling</h2>
+        <p>
+        The <em>scrollTo</em>() method of the Window object (and its synonym
+        <em>scroll</em>()) takes the X and Y coordinates of a point (in document coordinates) and sets
+        these as the scrollbar offsets. That is, it scrolls the window so that the specified point
+        is in the upper left corner of the viewport.<br />
+        <pre><code>
+        // The following code scrolls the browser so that the bottom-most page of the document is visible:
+        // Get the height of the document and viewport. offsetHeight is explained below.
+        var documentHeight = document.documentElement.offsetHeight;
+        var viewportHeight = window.innerHeight; // Or use getViewportSize() above
+        // And scroll so the last "page" shows in the viewport
+        window.scrollTo(0, documentHeight - viewportHeight);
+        </code></pre>
+        </p>
+
+        <p>
+        The <em>scrollBy</em>() method of the Window is similar to <em>scroll</em>() and <em>scrollTo</em>(), but its
+        arguments are relative and are added to the current scrollbar offsets.
+        <pre><code>
+        // Scroll 10 pixels down every 200 ms. Note there is no way to turn this off!
+        javascript:void setInterval(function() {scrollBy(0,10)}, 200);
+        </code></pre>
+        </p>
+
+        <p>
+        <em>scrollIntoView</em>() method ensures that the element on which it is invoked is visible in the viewport. By default, it tries to put the top edge of the element at or near the top of the viewport. If you pass false as the only argument, it will try to put the bottom edge of the element at the bottom of the viewport. <br />
+        The behavior of <em>scrollIntoView()</em> is similar to what the browser does when you set
+        <em>window.location.hash</em> to the name of a named anchor (an &lt;a name=""&gt; element).
+        <p>
+
+        <h2 id="more-on-element-size-position-and-overflow">More on Element Size, Position and Overflow</h2>
+        <p>
+        The readonly <em>offsetWidth</em> and <em>offsetHeight</em> properties of any HTML element return its on
+        screen size, in CSS pixels. The returned sizes include the element border and padding
+        but not margins.<br />
+        All HTML elements have <em>offsetLeft</em> and <em>offsetTop</em> properties that return the X and Y
+        coordinates of the element. For many elements, these values are document coordinates
+        and directly specify the position of the element. But for descendants of positioned elements and for
+        some other elements, these properties return coordinates that are relative to an ancestor element
+        rather than the document. The <em>offsetParent</em> property specifies which element the properties are relative to. 
+        If <em>offsetParent</em> is null, the properties are document coordinates.<br />
+
+        <pre><code>
+        // By looping through the offsetParent chain and accumulating offsets, this function
+        // computes the document coordinates of the specified element.
+        function getElementPosition(e) {
+            var x = 0, y = 0;
+            while(e != null) {
+                x += e.offsetLeft;
+                y += e.offsetTop;
+                e = e.offsetParent;
+            }
+            return {x:x, y:y};
+        }
+        </code></pre>
+        </p>
+
+        <p>
+        <em>clientWidth</em> and <em>clientHeight</em> are like <em>offsetWidth</em> and <em>offsetHeight</em> except that they
+        do not include the border size, only the content area and its padding. Also, if the browser
+        has added scrollbars between the padding and the border, <em>clientWidth</em> and
+        <em>clientHeight</em> do not include the scrollbar in their returned value.
+        Note that <em>clientWidth</em> and <em>clientHeight</em> always return 0 for inline elements
+        like &lt;i&gt;, &lt;code&gt;, and &lt;span&gt;.
+        </p>
+
+        <p>
+        The <em>clientLeft</em> and <em>clientTop</em> properties are not very useful: they return the horizontal
+        and vertical distance between the outside of an element’s padding and the outside of
+        its border. Usually these values are just the width of the left and top borders. If an
+        element has scrollbars, however, and if the browser places those scrollbars on the left
+        or top (which would be unusual), <em>clientLeft</em> and <em>clientTop</em> also include the scrollbar
+        width. For inline elements, <em>clientLeft</em> and <em>clientTop</em> are always 0.
+        </p>
+
+        <p>
+        <em>scrollWidth</em> and <em>scrollHeight</em> are the size of an element’s content area plus its padding
+        plus any overflowing content. When the content fits within the content area without
+        overflow, these properties are the same as <em>clientWidth</em> and <em>clientHeight</em>. But when
+        there is overflow, they include the overflowing content and return values larger than
+        <em>clientWidth</em> and <em>clientHeight</em>.<br />
+        Finally, <em>scrollLeft</em> and <em>scrollTop</em> give the scrollbar positions of an element.<br />
+        </p>
+        
+        <pre><code>
+        // When a document contains scrollable elements with overflowing content, 
+        // the getElementPosition() method defined above does not work correctly
+        // because it does not take scrollbar position into account. 
+        // Here is a modified version that subtracts scrollbar positions from the accumulated offsets and,
+        // in so doing, converts the returned position from document coordinates to viewport coordinates:
+        function getElementPos(elt) {
+            var x = 0, y = 0;
+            // Loop to add up offsets
+            for(var e = elt; e != null; e = e.offsetParent) {
+                x += e.offsetLeft;
+                y += e.offsetTop;
+            }
+            // Loop again, through all ancestor elements to subtract scroll offsets.
+            // This subtracts the main scrollbars, too, and converts to viewport coords.
+            for(var e=elt.parentNode; e != null && e.nodeType == 1; e=e.parentNode) {
+                x -= e.scrollLeft;
+                y -= e.scrollTop;
+            }
+            return {x:x, y:y};
+        }
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="html-forms">HTML Forms</h1>
+        <p>
+        The HTML &lt;form&gt; element, and the various form input elements, such as &lt;input&gt;,
+            &lt;select&gt;, and &lt;button&gt;, have an important place in client-side programming. 
+        HTML forms are the mechanism behind the first generation of web applications, which
+        required no JavaScript at all. 
+        </p>
+
+        <p>
+        <b>Example: Create a New Account</b>
+        <form id="account" method="post" action="show-data.php" enctype="multipart/form-data"
+            onreset="return confirm('Really erase all input?')">
+
+             <fieldset>
+                <b class="hdr-account">Account</b>
+                <div class="fields">
+                    <p class="row">
+                        <label for="name">Name<span class="required">*</span>:</label>
+                        <input type="text" id="name" name="name" class="field-large" required="required" aria-required="true" />
+                    </p>
+                    <p class="row">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="yourname@example.com" class="field-large" />
+                    </p>
+                    <p class="row">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" />
+                    </p>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <b class="hdr-address">Address</b>
+                <div class="fields">
+                    <div class="row">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" class="field-large" />
+                    </div>
+                    <div class="row">
+                        <label for="state">State:</label>
+                        <select id="state" name="state">
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="CA">California</option>
+                            <option value="CO">Colorado</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <b class="hdr-public-profile">Public Profile</b>
+                <div class="fields">
+                    <div class="row">
+                        <label for="picture">Picture:</label>
+                        <input type="file" id="picture" name="picture" />
+                        <p class="instructions">Maximum size of 700k. JPG, GIF or PNG.</p>
+                    </div>
+                    <div class="row">
+                        <label for="website">Website URL:</label>
+                        <input type="url" id="website" name="website" placeholder="http://www.example.com" class="field-large" />
+                    </div>
+                    <p class="row">
+                        <label for="bio">Bio:</label>
+                        <textarea id="bio" name="bio" cols="40" rows="5" class="field-large"></textarea>
+                    </p>
+                    <div class="row">
+                        <fieldset class="radios">
+                            <legend>Gender:</legend>
+                            <p class="row">
+                                <input type="radio" id="gender-male" name="gender" value="male" />
+                                <label for="gender-male">Male</label>
+                            </p>
+                            <p class="row">
+                                <input type="radio" id="gender-female" name="gender" value="female" />
+                                <label for="gender-female">Female</label>
+                            </p>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <b class="hdr-emails">Emails</b>
+                <div class="fields checkboxes">
+                    <div class="row">
+                        <input type="checkbox" id="email-ok-msg-from-users" name="email_signup" value="user-emails" />
+                        <label for="email-ok-msg-from-users">It is okay to email me with messages from other users.</label>
+                    </div>
+                    <div class="row">
+                        <input type="checkbox" id="email-ok-occasional-updates" name="email_signup" value="occasional-updates" />
+                        <label for="email-ok-occasional-updates">It is okay to email me with occasional promotions about our other products.</label>
+                    </div>              
+                </div>
+            </fieldset>
+            
+            <input type="submit" value="Create Account" class="btn" />
+            <button type="reset">Clear All</button>
+
+        </form>
+        </p>
+
+        <h2 id="selecting-forms-and-form-elements">Selecting Forms and Form Elements</h2>
+        <pre><code>
+        // Forms and the elements they contain can be selected from a document
+        var fields = document.getElementById("account").getElementsByTagName("input");
+
+        // All radio buttons in the form with id "shipping"
+        document.querySelectorAll('#shipping input[type="radio"]');
+        // All radio buttons with name "method" in form with id "shipping"
+        document.querySelectorAll('#shipping input[type="radio"][name="method"]');
+
+        // A &lt;form&gt; with a name="account" attribute can be selected in any of these ways:
+        window.account         // Brittle: do not use
+        document.account       // Only works for forms with name attribute
+        document.forms.account // Explicit access to a form with name or id
+        document.forms[n]      // Brittle: n is the form's numerical position
+
+        // Form objects themselves act like HTMLCollections of form elements and can be indexed by name or number.
+        // If a form with name “account” has a first element with name “name”,
+        // you can refer to that form element with any of these expressions:
+        document.forms.account[0]
+        document.forms.account.name
+        document.account.name // only for name="account", not id="account"
+
+        // If you want to be explicit about selecting a form element,
+        // you can index the elements property of the form object instead:
+        document.forms.account.elements[0]
+        document.forms.account.elements.name
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: Select Form</legend>
+            <a id="form-1" href="javascript: 
+                var fields = document.getElementById('account').getElementsByTagName('input');
+                alert('>>fields:\n' + fields
+                     + '\n>>fields[0].outerHTML:\n' + fields[0].outerHTML
+                     + '\n>>fields[1].outerHTML:\n' + fields[1].outerHTML);
+                ">var fields = document.getElementById("account").getElementsByTagName("input");</a><br />
+            <a id="form-1" href="javascript: 
+                var radios = document.forms.account.elements.email_signup;
+                var selected_radio_value;
+                for(var i = 0; i < radios.length; i++)
+                    if (radios[i].checked) selected_radio_value = radios[i].value;
+                alert('>>slected_radio:\n' + selected_radio_value);
+                ">var radios = document.forms.account.elements.email_signup;</a><br />
+        </fieldset>
+
+        <h2 id="form-and-element-properties">Form and Element Properties</h2>
+        <p>
+        The <em>elements</em>[] array described above is the most interesting property of a Form object.
+        The remaining properties of the Form object are of less importance. The <em>action</em>,
+        <em>encoding</em>, <em>method</em>, and <em>target</em> properties correspond directly to the action, encoding,
+        method, and target attributes of the &lt;form&gt; element. These properties and attributes are
+        all used to control how form data is submitted to the web server and where the results
+        are displayed. Client-side JavaScript can set the value of these properties, but they are
+        only useful when the form is actually submitted to a server-side program.<br />
+
+        The JavaScript Form object supports two methods, <em>submit</em>() and <em>reset</em>(), that serve
+        the same purpose. Invoking the <em>submit</em>() method of a Form submits the form, and
+        invoking <em>reset</em>() resets the form elements.<br />
+
+        All (or most) form elements have the following properties in common. Some elements
+        have other special-purpose properties that are described later when various types of
+        form elements are considered individually:<br />
+        <ul>
+        <li><b>type</b></li>
+        A read-only string that identifies the type of the form element. For form elements
+        that are defined by an &lt;input&gt; tag, this is simply the value of the type attribute.
+        Other form elements (such as &lt;textarea&gt; and &lt;select&gt;) define a type property so
+        that they can easily be identified by the same test that distinguishes between
+        &lt;input&gt; elements.
+        <li><b>form</b></li>
+        A read-only reference to the Form object in which the element is contained, or
+        null if the element is not contained within a &lt;form&gt; element.
+        <li><b>name</b></li>
+        A read-only string specified by the HTML name attribute.
+        <li><b>value</b></li>
+        A read/write string that specifies the “value” contained or represented by the form
+        element. This is the string that is sent to the web server when the form is submitted,
+        and it is only sometimes of interest to JavaScript programs. For Text and Textarea
+        elements, this property contains the text that the user entered. For button elements
+        created with an &lt;input&gt; tag (but not those created with a &lt;button&gt; tag) this property
+        specifies the text displayed within the button. For radio and checkbox elements,
+        however, the value property is not edited or displayed to the user in any way. It is
+        simply a string set by the HTML value attribute. It is intended for use in form
+        submission, but it can also be a useful way to associate extra data with a form
+        element. 
+        </ul>
+        </p>
+
+        <h2 id="form-and-element-event-handlers">Form and Element Event Handlers</h2>
+        <p>
+        Each Form element has an <em>onsubmit</em> event handler to detect form submission and an
+        <em>onreset</em> event handler to detect form resets. The <em>onsubmit</em> handler is invoked just before
+        the form is submitted; it can cancel the submission by returning <em>false</em>. This provides
+        an opportunity for a JavaScript program to check the user’s input for errors in order to
+        avoid submitting incomplete or invalid data over the network to a server-side program.
+        Note that the <em>onsubmit</em> handler is triggered only by a genuine click on a Submit button.
+        Calling the <em>submit</em>() method of a form does not trigger the onsubmit handler.
+        The <em>onreset</em> event handler is similar to the onsubmit handler. It is invoked just before
+        the form is reset, and it can prevent the form elements from being reset by returning <em>false</em>.
+        </p>
+
+        <p>
+        Form elements typically fire a click or change event when the user interacts with them,
+        and you can handle these events by defining an <em>onclick</em> or <em>onchange</em> event handler. <br />
+        Form elements also fire a <em>focus</em> event when they receive keyboard focus and a <em>blur</em>
+        event when they lose it.<br />
+        An important thing to know about event handlers is that within the code of an event
+        handler, the <em>this</em> keyword refers to the document element that triggered the event.
+        Since elements within a &lt;form&gt; element have a
+        form property that refers to the containing form, the event handlers of these elements
+        can always refer to the Form object as <em>this.form</em>. Going a step further, this means that
+        an event handler for one form element can refer to a sibling form element named <em>x</em> as
+        <em>this.form.x</em>.
+        </p>
+
+
+        <h2 id="push-buttons">Push Buttons</h2>
+        <p>
+        A <em>button</em> element has no default behavior of its own, 
+        and it is never useful unless it has an onclick event handler.
+        Submit and reset elements are just like button elements, but they have default actions
+        (submitting and resetting a form) associated with them. If the <em>onclick</em> event handler
+        returns <em>false</em>, the default action of these buttons is not performed. 
+        </p>
+
+        <h2 id="toggle-buttons">Toggle Buttons</h2>
+        <p>
+        <em>Radio</em> and <em>checkbox</em> elements both define a <em>checked</em> property. This read/write boolean
+        value specifies whether the element is currently checked. The <em>defaultChecked</em> property
+        is a boolean that has the value of the HTML checked attribute; it specifies whether the
+        element is checked when the page is first loaded.
+        </p>
+
+        <h2 id="text-fields">Text Fields</h2>
+        <p>
+        Text input fields allow the user to enter a short, single-line string of text. The
+        <em>value</em> property represents the text the user has entered. <br />
+        A text field’s <em>onchange</em> event handler is triggered when the user enters new text or edits
+        existing text and then indicates that he is finished editing by moving input focus out of
+        the text field.<br />
+        The <em>Textarea</em> element is like a text input field element, except that it allows the user to
+        input multiline text.<br />
+        An &lt;input type="password"&gt; element is a modified input field that displays asterisks as
+        the user types into it. <br />
+        An &lt;input type="file"&gt; element allows the user to enter the name of a file to
+        be uploaded to the web server. <br />
+        The various text input elements define <em>onkeypress</em>, <em>onkeydown</em>, and <em>onkeyup</em> event handlers.
+        You can return false from the <em>onkeypress</em> or <em>onkeydown</em> event handlers to prevent
+        the user’s keystroke from being recorded. 
+        </p>
+
+        <h2 id="select-and-option-elements">Select and Option Elements</h2>
+        <p>
+        The <em>Select</em> element represents a set of options (represented by <em>Option</em> elements) from
+        which the user can select. Browsers typically render <em>Select</em> elements in drop-down menus, but if
+        you specify a <em>size</em> attribute with a value greater than 1, they will display the options in a
+        (possibly scrollable) list instead. <br />
+        </p>
+
+        <pre><code>
+        // To add new options to a Select element, create an Option object with the Option()
+        // constructor and append it to the options[] property with code like this:
+        // Create a new Option object
+        var zaire = new Option("Zaire", // The text property
+                               "zaire", // The value property
+                               false,   // The defaultSelected property
+                               false);  // The selected property
+
+        // Display it in a Select element by appending it to the options array:
+        var countries = document.address.country; // Get the Select object
+        countries.options[countries.options.length] = zaire;
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="other-document-features">Other Document Features</h1>
+
+        <h2 id="document-properties">Document Properties</h2>
+        <p>
+        This chapter has already introduced Document properties such as <em>body</em>,
+        <em>documentElement</em>, and <em>forms</em> that refer to special elements of the document. Documents
+        also define a few other properties of interest:
+        <ul>
+        <li><em>cookie</em></li>
+        A special property that allows JavaScript programs to read and write HTTP cookies.
+        <li><em>domain</em></li>
+        A property that allows mutually trusted web servers within the same Internet
+        domain to collaboratively relax same-origin policy security restrictions on interactions between their web pages.
+        <li><em>lastModified</em></li>
+        A string that contains the modification date of the document.
+        <li><em>location</em></li>
+        This property refers to the same Location object as the location property of the Window object.
+        <li><em>referrer</em></li>
+        The URL of the document containing the link, if any, that brought the browser to
+        the current document. This property has the same content as the HTTP Referer
+        header, but it is spelled with a double r.
+        <li><em>title</em></li>
+        The text between the &lt;title&gt; and &lt;title&gt; tags for this document.
+        <li><em>URL</em></li>
+        The URL of the document as a read-only String rather than as a Location object.
+        The value of this property is the same as the initial value of location.href, but it
+        is not dynamic like the Location object is. If the user navigates to a new fragment
+        identifier within the document, for example, location.href will change, but
+        document.URL will not.
+        </ul>
+        </p>
+
+        <h2 id="the-document-write-method">The document.write() Method</h2>
+        <p>
+        <em>document.write()</em> concatenates its string arguments and inserts the resulting string into
+        the document at the location of the script element that invoked it. When the script
+        finishes running, the browser parses the generated output and displays it. 
+        </p>
+
+        <h2 id="querying-selected-text">Querying Selected Text</h2>
+        <p>
+        The standard <em>window.getSelection()</em> method returns a <em>Selection</em> object that describes
+        the current selection as a sequence of one or more Range objects. <br />
+        <em>document.selection</em> returns an object that represents the selection. The
+        <em>createRange()</em> method of that object returns an IE-specific TextRange object, and the
+        text property of that object contains the selected text.<br />
+        <pre><code>
+        function getSelectedText() {
+            if (window.getSelection) // The HTML5 standard API
+                return window.getSelection().toString();
+                else if (document.selection) // This is the IE-specific technique.
+                    return document.selection.createRange().text;
+        }
+        </code></pre>
+        </p>
+
+        <h2 id="editable-content">Editable Content</h2>
+        <p>
+        There are two ways to enable this editing functionality. Set the <em>contenteditable</em> HTML
+        attribute of any tag or set the <em>contenteditable</em> JavaScript property on the corresponding
+        Element to make the content of that element editable.
+        </p>
+
+        <div id="editor" contenteditable>
+            Click to edit
+        </div>
+
+        <p>
+        You can also make an entire document editable by setting the <em>designMode</em> property of
+        the Document object to the string “on”. The <em>designMode</em> property does not have a corresponding HTML attribute. You
+        might make the document within an &lt;iframe&gt; editable like this (note the use of the onLoad() function):
+        </p>
+
+        <iframe id="editor" src="about:blank" onload="onLoad()"></iframe>
+        <script>
+        function onLoad() {
+            var editor = document.getElementById("editor");
+            editor.contentDocument.designMode = "on";
+            alert("aaa");
+        }
+        </script>
+    </article>
+    </main>
+
+    <footer role="contentinfo">
+        <p class="copyright"><small>&copy; copyright 2018 upper. all rights reserved.</small></p>
+    </footer>
+</div>
+
+<script>
+/*
+ * Example: Looking up multiple elements by ID
+ *
+ * This function expects any number of string arguments. It treats each
+ * argument as an element id and calls document.getElementById() for each.
+ * Returns an object that maps ids to the corresponding Element object.
+ * Throws an Error object if any of the ids is undefined.
+ */
+function getElements(/*ids...*/) {
+    var elements = {};                          // Start with an empty map
+    for(var i = 0; i < arguments.length; i++) { // For each argument
+        var id = arguments[i];                  // Argument is an element id
+        var elt = document.getElementById(id);  // Look up the Element
+        if (elt == null)                        // If not defined,
+        throw new Error("No element with id: " + id); // throw an error
+        elements[id] = elt;                     // Map id to element
+    }
+    return elements;                            // Return id to element map
+}
+
+/*
+ * Example-1: Portable document traversal functions
+ *
+ * Return the nth ancestor of e, or null if there is no such ancestor
+ * or if that ancestor is not an Element (a Document or DocumentFragment e.g.).
+ * If n is 0 return e itself. If n is 1 (or
+ * omitted) return the parent. If n is 2, return the grandparent, etc.
+ */
+function parent(e, n) {
+    if (n === undefined) n = 1;
+    while(n-- && e) e = e.parentNode;
+    if (!e || e.nodeType !== 1) return null;
+    return e;
+}
+
+/*
+ * Example-2: Portable document traversal functions
+ *
+ * Return the nth sibling element of Element e.
+ * If n is postive return the nth next sibling element.
+ * If n is negative, return the -nth previous sibling element.
+ * If n is zero, return e itself.
+ */
+function sibling(e,n) {
+    while(e && n !== 0) { // If e is not defined we just return it
+        if (n > 0) {      // Find next element sibling
+            if (e.nextElementSibling) e = e.nextElementSibling;
+            else {
+                for(e=e.nextSibling; e && e.nodeType !== 1; e=e.nextSibling)
+                    /* empty loop */ ;
+            }
+            n--;
+        }
+        else {             // Find the previous element sibling
+            if (e.previousElementSibing) e = e.previousElementSibling;
+            else {
+                for(e=e.previousSibling; e&&e.nodeType!==1; e=e.previousSibling)
+                    /* empty loop */ ;
+            }
+            n++;
+        }
+    }
+    return e;
+}
+
+/*
+ * Example-3: Portable document traversal functions
+ *
+ * Return the nth element child of e, or null if it doesn't have one.
+ * Negative values of n count from the end. 0 means the first child, but
+ * -1 means the last child, -2 means the second to last, and so on.
+ */
+function child(e, n) {
+    if (e.children) {                      // If children array exists
+        if (n < 0) n += e.children.length; // Convert negative n to array index
+        if (n < 0) return null;            // If still negative, no child
+        return e.children[n];              // Return specified child
+    }
+
+    // If e does not have a children array, find the first child and count
+    // forward or find the last child and count backwards from there.
+    if (n >= 0) { // n is non-negative: count forward from the first child
+        // Find the first child element of e
+        if (e.firstElementChild) e = e.firstElementChild;
+        else {
+            for(e = e.firstChild; e && e.nodeType !== 1; e = e.nextSibling)
+                /* empty */;
+        }
+        return sibling(e, n); // Return the nth sibling of the first child
+    }
+    else { // n is negative, so count backwards from the end
+        if (e.lastElementChild) e = e.lastElementChild;
+        else {
+            for(e = e.lastChild; e && e.nodeType !== 1; e=e.previousSibling)
+                /* empty */;
+        }
+        return sibling(e, n+1); // +1 to convert child -1 to sib 0 of last
+    }
+}
+
+/*
+ * With one argument, return the textContent or innerText of the element.
+ * With two arguments, set the textContent or innerText of element to value.
+ */
+function textContent(element, value) {
+    var content = element.textContent; // Check if textContent is defined
+    if (value === undefined) { // No value passed, so return current text
+        if (content !== undefined) return content;
+        else return element.innerText;
+    }
+    else { // A value was passed, so set text
+        if (content !== undefined) element.textContent = value;
+        else element.innerText = value;
+    }
+}
+
+/*
+ * Example: Sorting the rows of a table
+ *
+ * Sort the rows in first <tbody> of the specified table according to
+ * the value of nth cell within each row. Use the comparator function
+ * if one is specified. Otherwise, compare the values alphabetically.
+ */
+function sortrows(table, n, comparator) {
+    var tbody = table.tBodies[0]; // First <tbody>; may be implicitly created
+    var rows = tbody.getElementsByTagName("tr"); // All rows in the tbody
+    rows = Array.prototype.slice.call(rows,0);   // Snapshot in a true array
+
+    // Now sort the rows based on the text in the nth <td> element
+    rows.sort(function(row1,row2) {
+        var cell1 = row1.getElementsByTagName("td")[n];  // Get nth cell
+        var cell2 = row2.getElementsByTagName("td")[n];  // of both rows
+        var val1 = cell1.textContent || cell1.innerText; // Get text content
+        var val2 = cell2.textContent || cell2.innerText; // of the two cells
+        if (comparator) return comparator(val1, val2);   // Compare them!
+        if (val1 < val2) return -1;
+        else if (val1 > val2) return 1;
+        else return 0;
+    });
+
+    // Now append the rows into the tbody in their sorted order.
+    // This automatically moves them from their current location, so there
+    // is no need to remove them first. If the <tbody> contains any
+    // nodes other than <tr> elements, those nodes will float to the top.
+    for(var i = 0; i < rows.length; i++) tbody.appendChild(rows[i]);
+}
+
+/*
+ * Find the <th> elements of the table (assuming there is only one row of them)
+ * and make them clickable so that clicking on a column header sorts
+ * by that column.
+ */
+function makeSortable(table) {
+    var headers = table.getElementsByTagName("th");
+    for(var i = 0; i < headers.length; i++) {
+        (function(n) { // Nested funtion to create a local scope
+        headers[i].onclick = function() { sortrows(table, n); };
+        }(i));         // Assign value of i to the local variable n
+    }
+}
+
+/*
+ * Example: Implementing the outerHTML property using innerHTML
+ *
+ * Implement the outerHTML property for browsers that don't support it.
+ * Assumes that the browser does support innerHTML, has an extensible
+ * Element.prototype, and allows getters and setters to be defined.
+ */
+(function() {
+    // If we already have outerHTML return without doing anything
+    if (document.createElement("div").outerHTML) return;
+
+    // Return the outer HTML of the element referred to by this
+    function outerHTMLGetter() {
+        var container = document.createElement("div"); // Dummy element
+        container.appendChild(this.cloneNode(true));   // Copy this to dummy
+        return container.innerHTML;                    // Return dummy content
+    }
+
+    // Set the outer HTML of the this element to the specified value
+    function outerHTMLSetter(value) {
+        // Create a dummy element and set its content to the specified value
+        var container = document.createElement("div");
+        container.innerHTML = value;
+        // Move each of the nodes from the dummy into the document
+        while(container.firstChild) // Loop until container has no more kids
+            this.parentNode.insertBefore(container.firstChild, this);
+            // And remove the node that has been replaced
+            this.parentNode.removeChild(this);
+    }
+
+    // Now use these two functions as getters and setters for the
+    // outerHTML property of all Element objects. Use ES5 Object.defineProperty
+    // if it exists and otherwise fall back on __defineGetter__ and Setter__.
+    if (Object.defineProperty) {
+        Object.defineProperty(Element.prototype, "outerHTML", {
+            get: outerHTMLGetter,
+            set: outerHTMLSetter,
+            enumerable: false, configurable: true
+        });
+    }
+    else {
+        Element.prototype.__defineGetter__("outerHTML", outerHTMLGetter);
+        Element.prototype.__defineSetter__("outerHTML", outerHTMLSetter);
+    }
+}());
+
+/*
+ * Example: Implementing insertAdjacentHTML() using innerHTML
+ *
+ * This module defines Element.insertAdjacentHTML for browsers that don't
+ * support it, and also defines portable HTML insertion functions that have
+ * more logical names than insertAdjacentHTML:
+ *     Insert.before(), Insert.after(), Insert.atStart(), Insert.atEnd()
+ */
+var Insert = (function() {
+    // If elements have a native insertAdjacentHTML, use it in four HTML
+    // insertion functions with more sensible names.
+    if (document.createElement("div").insertAdjacentHTML) {
+        return {
+            before: function(e,h) {e.insertAdjacentHTML("beforebegin",h);},
+            after: function(e,h) {e.insertAdjacentHTML("afterend",h);},
+            atStart: function(e,h) {e.insertAdjacentHTML("afterbegin",h);},
+            atEnd: function(e,h) {e.insertAdjacentHTML("beforeend",h);}
+        };
+    }
+
+    // Otherwise, we have no native insertAdjacentHTML. Implement the same
+    // four insertion functions and then use them to define insertAdjacentHTML.
+
+    // First, define a utility method that takes a string of HTML and returns
+    // a DocumentFragment containing the parsed representation of that HTML.
+    function fragment(html) {
+        var elt = document.createElement("div");      // Create empty element
+        var frag = document.createDocumentFragment(); // Create empty fragment
+        elt.innerHTML = html;                         // Set element content
+        while(elt.firstChild)                         // Move all nodes
+            frag.appendChild(elt.firstChild);         // from elt to frag
+        return frag;                                  // And return the frag
+    }
+
+    var Insert = {
+        before: function(elt, html) {
+            elt.parentNode.insertBefore(fragment(html), elt);
+        },
+        after: function(elt, html) {
+            elt.parentNode.insertBefore(fragment(html),elt.nextSibling);
+        },
+        atStart: function(elt, html) {
+            elt.insertBefore(fragment(html), elt.firstChild);
+        },
+        atEnd: function(elt, html) { elt.appendChild(fragment(html)); }
+    };
+
+    // Now implement insertAdjacentHTML based on the functions above
+    Element.prototype.insertAdjacentHTML = function(pos, html) {
+        switch(pos.toLowerCase()) {
+        case "beforebegin": return Insert.before(this, html);
+        case "afterend": return Insert.after(this, html);
+        case "afterbegin": return Insert.atStart(this, html);
+        case "beforeend": return Insert.atEnd(this, html);
+        }
+    };
+    return Insert; // Finally return the four insertion function
+}());
+
+/**
+ * Example: An automatically generated table of contents
+ *
+ * TOC.js: create a table of contents for a document.
+ *
+ * This module registers an anonymous function that runs automatically
+ * when the document finishes loading. When it runs, the function first
+ * looks for a document element with an id of "TOC". If there is no
+ * such element it creates one at the start of the document.
+ *
+ * Next, the function finds all &lt;h1&gt; through &lt;h6&gt; tags, treats them as
+ * section titles, and creates a table of contents within the TOC
+ * element. The function adds section numbers to each section heading
+ * and wraps the headings in named anchors so that the TOC can link to
+ * them. The generated anchors have names that begin with "TOC", so
+ * you should avoid this prefix in your own HTML.
+ *
+ * The entries in the generated TOC can be styled with CSS. All entries have
+ * a class "TOCEntry". Entries also have a class that corresponds to the level
+ * of the section heading. &lt;h1&gt; tags generate entries of class "TOCLevel1",
+ * &lt;h2&gt; tags generate entries of class "TOCLevel2", and so on. Section numbers
+ * inserted into headings have class "TOCSectNum".
+ *
+ * You might use this module with a stylesheet like this:
+ *
+ * #TOC { border: solid black 1px; margin: 10px; padding: 10px; }
+ * .TOCEntry { font-family: sans-serif; }
+ * .TOCEntry a { text-decoration: none; }
+ * .TOCLevel1 { font-size: 16pt; font-weight: bold; }
+ * .TOCLevel2 { font-size: 12pt; margin-left: .5in; }
+ * .TOCSectNum:after { content: ": "; }
+ *
+ * That final line generates a colon and space after section numbers. To hide
+ * the section numbers, use this:
+ *
+ * .TOCSectNum { display: none }
+ *
+ * This module requires the onLoad() utility function.
+ **/
+window.onload = function() {
+    // Find the TOC container element.
+    // If there isn't one, create one at the start of the document.
+    var toc = document.getElementById("TOC");
+    if (!toc) {
+        toc = document.createElement("div");
+        toc.id = "TOC";
+        document.body.insertBefore(toc, document.body.firstChild);
+    }
+
+    // Find all section heading elements
+    var headings;
+    if (document.querySelectorAll) // Can we do it the easy way?
+        headings = document.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    else // Otherwise, find the headings the hard way
+        headings = findHeadings(document.body, []);
+
+    // Recursively traverse the document body looking for headings
+    function findHeadings(root, sects) {
+        for(var c = root.firstChild; c != null; c = c.nextSibling) {
+            if (c.nodeType !== 1) continue;
+            if (c.tagName.length == 2 && c.tagName.charAt(0) == "H")
+                sects.push(c);
+            else
+                findHeadings(c, sects);
+        }
+        return sects;
+    }
+
+    // Initialize an array that keeps track of section numbers.
+    var sectionNumbers = [0,0,0,0,0,0];
+
+    // Now loop through the section header elements we found.
+    for(var h = 0; h < headings.length; h++) {
+        var heading = headings[h];
+
+        // Skip the section heading if it is inside the TOC container.
+        if (heading.parentNode == toc) continue;
+
+        // Figure out what level heading it is.
+        var level = parseInt(heading.tagName.charAt(1));
+        if (isNaN(level) || level < 1 || level > 6) continue;
+
+        // Increment the section number for this heading level
+        // and reset all lower heading level numbers to zero.
+        sectionNumbers[level-1]++;
+        for(var i = level; i < 6; i++) sectionNumbers[i] = 0;
+
+        // Now combine section numbers for all heading levels
+        // to produce a section number like 2.3.1.
+        var sectionNumber = sectionNumbers.slice(0,level).join(".")
+
+        // Add the section number to the section header title.
+        // We place the number in a <span> to make it styleable.
+        var span = document.createElement("span");
+        span.className = "TOCSectNum";
+        span.innerHTML = sectionNumber;
+        heading.insertBefore(span, heading.firstChild);
+
+        // Wrap the heading in a named anchor so we can link to it.
+        var anchor = document.createElement("a");
+        anchor.name = "TOC"+sectionNumber;
+        heading.parentNode.insertBefore(anchor, heading);
+        anchor.appendChild(heading);
+
+        // Now create a link to this section.
+        var link = document.createElement("a");
+        link.href = "#TOC" + sectionNumber; // Link destination
+        link.innerHTML = heading.innerHTML; // Link text is same as heading
+
+        // Place the link in a div that is styleable based on the level.
+        var entry = document.createElement("div");
+        entry.className = "TOCEntry TOCLevel" + level;
+        entry.appendChild(link);
+
+        // And add the div to the TOC container.
+        toc.appendChild(entry);
+    }
+
+    // set indent for p element
+    var list = document.getElementsByTagName('p');
+    for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        var html = item.outerHTML.replace(/<br ?\/?>/gi, '</p><p>');
+        item.outerHTML = html;
+    }
+}
+
+/*
+ * Example: Querying the scrollbar positions of a window
+ * Return the current scrollbar offsets as the x and y properties of an object
+ */
+function getScrollOffsets(w) {
+    // Use the specified window or the current window if no argument
+    w = w || window;
+
+    // This works for all browsers except IE versions 8 and before
+    if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+
+    // For IE (or any browser) in Standards mode
+    var d = w.document;
+    if (document.compatMode == "CSS1Compat")
+        return {x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
+
+    // For browsers in Quirks mode
+    return { x: d.body.scrollLeft, y: d.body.scrollTop };
+}
+
+/*
+ * Example: Querying the viewport size of a window
+ * Return the viewport size as w and h properties of an object
+ */
+function getViewportSize(w) {
+    // Use the specified window or the current window if no argument
+    w = w || window;
+
+    // This works for all browsers except IE8 and before
+    if (w.innerWidth != null) return {w: w.innerWidth, h:w.innerHeight};
+
+    // For IE (or any browser) in Standards mode
+    var d = w.document;
+    if (document.compatMode == "CSS1Compat")
+        return { w: d.documentElement.clientWidth,
+                 h: d.documentElement.clientHeight };
+
+    // For browsers in Quirks mode
+    return { w: d.body.clientWidth, h: d.body.clientWidth };
+}
+
+
+
+/*
+ * Display error messages in a dialog box, but never more than 3.
+ * During development, used to explicitly notify when an error occurs.
+ */
+window.onerror = function(msg, url, line) {
+    if (onerror.num++ < onerror.max) {
+        alert("[ERROR]\nmsg> " + msg + "\nurl> " + url + "\nline> " + line);
+        return true;
+    }
+}
+onerror.max = 3;
+onerror.num = 0;
+</script>
+
+</body>
+</html>

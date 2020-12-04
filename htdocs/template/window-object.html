@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript: The Windows Object</title>
+    <!--<script src="window-object.js"></script>-->
+    <style type="text/css">
+    body {
+      margin: 0;
+      font: 100%/1.2 Georgia, "Times New Roman", serif;
+      padding-left: 15px;
+      padding-right: 15px;
+      max-width: 65%;
+    }
+
+    h1 {
+      color: #212121;
+      font-family: 'Lato', sans-serif;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: .975;
+      margin-bottom: .4125em;
+    }
+
+    h2,
+    h3 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 400;
+      font-size: 1.275em; /* 15px/16px */
+    }
+
+    em,
+    li {
+        font-weight: bold;
+    }
+
+    #TOC {
+        border: solid black 1px;
+        margin: 10px;
+        padding: 10px; 
+        position: fixed;
+        top: 1em;
+        right: 0.5em;
+        max-width: 35%;
+    }
+    .TOCEntry { font-family: sans-serif; }
+    .TOCEntry a { text-decoration: none; }
+    .TOCLevel1 { font-size: 12pt; font-weight: bold; }
+    .TOCLevel2 { font-size: 10pt; margin-left: .5in; }
+    .TOCLevel3 { font-size: 8pt; margin-left: .8in; }
+    .TOCSectNum:after { content: " "; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="masthead" role="banner">
+        <p>
+        The <em>Window object</em> is the global object for client-side JavaScript programs.
+        </p>
+        <!--
+        <nav role="navigation">
+            <ul>
+                <li><a href="#timers">Timers</a></li>
+                <p>
+                How to use <em>SetTimeout()</em> and <em>setInterval()</em> to register a function to be invoked at specified times in the future.
+                </p>
+                <li><a href="#browser-location-and-navigation">Browser Location and Navigation</a></li>
+                <p>
+                How to use the <em>location</em> property to obtain the URL of the currently displayed document and to load new documents.
+                </p>
+                <li><a href="#browsing-history">Browsing History</a></li>
+                <p>
+                The <em>history</em> property shows how to move the browser backward and forward through its history.
+                </p>
+                <li><a href="#browser-and-screen-information">Browser and Screen Information</a></li>
+                <p>
+                How to use the <em>navigator</em> property to obtain browser vendor(厂商) and version information.<br />
+                How to use the <em>screen</em> property to query the size of the desktop.
+                </p>
+                <li><a href="#dialog-boxes">Dialog Boxes</a></li>
+                <p>
+                How to display simple text dialogs with the <em>alert()</em>, <em>confirm()</em>, and <em>prompt()</em> methods.
+                How to display HTML dialog boxes with <em>showModalDialog()</em>.
+                </p>
+                <li><a href="#error-handling">Error Handling</a></li>
+                <p>
+                How you can register an <em>onerror</em> handler method to invoked when uncaught(未捕获) JavaScript exceptions occur.
+                </p>
+                <li><a href="#document-elements-as-window-properties">Document Elements As Window Properties</a></li>
+                <p>
+                the IDs and names of HTML elements are used as properties of the Window object.
+                </p>
+                <li><a href="#multiple-windows-and-frames">Multiple Windows and Frames</a></li>
+                <p>
+                How to open and close browser windows and how to write JavaScript code that works with multiple windows and nested(嵌套的) frames.
+                </p>
+            </ul>
+        </nav>
+        -->
+    </header>
+
+    <main class="main" role="main">
+    <article>
+        <h1 id="timers">Timers</h1>
+        <p>
+        <em>setTimeout()</em> method schedules a function to run after a specified number of milliseconds elapses.<br />
+        <em>setTimeout()</em> returns a value that can be passed to <em>clearTimeout()</em> to cancel the execution of the scheduled function.<br />
+        <em>setInterval()</em> and <em>clearInterval()</em> are like <em>setTimeout()</em> and <em>clearTimeout()</em> except that the specified function is invoked repeatedly at intervals of the specified number of milliseconds.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Example: A timer utility function
+         *
+         * Schedule an invocation or invocations of f() in the future.
+         * Wait start milliseconds, then call f() every interval milliseconds,
+         * stopping after a total of start+end milliseconds.
+         * If interval is specified but end is omitted, then never stop invoking f.
+         * If interval and end are omitted, then just invoke f once after start ms.
+         * If only f is specified, behave as if start was 0.
+         * Note that the call to invoke() does not block: it returns right away.
+         */
+        function invoke(f, start, interval, end) {
+            if (!start) start = 0;                     // Default to 0 ms
+            if (arguments.length &lt;= 2)                 // Single-invocation case
+                setTimeout(f, start);                  // Single invocation after start ms.
+            else {                                     // Multiple invocation case
+                setTimeout(repeat, start);             // Repetitions begin in start ms
+                function repeat() {                    // Invoked by the timeout above
+                    var h = setInterval(f, interval);  // Invoke f every interval ms.
+                    // And stop invoking after end ms, if end is defined
+                    if (end) setTimeout(function() { clearInterval(h); }, end);
+                }
+            }
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: invoke</legend>
+            <input type="radio" id="invoke1" name="invoke" onclick="invoke(function(){console.log('hello')})" />
+            <label for="invoke1">invoke(function(){console.log('hello')})<br /></label>
+            <input type="radio" id="invoke2" name="invoke" onclick="invoke(function(){console.log('hello')}, 3000)"/>
+            <label for="invoke2">invoke(function(){console.log('hello')}, 3000)<br /></label>
+            <input type="radio" id="invoke3" name="invoke" onclick="invoke(function(){console.log('hello')}, 3000, 1000)"/>
+            <label for="invoke3">invoke(function(){console.log('hello')}, 3000, 1000)<br /></label>
+            <input type="radio" id="invoke4" name="invoke" onclick="invoke(function(){console.log('hello')}, 3000, 1000, 5000)" />
+            <label for="invoke4">invoke(function(){console.log('hello')}, 3000, 1000, 5000)<br /></label>
+        </fieldset>
+    </article>
+
+    <article>
+        <h1 id="browser-location-and-navigation">Browser Location and Navigation</h1>
+
+        <h2>Parsing URLs</h2>
+        <p>
+        The <em>location</em> property of the Window object refers to a <em>Location object</em>.<br />
+        The <em>location</em> property of the Document object also refers to the <em>Location object</em>.<br />
+        </p>
+
+        <pre><code>
+        window.location == document.location  // always true, refer to the Location object.
+        document.URL  // a static string than holds the URL of the document when it was first loaded.
+        location.href // a string that contains the complete text of the URL
+        location.hash // a string that contains the "fragment identifiers" portion(部分) of the URL. eg "#table-of-contents"
+        location.search // a string that contains the portion of the URL that starts with a question mark. eg "?query"
+        </code></pre>
+
+        <p>
+        If you navigate to fragment(片段) identifiers(like "#table-of-contents") within the document, the Location object is updated to reflect(反映) this, but the <em>document.URL</em> property remains unchanged.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Extracting arguments from the search string of a URL
+         *
+         * This function parses ampersand-separated name=value argument pairs from
+         * the query string of the URL. It stores the name=value pairs in
+         * properties of an object and returns that object. Use it like this:
+         *
+         * var args = urlArgs(); // Parse args from URL
+         * var q = args.q || ""; // Use argument, if defined, or a default value
+         * var n = args.n ? parseInt(args.n) : 10;
+         */
+        function urlArgs() {
+            var args = {};                             // Start with an empty object
+            var query = location.search.substring(1);  // Get query string, minus '?'
+            var pairs = query.split("&");              // Split at ampersands
+            for(var i = 0; i < pairs.length; i++) {    // For each fragment
+                var pos = pairs[i].indexOf('=');       // Look for "name=value"
+                if (pos == -1) continue;               // If not found, skip it
+                var name = pairs[i].substring(0,pos);  // Extract the name
+                var value = pairs[i].substring(pos+1); // Extract the value
+                value = decodeURIComponent(value);     // Decode the value
+                args[name] = value;                    // Store as a property
+            }
+            return args;                               // Return the parsed arguments
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: urlArgs</legend>
+            <a id="test-urlargs" href="?name=abbott&age=18&sex=">?name=abbott&age=18&sex=</a>
+        </fieldset>
+        <script>
+        window.onload = function() {
+            if (location.search == "?name=abbott&age=18&sex=") {
+                var args = urlArgs();
+                alert("name: " + args.name
+                     + "\nage: " + args.age
+                     + "\nsex: " + args.sex);
+            }
+        }
+        </script>
+
+        <h2>Loading New Documents</h2>
+        <p>
+        The <em>assign()</em> method of the <em>Location object</em> makes the window load and display the document at the URL you specify.<br />
+        The <em>replace()</em> method is similar, but it removes the current document from the browsing history before loading the new document.<br />
+        The <em>reload()</em> method of the <em>Location object</em> makes the browser reload the document.<br />
+        </p>
+
+        <pre><code>
+        // If the browser does not support the XMLHttpRequest object
+        // redirect to a static page that does not require it.
+        if (!XMLHttpRequest) location.replace("staticpage.html");
+
+        // A more traditional way to make the browser navigate to a
+        // new page is to simply assign the new URL directly to the
+        // Location property.
+        location = "http://www.baidu.com";
+        location = "basic.html"
+        location = "#timers"
+        location.search = "?page=" + (pagenum+1);
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: methods of the <em>Location object</em></legend>
+            <a id="location-assign" href="javascript: location.assign('basic.html')">location.assign("basic.html")</a><br />
+            <a id="location-replace" href="javascript: location.replace('basic.html')">location.replace("basic.html")</a><br />
+            <a id="location-reload" href="javascript: location.reload()">location.reload()</a><br />
+        </fieldset>
+    </article>
+
+    <article>
+        <h1 id="browsing-history">Browsing History</h1>
+
+        <p>
+        The <em>history</em> property of the Window object refers to the History object for the window.<br />
+        The <em>History object</em> models the browsing history of a window as a list of documents and document states.<br />
+        The <em>length</em> property of the History object specifies the number of elements in the browsing history list, but for security reasons scripts are not allowed to access the stored URLs.
+        </p>
+
+        <p>
+        The <em>back()</em> and <em>forward()</em> methods that behave like the browser's Back and Forward buttons do.<br />
+        The <em>go()</em> method takes an integer argument and can skip(跳转) any number of pages forward or backward in the history list.<br />
+        </p>
+
+        <p>
+        If a window contains child windows (such as <em>&lt;iframe&gt;</em> elements), the browsing histories of the child windows are chronologically(按时间顺序) interleaved(交叉) with the history of the main window.<br />
+        </p>
+
+        <fieldset>
+            <legend>TEST: methods of the <em>History object</em></legend>
+            <a id="history-back" href="javascript: history.back()">history.back()</a><br />
+            <a id="history-forward" href="javascript: history.forward()">history.forward()</a><br />
+            <a id="history-go" href="javascript: history.go(-2)">history.go(-2)</a><br />
+        </fieldset>
+    </article>
+
+    <article>
+        <h1 id="browser-and-screen-information">Browser and Screen Information</h1>
+
+        <h2>The Navigator Object</h2>
+        <p>
+        The <em>navigator</em> property of a Window object refers to a Navigator object that contains browser vendor and version number information.The Navigator object has four properties that provide information about the browser that is running, and you can use these properties for browser sniffing:<br />
+        </p>
+        <ul>
+            <li>appName</li>
+            <p>
+            The full name of the web browser. In IE, this is “Microsoft Internet Explorer”. 
+            In Firefox, this property is “Netscape”. For compatibility with existing browsersniffing code, 
+            other browsers often report the name “Netscape” as well.
+            </p>
+            <li>appVersion</li>
+            <p>
+            This property typically begins with a number and follows that with a detailed 
+            string that contains browser vendor and version information. The number at the 
+            start of this string is often 4.0 or 5.0 to indicate generic compatibility with 
+            fourth- and fifthgeneration browsers. There is no standard format for the appVersion 
+            string, so parsing it in a browser-independent way isn’t possible.
+            </p>
+            <li>userAgent</li>
+            <p>
+            The string that the browser sends in its USER-AGENT HTTP header. This property
+            typically contains all the information in appVersion and may contain additional
+            details as well. Like appVersion, there is no standard format. Since this property
+            contains the most information, browser-sniffing code typically uses it.
+            </p>
+            <li>platform</li>
+            <p>
+            A string that identifies the operating system (and possibly the hardware) on which
+            the browser is running.
+            </p>
+            <li>*onLine</li>
+            <p>
+            The navigator.onLine property (if it exists) specifies whether the browser is 
+            currently connected to the network. Applications may want to save state locally while they are offline.
+            </p>
+            <li>*geolocation</li>
+            <p>
+            A Geolocation object that defines an API for determining the user’s geographical location.
+            </p>
+            <li>*javaEnabled()</li>
+            <p>
+            A nonstandard method that should return true if the browser can run Java applets.
+            </p>
+            <li>*cookiesEnabled()</li>
+            <p>
+            A nonstandard method that should return true if the browser can store persistent
+            cookies. May not return the correct value if cookies are configured on a site-by-site
+            basis.
+            </p>
+        </ul>
+
+        <pre><code>
+        /*
+         * Example: Browser sniffing using navigator.userAgent
+         *
+         * Define browser.name and browser.version for client sniffing, using code
+         * derived from jQuery 1.4.1. Both the name and number are strings, and both
+         * may differ from the public browser name and version. Detected names are:
+         *
+         *  "webkit": Safari or Chrome; version is WebKit build number
+         *  "opera": the Opera browser; version is the public version number
+         *  "mozilla": Firefox or other gecko-based browsers; version is Gecko version
+         *  "msie": IE; version is public version number
+         *
+         * Firefox 3.6, for example, returns: { name: "mozilla", version: "1.9.2" }.
+         */
+        var browser = (function() {
+            var s = navigator.userAgent.toLowerCase();
+            var match = /(webkit)[ \/]([\w.]+)/.exec(s) ||
+                /(opera)(?:.*version)?[ \/]([\w.]+)/.exec(s) ||
+                /(msie) ([\w.]+)/.exec(s) ||
+                !/compatible/.test(s) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec(s) ||
+                [];
+            return { name: match[1] || "", version: match[2] || "0" };
+        }());
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: var browser</legend>
+            <a id="history-back" href="javascript:
+                alert('name:' + browser.name
+                    + '\nversion:' + browser.version)
+            ">alert("name:" + browser.name + "\nversion:" + browser.version)</a><br />
+        </fieldset>
+
+        <h2>The Screen Object</h2>
+
+        <p>
+        The <em>screen</em> property of a Window object refers to a Screen object that provides information about the size of the user’s display and the number of colors available on it.<br />
+        The <em>width</em> and <em>height</em> properties specify the size of the display in pixels.<br />
+        The <em>availWidth</em> and <em>availHeight</em> properties specify the display size that is actually available.<br />
+        The <em>colorDepth</em> property specifies the bits-per-pixel value of the screen. Typical values are 16, 24, and 32.
+        </p>
+    </article>
+
+    <article>
+        <h1 id="dialog-boxes">Dialog Boxes</h1>
+
+        <p>
+        The Window object provides three methods for displaying simple dialog boxes to the user.<br />
+        <em>alert()</em> displays a message to the user and waits for the user to dismiss the dialog.<br />
+        <em>confirm()</em> displays a message, waits for the user to click an OK or Cancel button and returns a boolean value.<br />
+        <em>prompt()</em> displays a message, waits for the user to enter a string, and returns that string.<br />
+        The <em>confirm()</em> and <em>prompt()</em> methods <b>block</b>. In most browsers, the <em>alert()</em> method also blocks, but is not required.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Uses three methods of the Window object for displaying simple dialog boxes.
+         */
+        function dialogBox() {
+            do {
+                var name = prompt("What is your name?");                // Get a string
+                var correct = confirm("You entered '" + name + "'.\n" + // Get a boolean
+                                    "Click Okay to proceed or Cancel to re-enter.");
+            } while(!correct)
+            alert("Hello, " + name); // Display a plain message
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: dialogBox</legend>
+            <a href="javascript: dialogBox()">dialogBox()</a>
+        </fieldset>
+    </article>
+
+    <article>
+        <h1 id="error-handling">Error Handling</h1>
+
+        <p>
+        The <em>onerror</em> property of a Window object is an event handler(处理程序) that is invoked when an uncaught exception propagates(传播) all the way up the call stack(堆栈) and an error message is about to be displayed in the browser's JavaScript console.<br />
+        For historical reasons, the <em>onerror</em> event handler of the Window object is invoked with three string arguments:<br />
+        The first argument to <em>window.onerror</em> is a message describing the error.<br />
+        The second argument is a string that contains the URL of the JavaScript code that caused the error.<br />
+        The third argument is the line number within the document where the error occurred.<br />
+        </p>
+
+        <p>
+        If the <em>onerror</em> handler returns <b>false</b>, it tells the browser that the handler has handled the error and that no further action is necessary——in other words, the browser should not display its own error message.<br />
+        Unfortunately, for historical reasons, an error handler in Firefox must return <b>true></b> to indicate that it has handled the error.<br />
+        The <em>onerror</em> handler is a holdover from the early days of JavaScript, when the core language did not include the <b>try/catch</b> exception handling statement. It is rarely(极少的) used in modern code.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Display error messages in a dialog box, but never more than 3.
+         * During development, used to explicitly notify when an error occurs.
+         */
+        window.onerror = function(msg, url, line) {
+            if (onerror.num++ < onerror.max) {
+                alert("ERROR: " + msg + "\n" + url + ":" + line);
+                return true;
+            }
+        }
+        onerror.max = 3;
+        onerror.num = 0;
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: onerror</legend>
+            <a href="javascript: alet('occur')">alet("occur")</a><br />
+            <a href="javascript: errScript()">errScript()</a><br />
+            <a href="javascript: test()">test()</a><br />
+        </fieldset>
+
+        <script>
+        function errScript() {
+            console.log("argument is error = " + abc);
+        }
+        </script>
+    </article>
+
+    <article>
+        <h1 id="document-elements-as-window-properties">Document Elements As Window Properties</h1>
+
+        <p>
+        If you name an element in your HTML document using the <em>id</em> attribute, and if the
+        Window object does not already have a property by that name, the Window object is
+        given a nonenumerable(不可枚举的) property whose name is the value of the <em>id</em> attribute and whose
+        name is the <em>HTMLElement</em> object that represents(表示) that document element.
+        </p>
+
+        <p>
+        As we&acute;ve already noted, the Window object serves as the global object at the top of the
+        scope chain in client-side JavaScript, so this means that the <em>id</em> attributes you use in your
+        HTML documents become global variables accessible to your scripts. If your document 
+        includes the element &lt;button id="okay"/&gt;, you can refer to that element using the global
+        variable <b>okay</b>.
+        </p>
+
+        <p>
+        There is an important caveat(告诫), however: <b>this doesn&acute;t happen if the Window object 
+        already has a property by that name.</b>For example:<br />
+        1. Elements with the ids &quot;history&quot;, &quot;location&quot;, or &quot;navigator&quot;, won&acute;t appear as
+        global variables, because those IDs are already in use.<br /> 
+        2. Similarly, if your HTML document includes an element whose id is &quot;x&quot; and you also declare
+        and assign a value to the global variable x in your code, the explicitly declared variable 
+        will hide the implicit element variable.<br />
+        3. If the variable is declared in a script that appears before the named element, 
+        its existence will prevent the element from getting a window property of its own. 
+        And if the variable is declared in a script that appears after the named element, 
+        your explicit assignment to the variable overwrites the implicit value of the property.<br />
+        </p>
+
+        <pre><code>
+        // Look up document elements by the value of their HTML id attribute using the document.getElementById() method.
+        // Many client-side libraries define a $ function that looks up elements by ID like this.
+        var $ = function(id) { return document.getElementById(id); };
+        ui.prompt = $("prompt");
+        </code></pre>
+
+        <p>
+        Any HTML element with an <em>id</em> attribute will become the value of a global variable,
+        assuming the ID is not already used by the Window object. The following HTML
+        elements also behave this way when given a <em>name</em> attribute:
+        <pre><code>
+        &lt;a&gt; &lt;applet&gt; &lt;area&gt; &lt;embed&gt; &lt;form&gt; &lt;frame&gt; &lt;frameset&gt; &lt;iframe&gt; &lt;img&gt; &lt;object&gt;
+        </code></pre>
+        The <em>id</em> element is required to be unique within a document: <b>two elements cannot have
+        the same id</b>. This is not true for the <em>name</em> attribute, however. If more than one of the
+        elements above has the same <em>name</em> attribute (or if one element has a <em>name</em> attribute, and
+        another element has an <em>id</em> with the same value), the implicit global variable with that
+        name will refer to an array-like object that holds(保留) each of the named elements.
+        </p>
+    </article>
+
+    <article>
+        <h1 id="multiple-windows-and-frames">Multiple Windows and Frames</h1>
+
+        <p>
+        A single web browser window on your desktop may contain several tabs. Each tab is
+        an independent browsing context. Each has its own Window object, and is isolated(隔离的)
+        from all the others. The scripts running in one tab usually have no way of even knowing
+        that the other tabs exist.<br />
+        If you use a web browser that does not support tabs, or if you have tabs turned off, 
+        you may have many web browser windows open on your desktop at one time.<br />
+        But windows are not always isolated from one another. A script in one window or tab
+        can open new windows or tabs, and when a script does this, the windows can interact
+        with one another and with one another’s documents.<br />
+        </p>
+
+        <h2>Opening and Closing Windows</h2>
+
+        <h3>Opening windows</h3>
+
+        <p>
+        You can open a new web browser window (or tab; this is usually a browser configuration
+        option) with the <em>open()</em> method of the Window object. <em>Window.open()</em> loads a
+        specified URL into a new or existing window and returns the Window object that
+        represents that window. It takes four optional(可选的) arguments:<br />
+        1. The first argument to <em>open()</em> is the URL of the document to display in the new window.
+        If this argument is omitted (or is the empty string), the special blank-page URL
+        <b>about:blank</b> is used.<br />
+        2. The second argument to <em>open()</em> is a string that specifies a window name. If a window
+        by that name already exists (and if the script is allowed to navigate that window), that
+        existing window is used. Otherwise a new window is created and is assigned the specified name.
+        If this argument is omitted, the special name “_blank” is used: it opens a new, unnamed window.
+        The <em>name</em> property of a Window object holds its name, if it has one.<br />
+        3. The third optional argument to <em>open()</em> is a comma-separated list of size and features
+        attributes for the new window to be opened. If you omit this argument, the new window
+        is given a default size and has a full set of UI components: a menu bar, status line,
+        toolbar, and so on. In tabbed browsers, this usually results in the creation of a new tab.
+        (This third argument is nonstandard and the HTML5 specification insists that browsers
+        be able to ignore it.)<br />
+        4. The fourth argument to <em>open()</em> is useful only when the second argument names an
+        existing window. This fourth argument is a boolean value that indicates whether the
+        URL specified as the first argument should replace the current entry in the window’s
+        browsing history (true) or create a new entry in the window’s browsing history
+        (false). Omitting this argument is the same as passing false.<br />
+        The return value of the open() method is the Window object that represents the named
+        or newly created window.<br />
+        </p>
+
+        <pre><code>
+        // For example, to open a small but resizable browser window with a status bar 
+        // but no menu bar, toolbar, or location bar
+        var w = window.open("smallwin.html", "smallwin",
+                            "width=400,height=350,status=yes,resizable=yes");
+
+        // you use the implicit Window object window to refer to the window within which your code is running
+        var w = window.open();                        // Open a new, blank window.
+        w.alert("About to visit http://example.com"); // Call its alert() method
+        w.location = "http://example.com";            // Set its location property
+
+        // In windows created with the window.open() method, the opener property refers back to
+        // the Window object of the script that opened it. In other windows, opener is null.
+        w.opener !== null;     // True for any window w created by open()
+        w.open().opener === w; // True for any window w
+        </code></pre>
+
+        <h3>Closing windows</h3>
+
+        <p>
+        Just as the open() method opens a new window, the close() method closes one.<br />
+        </p>
+
+        <pre><code>
+        // If you create a Window object w, you can close it
+        w.close();
+        // JavaScript code running within that window itself can close it
+        window.close();
+        </code></pre>
+
+        <p>
+        Most browsers allow you to automatically close only those windows that your own JavaScript code has created.<br />
+        If you attempt to close any other window, the request either fails or the user is presented with a dialog box
+        that asks him to allow (or cancel) that request to close the window.<br /> 
+        The <em>close()</em> method of a Window object that represents a frame rather than a top-level window or tab does nothing:
+        it is not possible to close a frame (instead you’d delete the &lt;iframe&gt; from its containing document).<br />
+        A Window object continues to exist after the window it represents has been closed. A
+        window that has been closed will have a <em>closed</em> property of true, its document will be
+        null, and its methods will typically no longer work.<br />
+        </p>
+
+        <h2>Relationships Between Frames</h2>
+        <p>
+        As we saw above, the <em>open()</em> method of a Window object returns a new Window object
+        that has an <em>opener</em> property that refers back to the original window.<br />
+        A similar thing is possible with frames. Code running in a window or frame
+        can refer to the containing window or frame and to nested child frames using the properties
+        described below:<br />
+
+        <pre><code>
+        // The JavaScript code in any window or frame can refer to its own Window object as window or as self.
+        // A frame can refer to the Window object of the window or frame that contains it using the parent property:
+        parent.history.back();
+
+        // A Window object that represents a top-level window or tab has no container,
+        // and its parent property simply refers to the window itself:
+        parent == self; // For any top-level window
+        </code></pre>
+
+        If a frame is contained within another frame that is contained within a top-level window,
+        that frame can refer to the top-level window as <em>parent.parent</em>.<br />
+        The <em>top</em> property is a general-case shortcut, however: no matter how deeply a frame is nested, its <em>top</em>
+        property refers to the top-level containing window.<br />
+        If a Window object represents a top-level window, <em>top</em> simply refers to that window itself. <br />
+        For frames that are direct children of a top-level window, the <em>top</em> property is the same as the <em>parent</em> property.<br />
+        </p>
+
+        <p>
+        Frames are created with <em>&lt;iframe&gt;</em> elements. You can obtain an Element object that represents an
+        <em>&lt;iframe&gt;</em> just as you would do for any other element.<br /> 
+        <pre><code>
+        // Suppose your document contains <em>&lt;iframe id="f1"&gt;</em>. 
+        // Then, the Element object that represents this iframe is:<br />
+        var iframeElement = document.getElementById("f1");
+
+        // <em>&lt;iframe&gt;</em> elements have a contentWindow property that refers to the Window object of the frame, 
+        // so the Window object for this frame is:
+        var childFrame = document.getElementById("f1").contentWindow;
+
+        // In the reverse direction--from the Window that represents a frame 
+        // to the <em>&lt;iframe&gt;</em> Element that contains the frame--with 
+        // the <em>frameElement</em> property of the Window. 
+        var elt = document.getElementById("f1");
+        var win = elt.contentWindow;
+        win.frameElement === elt     // Always true for frames
+
+        // Window objects that represent top-level windows rather than frames have a null frameElement property:
+        window.frameElement === null // For toplevel windows
+        </code></pre>
+
+        It is not usually necessary to use the <b>getElementById()</b> method and the <b>contentWindow</b>
+        property to obtain references to the child frames of a window, <br />
+        however. Every Window object has a <em>frames</em> property that refers to the child frames
+        contained within the window or frame. <br />
+        The <em>frames</em> property refers to an array-like object that can be indexed numerically or by frame name. <br />
+        To refer to the first child frame of a window, you can use frames[0]. <br />
+        To refer to the third child frame of the second child, you can use frames[1].frames[2]. <br />
+        Code running in a frame might refer to a sibling frame as parent.frames[1]. <br />
+        Note that the elements of the frames[] array are Window objects, not <em>&lt;iframe&gt;</em> elements. <br />
+        </p>
+
+        <p>
+        Example: &lt;iframe id="f1" name="f1name" src="window-object.html" width="100%" height="200"&gt;&lt;/iframe&gt;
+        </p>
+
+        <iframe id="f1" name="f1name" src="window-object.html" width="100%" height="200"></iframe>
+
+        <p>
+        If you specify the <em>name</em> or <em>id</em> attribute of an &lt;iframe&gt; element, that frame can be indexed
+        by name as well as by number. A frame named "f1" would be frames["f1"] or frames.f1.<br />
+        </p>
+
+        <p>
+        the names or IDs of &lt;iframe&gt; and other elements are automatically used as properties of the Window object, and that &lt;iframe&gt; elements are treated differently than other elements:<br /> 
+        for frames, the value of these automatically created properties refer to a window object rather than an element object.<br /> 
+        What this means is that we can refer to a frame named "f1" as f1 instead of as frames.f1. <br />
+        in fact, html5 specifies that the frames property is a self-referential property, just like <b>window</b> and
+        <b>self</b>, and that it is the window object itself that acts like an array of frames. <br />
+        this means that we can refer to the first child frame as window[0], and we can query the number of
+        frames with window.length or just length. <br />
+        it is usually clearer, and still traditional, to use frames instead of window here, however. note that current browsers do not all make frame==window, but those that do not make them equal do allow child frames to be indexed by number or by name through either object.
+        </p>
+
+        <h2>JavaScript in Interacting Windows</h2>
+
+        <p>
+        <pre><code>
+        // Imagine a web page with two &lt;iframe&gt; elements named “A” and “B”, 
+        // and suppose that those frames contain documents from the same server 
+        // and that those documents contain interacting scripts.
+
+        // The script in frame A might define a variable i:
+        var i = 3;
+        // Code in frame A can refer to the variable with the identifier i,
+        // or it can explicitly reference it through the window object:
+        window.i
+        // the script in frame B can refer to the Window object for frame A,
+        // it can also refer to the properties of that window object:
+        parent.A.i = 4; // Change the value of a variable in frame A
+
+        // If a script in frame B declares a (non-nested) function f, 
+        // that function is a global variable in frame B, 
+        // and code in frame B can invoke f
+        f()
+        // Code in frame A must refer to f as a property of the Window object of frame B:
+        parent.B.f();   // Invoke a function defined in frame B
+        </code></pre>
+        When you share functions between frames or windows, it is important to keep the rules of lexical(词法) scoping(作用域) in mind. <br />
+        A function is executed in the scope in which it was defined, not in the scope from which it is invoked. <br />
+        Thus, if the function f refers to global variables, these variables are looked up as properties of frame B, even when
+        the function is invoked from frame A.<br />
+        </p>
+
+        <p>
+        The built-in classes like String, Date, and RegExp are automatically predefined in all windows.<br />
+        This means that each window has an independent copy of the constructor and an independent copy of the prototype object.<br />
+        The fact that each Window has its own prototype objects means that the <em>instanceof</em>
+        operator does not work across windows.<br />
+        </p>
+
+        <fieldset>
+            <legend>The WindowProxy Object</legend>
+            <p>
+            The client-side global object is the top of the scope chain and is where global variables and functions are defined.<br />
+            This global object is, in fact, replaced whenever the window or frame loads new content.<br />
+            The object we have been calling the Window object is not actually the global object, but a proxy for it. <br />
+            Whenever you query or set a property of the Window object, that object queries or sets the same property on the current global object of the window or frame. <br />
+            The HTML5 specification calls this proxy object WindowProxy. <br />
+            </p>
+        </fieldset>
+    </article>
+    </main>
+
+    <footer role="contentinfo">
+        <p class="copyright"><small>&copy; copyright 2018 upper. all rights reserved.</small></p>
+    </footer>
+</div>
+
+<script>
+/*
+ * Example: A timer utility function
+ *
+ * Schedule an invocation or invocations of f() in the future.
+ * Wait start milliseconds, then call f() every interval milliseconds,
+ * stopping after a total of start+end milliseconds.
+ * If interval is specified but end is omitted, then never stop invoking f.
+ * If interval and end are omitted, then just invoke f once after start ms.
+ * If only f is specified, behave as if start was 0.
+ * Note that the call to invoke() does not block: it returns right away.
+ */
+function invoke(f, start, interval, end) {
+    if (!start) start = 0;                     // Default to 0 ms
+    if (arguments.length <= 2)                 // Single-invocation case
+        setTimeout(f, start);                  // Single invocation after start ms.
+    else {                                     // Multiple invocation case
+        setTimeout(repeat, start);             // Repetitions begin in start ms
+        function repeat() {                    // Invoked by the timeout above
+            var h = setInterval(f, interval);  // Invoke f every interval ms.
+            // And stop invoking after end ms, if end is defined
+            if (end) setTimeout(function() { clearInterval(h); }, end);
+        }
+    }
+}
+
+/*
+ * Example: Extracting arguments from the search string of a URL
+ *
+ * This function parses ampersand-separated name=value argument pairs from
+ * the query string of the URL. It stores the name=value pairs in
+ * properties of an object and returns that object. Use it like this:
+ *
+ * var args = urlArgs(); // Parse args from URL
+ * var q = args.q || ""; // Use argument, if defined, or a default value
+ * var n = args.n ? parseInt(args.n) : 10;
+ */
+function urlArgs() {
+    var args = {};                             // Start with an empty object
+    var query = location.search.substring(1);  // Get query string, minus '?'
+    var pairs = query.split("&");              // Split at ampersands
+    for(var i = 0; i < pairs.length; i++) {    // For each fragment
+        var pos = pairs[i].indexOf('=');       // Look for "name=value"
+        if (pos == -1) continue;               // If not found, skip it
+        var name = pairs[i].substring(0,pos);  // Extract the name
+        var value = pairs[i].substring(pos+1); // Extract the value
+        value = decodeURIComponent(value);     // Decode the value
+        args[name] = value;                    // Store as a property
+    }
+    return args;                               // Return the parsed arguments
+}
+
+/*
+ * Example: Browser sniffing using navigator.userAgent
+ *
+ * Define browser.name and browser.version for client sniffing, using code
+ * derived from jQuery 1.4.1. Both the name and number are strings, and both
+ * may differ from the public browser name and version. Detected names are:
+ *
+ *  "webkit": Safari or Chrome; version is WebKit build number
+ *  "opera": the Opera browser; version is the public version number
+ *  "mozilla": Firefox or other gecko-based browsers; version is Gecko version
+ *  "msie": IE; version is public version number
+ *
+ * Firefox 3.6, for example, returns: { name: "mozilla", version: "1.9.2" }.
+ */
+var browser = (function() {
+    var s = navigator.userAgent.toLowerCase();
+    var match = /(webkit)[ \/]([\w.]+)/.exec(s) ||
+        /(opera)(?:.*version)?[ \/]([\w.]+)/.exec(s) ||
+        /(msie) ([\w.]+)/.exec(s) ||
+        !/compatible/.test(s) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec(s) ||
+        [];
+    return { name: match[1] || "", version: match[2] || "0" };
+}());
+
+/*
+ * Uses three methods of the Window object for displaying simple dialog boxes.
+ */
+function dialogBox() {
+    do {
+        var name = prompt("What is your name?");                // Get a string
+        var correct = confirm("You entered '" + name + "'.\n" + // Get a boolean
+                            "Click Okay to proceed or Cancel to re-enter.");
+    } while(!correct)
+    alert("Hello, " + name); // Display a plain message
+}
+
+/**
+ * Example: An automatically generated table of contents
+ *
+ * TOC.js: create a table of contents for a document.
+ *
+ * This module registers an anonymous function that runs automatically
+ * when the document finishes loading. When it runs, the function first
+ * looks for a document element with an id of "TOC". If there is no
+ * such element it creates one at the start of the document.
+ *
+ * Next, the function finds all <h1> through <h6> tags, treats them as
+ * section titles, and creates a table of contents within the TOC
+ * element. The function adds section numbers to each section heading
+ * and wraps the headings in named anchors so that the TOC can link to
+ * them. The generated anchors have names that begin with "TOC", so
+ * you should avoid this prefix in your own HTML.
+ *
+ * The entries in the generated TOC can be styled with CSS. All entries have
+ * a class "TOCEntry". Entries also have a class that corresponds to the level
+ * of the section heading. <h1> tags generate entries of class "TOCLevel1",
+ * <h2> tags generate entries of class "TOCLevel2", and so on. Section numbers
+ * inserted into headings have class "TOCSectNum".
+ *
+ * You might use this module with a stylesheet like this:
+ *
+ * #TOC { border: solid black 1px; margin: 10px; padding: 10px; }
+ * .TOCEntry { font-family: sans-serif; }
+ * .TOCEntry a { text-decoration: none; }
+ * .TOCLevel1 { font-size: 16pt; font-weight: bold; }
+ * .TOCLevel2 { font-size: 12pt; margin-left: .5in; }
+ * .TOCSectNum:after { content: ": "; }
+ *
+ * That final line generates a colon and space after section numbers. To hide
+ * the section numbers, use this:
+ *
+ * .TOCSectNum { display: none }
+ *
+ * This module requires the onLoad() utility function.
+ **/
+window.onload = function() {
+    // Find the TOC container element.
+    // If there isn't one, create one at the start of the document.
+    var toc = document.getElementById("TOC");
+    if (!toc) {
+        toc = document.createElement("div");
+        toc.id = "TOC";
+        document.body.insertBefore(toc, document.body.firstChild);
+    }
+
+    // Find all section heading elements
+    var headings;
+    if (document.querySelectorAll) // Can we do it the easy way?
+        headings = document.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    else // Otherwise, find the headings the hard way
+        headings = findHeadings(document.body, []);
+
+    // Recursively traverse the document body looking for headings
+    function findHeadings(root, sects) {
+        for(var c = root.firstChild; c != null; c = c.nextSibling) {
+            if (c.nodeType !== 1) continue;
+            if (c.tagName.length == 2 && c.tagName.charAt(0) == "H")
+                sects.push(c);
+            else
+                findHeadings(c, sects);
+        }
+        return sects;
+    }
+
+    // Initialize an array that keeps track of section numbers.
+    var sectionNumbers = [0,0,0,0,0,0];
+
+    // Now loop through the section header elements we found.
+    for(var h = 0; h < headings.length; h++) {
+        var heading = headings[h];
+
+        // Skip the section heading if it is inside the TOC container.
+        if (heading.parentNode == toc) continue;
+
+        // Figure out what level heading it is.
+        var level = parseInt(heading.tagName.charAt(1));
+        if (isNaN(level) || level < 1 || level > 6) continue;
+
+        // Increment the section number for this heading level
+        // and reset all lower heading level numbers to zero.
+        sectionNumbers[level-1]++;
+        for(var i = level; i < 6; i++) sectionNumbers[i] = 0;
+
+        // Now combine section numbers for all heading levels
+        // to produce a section number like 2.3.1.
+        var sectionNumber = sectionNumbers.slice(0,level).join(".")
+
+        // Add the section number to the section header title.
+        // We place the number in a <span> to make it styleable.
+        var span = document.createElement("span");
+        span.className = "TOCSectNum";
+        span.innerHTML = sectionNumber;
+        heading.insertBefore(span, heading.firstChild);
+
+        // Wrap the heading in a named anchor so we can link to it.
+        var anchor = document.createElement("a");
+        anchor.name = "TOC"+sectionNumber;
+        heading.parentNode.insertBefore(anchor, heading);
+        anchor.appendChild(heading);
+
+        // Now create a link to this section.
+        var link = document.createElement("a");
+        link.href = "#TOC" + sectionNumber; // Link destination
+        link.innerHTML = heading.innerHTML; // Link text is same as heading
+
+        // Place the link in a div that is styleable based on the level.
+        var entry = document.createElement("div");
+        entry.className = "TOCEntry TOCLevel" + level;
+        entry.appendChild(link);
+
+        // And add the div to the TOC container.
+        toc.appendChild(entry);
+    }
+}
+
+/*
+ * Display error messages in a dialog box, but never more than 3.
+ * During development, used to explicitly notify when an error occurs.
+ */
+window.onerror = function(msg, url, line) {
+    if (onerror.num++ < onerror.max) {
+        alert("[ERROR]\nmsg> " + msg + "\nurl> " + url + "\nline> " + line);
+        return true;
+    }
+}
+onerror.max = 3;
+onerror.num = 0;
+
+/*
+ * only for test
+ */
+function test() {
+    alrt("test");
+}
+</script>
+
+</body>
+</html>

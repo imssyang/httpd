@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript: Scripting Documents</title>
+    <style type="text/css">
+    body {
+      margin: 0;
+      font: 100%/1.2 Georgia, "Times New Roman", serif;
+      padding-left: 15px;
+      padding-right: 15px;
+      max-width: 65%;
+    }
+
+    h1 {
+      color: #212121;
+      font-family: 'Lato', sans-serif;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: .975;
+      margin-bottom: .4125em;
+    }
+
+    h2,
+    h3 {
+      font-family: "Open Sans", sans-serif;
+      font-weight: 400;
+      font-size: 1.275em; /* 15px/16px */
+    }
+
+    p {
+      text-indent: 2em;
+    }
+
+    em,
+    li {
+        /* font-weight: bold; */
+    }
+
+    #TOC {
+        border: solid black 1px;
+        margin: 10px;
+        padding: 10px; 
+        position: fixed;
+        top: 1em;
+        right: 0.5em;
+        max-width: 30%;
+    }
+
+    .TOCEntry { font-family: sans-serif; }
+    .TOCEntry a { text-decoration: none; }
+    .TOCLevel1 { font-size: 9.5pt; font-weight: bold; }
+    .TOCLevel2 { font-size: 9pt; margin-left: .2in; }
+    .TOCSectNum:after { content: " "; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="masthead" role="banner">
+        <p>
+        Cascading Style Sheets (CSS) is a standard for specifying the visual presentation of
+        HTML documents. 
+        </p>
+    </header>
+
+    <main class="main" role="main">
+    <article>
+        <h1 id="scripting-inline-styles">Scripting Inline Styles</h1>
+        <p>
+        The most straightforward way to script CSS is to alter the <em>style</em> attribute of individual
+        document elements.The <em>style</em> property is unusual, however:
+        its value is not a string, but a <b>CSSStyleDeclaration</b> object. 
+        </p>
+
+        <pre><code>
+        // In a stylesheet or style attribute, you can write:
+        position: absolute; font-family: sans-serif; background-color: #ffffff;
+
+        // To accomplish the same thing for an element e with JavaScript, you have to quote all of the values:
+        e.style.position = "absolute";
+        e.style.fontFamily = "sans-serif";
+        e.style.backgroundColor = "#ffffff";
+
+        // If you want to set the left property to a computed value,
+        // be sure to append the units at the end of the computation:
+        e.style.left = (x0 + left_margin + left_border + left_padding) + "px";
+        </code></pre>
+
+        <p>
+        The <em>style</em> attribute of an HTML element is its inline style, 
+        and it overrides any style specifications in a stylesheet.
+        You can read the properties of a CSSStyleDeclaration object that represents inline styles,
+        but they return meaningful values only if they’ve previously been set by your JavaScript code or
+        if the HTML element with which you are working has an inline style attribute that sets the desired properties. 
+        </p>
+        
+        <p>
+        Sometimes, you may find it easier to set or query the inline style of an element as a
+        single string value rather than as a CSSStyleDeclaration object. To do that, you can use
+        the Element <em>getAttribute</em>() and <em>setAttribute</em>() methods, or you can use the <em>cssText</em>
+        property of the CSSStyleDeclaration object.
+        </p>
+
+        <pre><code>
+        // Set the style attribute of e to the string s with either of these lines:
+        e.setAttribute("style", s);
+        e.style.cssText = s;
+
+        // Query the inline style string of the element e with either of these:
+        s = e.getAttribute("style");
+        s = e.style.cssText;
+        </code></pre>
+
+        <h2 id="css-animations">CSS Animations</h2>
+        <p>
+        One of the most common uses of scripted CSS is to produce animated visual effects.
+        This can be achieved by using <em>setTimeout</em>() or <em>setInterval</em>() to repeatedly
+        invoke a function that alters the inline style of an element.
+        </p>
+
+        <pre><code>
+        // Convert element e to relative positioning and "shake" it left and right.
+        // The first argument can be an element object or the id of an element.
+        // If a function is passed as the second argument, it will be invoked
+        // with e as an argument when the animation is complete.
+        // The 3rd argument specifies how far to shake e. The default is 5 pixels.
+        // The 4th argument specifies how long to shake for. The default is 500 ms.
+        function shake(e, oncomplete, distance, time) {
+            // Handle arguments
+            if (typeof e === "string") e = document.getElementById(e);
+            if (!time) time = 500;
+            if (!distance) distance = 5;
+
+            var originalStyle = e.style.cssText; // Save the original style of e
+            e.style.position = "relative";       // Make e relatively positioned
+            var start = (new Date()).getTime();  // Note the animation start time
+            animate();                           // Start the animation
+
+            // This function checks the elapsed time and updates the position of e.
+            // If the animation is complete, it restores e to its original state.
+            // Otherwise, it updates e's position and schedules itself to run again.
+            function animate() {
+                var now = (new Date()).getTime(); // Get current time
+                var elapsed = now-start;          // How long since we started
+                var fraction = elapsed/time;      // What fraction of total time?
+
+                if (fraction < 1) { // If the animation is not yet complete
+                    // Compute the x position of e as a function of animation
+                    // completion fraction. We use a sinusoidal function, and multiply
+                    // the completion fraction by 4pi, so that it shakes back and
+                    // forth twice.
+                    var x = distance * Math.sin(fraction*4*Math.PI);
+                    e.style.left = x + "px";
+
+                    // Try to run again in 25ms or at the end of the total time.
+                    // We are aiming for a smooth 40 frames/second animation.
+                    setTimeout(animate, Math.min(25, time-elapsed));
+                }
+                else { // Otherwise, the animation is complete
+                    e.style.cssText = originalStyle // Restore the original style
+                    if (oncomplete) oncomplete(e); // Invoke completion callback
+                }
+            }
+        }
+
+
+        // Fade e from fully opaque to fully transparent over time milliseconds.
+        // Assume that e is fully opaque when this function is invoked.
+        // oncomplete is an optional function that will be invoked with e as its
+        // argument when the animation is done. If time is omitted, use 500ms.
+        // This function does not work in IE, but could be modified to animate
+        // IE is nonstandard filter property in addition to opacity.
+        function fadeOut(e, oncomplete, time) {
+            if (typeof e === "string") e = document.getElementById(e);
+            if (!time) time = 500;
+
+            // We use Math.sqrt as a simple "easing function" to make the animation
+            // subtly nonlinear: it fades quickly at first and then slows down some.
+            var ease = Math.sqrt;
+
+            var start = (new Date()).getTime(); // Note the animation start time
+            animate(); // And start animating
+
+            function animate() {
+                var elapsed = (new Date()).getTime()-start; // elapsed time
+                var fraction = elapsed/time;                // As a fraction of total
+                if (fraction < 1) { // If the animation is not yet complete
+                    var opacity = 1 - ease(fraction);  // Compute element opacity
+                    e.style.opacity = String(opacity); // Set it on e
+                    setTimeout(animate,                // Schedule another frame
+                               Math.min(25, time-elapsed));
+                }
+                else { // Otherwise, we are done
+                    e.style.opacity = "0";         // Make e fully transparent
+                    if (oncomplete) oncomplete(e); // Invoke completion callback
+                }
+            }
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="shake(this);">shake(this);</button><br />
+            <button onclick="fadeOut(this);">fadeOut(this);</button><br />
+            <button onclick="shake(this, fadeOut);">shake(this, fadeOut);</button><br />
+        </fieldset>
+    </article>
+
+    <article>
+        <h1 id="querying-computed-styles">Querying Computed Styles</h1>
+        <p>
+        The computed style for an
+        element is the set of property values that the browser derives (or computes) from the
+        inline style plus all applicable style rules in all linked stylesheets.
+        Like inline styles, computed styles are represented
+        with a CSSStyleDeclaration object. Unlike inline styles, however, computed styles are
+        read-only. 
+        </p>
+
+        <p>
+        Obtain the computed style for an element with the <em>getComputedStyle</em>() method of the
+        Window object. The first argument to this method is the element whose computed
+        style is desired. The second argument is required and is usually null or the empty string,
+        but it can also be a string that names a CSS pseudoelement, such as “:before”, “:after”,
+        “:first-line”, or “:first-letter”:<br />
+        <pre><code>
+        var title = document.getElementById("section1title");
+        var titlestyles = window.getComputedStyle(element, null);
+        </code></pre>
+        The return value of getComputedStyle() is a CSSStyleDeclaration object that represents
+        all the styles that apply to the specified element (or pseudoelement). 
+        </p>
+
+        <pre><code>
+        // Example: Querying computed styles and setting inline styles
+        // Scale the text size of element e by the specified factor
+        function scale(e, factor) {
+            // Use the computed style to query the current size of the text
+            var size = parseInt(window.getComputedStyle(e,"").fontSize);
+            // And use the inline style to enlarge that size
+            e.style.fontSize = factor*size + "px";
+        }
+
+        // Alter the background color of element e by the specified amount.
+        // Factors > 1 lighten the color and factors < 1 darken it.
+        function scaleColor(e, factor) {
+            var color = window.getComputedStyle(e, "").backgroundColor; // Query
+            var components = color.match(/[\d\.]+/g);          // Parse r,g,b, and a components
+            for(var i = 0; i < 3; i++) {                       // Loop through r, g and b
+                var x = Number(components[i]) * factor;        // Scale each one
+                x = Math.round(Math.min(Math.max(x, 0), 255)); // Round and set bounds
+                components[i] = String(x);
+            }
+            if (components.length == 3) // A rgb() color
+                e.style.backgroundColor = "rgb(" + components.join() + ")";
+            else                        // A rgba() color
+                e.style.backgroundColor = "rgba(" + components.join() + ")";
+        }
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: </legend>
+            <button onclick="scale(this, 1.5);">scale(this, 1.5);</button><br />
+            <button onclick="scaleColor(this, 0.5);">scaleColor(this, 0.5);</button><br />
+            <button onclick="scaleColor(this, 1.5);">scaleColor(this, 1.5);</button><br />
+        </fieldset>
+    </article>
+
+
+    <article>
+        <h1 id="scripting-css-classes">Scripting CSS Classes</h1>
+        <p>
+        The identifier <em>class</em> is a reserved word in JavaScript, so the HTML <em>class</em> attribute is
+        available to JavaScript code using the name <em>className</em>. 
+        </p>
+
+        <pre><code>
+        // sets and clears the className property of an element 
+        // to add and remove the “attention” class for that element:
+        function grabAttention(e) { e.className = "attention"; }
+        function releaseAttention(e) { e.className = ""; }
+        </code></pre>
+
+        <p>
+        HTML5 addresses this issue by defining a <em>classList</em> property for every element. The
+        value of this property is known as a <em>DOMTokenList</em>: a read-only array-like object
+        whose elements contain the individual classnames for the element. 
+        More important than its array elements, however, are the methods defined by <em>DOMTokenList</em>.
+        <em>add</em>() and <em>remove</em>() add and remove individual class names from the element’s class
+        attribute. <em>toggle</em>() adds a classname if it is not already present and removes it otherwise.
+        Finally, the <em>contains</em>() method tests whether the class attribute contains a specified
+        classname.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: classList(): treat className as a set of CSS classes
+         * Return the classList property of e, if it has one.
+         * Otherwise, return an object that simulates the DOMTokenList API for e.
+         * The returned object has contains(), add(), remove(), toggle() and toString()
+         * methods for testing and altering the set of classes of the element e.
+         * If the classList property is natively supported, the returned object is
+         * array-like and has length and array index properties. The simulated
+         * DOMTokenList is not array-like, but has a toArray() method that returns
+         * a true-array snapshot of the element is class names.
+         */
+        function classList(e) {
+            if (e.classList) return e.classList; // Return e.classList if it exists
+            else return new CSSClassList(e);     // Otherwise try to fake it
+        }
+
+        // CSSClassList is a JavaScript class that simulates DOMTokenList
+        function CSSClassList(e) { this.e = e; }
+
+        // Return true if e.className contains the class c, false otherwise
+        CSSClassList.prototype.contains = function(c) {
+            // Check that c is a valid class name
+            if (c.length === 0 || c.indexOf(" ") != -1)
+                throw new Error("Invalid class name: '" + c + "'");
+
+            // Check common cases first
+            var classes = this.e.className;
+            if (!classes) return false;     // e has no classes at all
+            if (classes === c) return true; // e has one class that matches exactly
+
+            // Otherwise, use a RegExp to search for c as a word by itself
+            // \b in a regular expression requires a match at a word boundary.
+            return classes.search("\\b" + c + "\\b") != -1;
+        };
+
+        // Add c to the e.className if it is not already present
+        CSSClassList.prototype.add = function(c) {
+            if (this.contains(c)) return; // Do nothing if already present
+            var classes = this.e.className;
+            if (classes && classes[classes.length-1] != " ")
+                c = " " + c;       // Add a space if we need one
+            this.e.className += c; // Add c to the className
+        };
+
+        // Remove all occurrences of c from e.className
+        CSSClassList.prototype.remove = function(c) {
+            // Make sure c is a valid class name
+            if (c.length === 0 || c.indexOf(" ") != -1)
+                throw new Error("Invalid class name: '" + c + "'");
+            // Remove all occurances of c as a word, plus any trailing space
+            var pattern = new RegExp("\\b" + c + "\\b\\s*", "g");
+            this.e.className = this.e.className.replace(pattern, "");
+        };
+
+        // Add c to e.className if it is not already present and return true.
+        // Otherwise, remove all occurrences of c from e.className and return false.
+        CSSClassList.prototype.toggle = function(c) {
+            if (this.contains(c)) { // If e.className contains c
+                this.remove(c);     // then remove it.
+                return false;
+            }
+            else {                  // Otherwise:
+                this.add(c);        // add it.
+                return true;
+            }
+        };
+
+        // Return e.className itself
+        CSSClassList.prototype.toString = function() { return this.e.className; };
+
+        // Return of the names in e.className
+        CSSClassList.prototype.toArray = function() {
+            return this.e.className.match(/\b\w+\b/g) || [];
+        };
+        </code></pre>
+    </article>
+
+
+    <article>
+        <h1 id="scripting-stylesheets">Scripting Stylesheets</h1>
+        <p>
+        When scripting stylesheets, there are two kinds of objects you may need to work with.
+        The first kind are the Element objects that represent &lt;style&gt; and &lt;link&gt; elements 
+        that contain or reference your stylesheets.
+        The second kind of object is a <em>CSSStyleSheet</em> object that represents the stylesheet itself.
+        The <em>document.styleSheets</em> property is a read-only array-like object containing CSSStyleSheet objects
+        that represent the stylesheets associated with the document.
+        </p>
+
+        <h2 id="enabling-and-disabling-stylesheets">Enabling and Disabling Stylesheets</h2>
+        <p>
+        &lt;style&gt; elements, &lt;link&gt; elements, and <em>CSSStyleSheet</em> objects all define a <em>disabled</em>
+        property that you can query and set in JavaScript. As its name implies, if the disabled
+        property is <em>true</em>, then the stylesheet is disabled and is ignored by the browser.
+        </p>
+
+        <pre><code>
+        // If passed a number, it treats it as an index into the document.styleSheets array.
+        // If passed a string, it treats it as a CSS selector and passes it to document.querySelectorAll(),
+        // then sets the disabled property of all returned elements:
+        function disableStylesheet(ss) {
+            if (typeof ss === "number")
+                document.styleSheets[ss].disabled = true;
+            else {
+                var sheets = document.querySelectorAll(ss);
+                for(var i = 0; i < sheets.length; i++)
+                    sheets[i].disabled = true;
+            }
+        }
+        </code></pre>
+
+        <h2 id="querying-inserting-and-deleting-stylesheet-rules">Querying, Inserting and Deleting Stylesheet Rules</h2>
+        <p>
+        The elements of the <em>document.styleSheets[]</em> array are <em>CSSStyleSheet</em> objects. 
+        A <em>CSSStyleSheet</em> object has a <em>cssRules</em>[] array that contains the rules of the stylesheet
+        ( IE uses the property name rules instead of cssRules ):
+        <pre><code>
+        var firstRule = document.styleSheets[0].cssRules[0];
+        </code></pre>
+
+        The elements of the <em>cssRules</em>[] or <em>rules</em>[] arrays are <em>CSSRule</em> objects.
+        <em>CSSRule</em> objects have two properties that can be used portably. 
+        <em>selectorText</em> is the CSS selector for the rule, 
+        and <em>style</em> refers to a writable <em>CSSStyleDeclaration</em> object that describes
+        the styles associated with that selector. 
+        You can use this <em>CSSStyleDeclaration</em> object to query the style values or to set new styles for the rule,
+        and use the <em>cssText</em> property of the CSSStyleDeclaration object to
+        obtain the text representation of the rules.
+        </p>
+
+        <p>
+        The standard API interface defines <em>insertRule</em>() and <em>deleteRule</em>() methods for adding and removing rules:
+        <pre><code>
+        document.styleSheets[0].insertRule("H1 { text-weight: bold; }", 0);
+        </code></pre>
+        IE does not support <em>insertRule</em>() and <em>deleteRule</em>() but defines largely equivalent
+        <em>addRule</em>() and <em>removeRule</em>() functions. 
+        </p>
+
+        <pre><code>
+        // The following code loops through the rules of a stylesheet, 
+        // demonstrating the API by making some dubious changes to the stylesheet:
+        var ss = document.styleSheets[0];             // Get the first stylesheet
+        var rules = ss.cssRules?ss.cssRules:ss.rules; // Get the stylesheet rules
+
+        for(var i = 0; i < rules.length; i++) {   // Loop through those rules
+            var rule = rules[i];
+            if (!rule.selectorText) continue;     // Skip @import and other nonstyle rules
+
+            var selector = rule.selectorText;     // The selector
+            var ruleText = rule.style.cssText;    // The styles, in text form
+
+            // If the rule applies to h1 elements, apply it to h2 elements as well
+            // Note this only works if the selector is literally "h1"
+            if (selector == "h1") {
+                if (ss.insertRule) ss.insertRule("h2 {" + ruleText + "}", rules.length);
+                else if (ss.addRule) ss.addRule("h2", ruleText, rules.length);
+            }
+
+            // If the rule sets the text-decoration property, delete it.
+            if (rule.style.textDecoration) {
+                if (ss.deleteRule) ss.deleteRule(i);
+                else if (ss.removeRule) ss.removeRule(i);
+                i--; // Adjust the loop index since the former rule i+1 is now rule i
+            }
+        }
+        </code></pre>
+
+        <h2 id="creating-new-stylesheets">Creating New Stylesheets</h2>
+        <p>
+        In most browsers, this is done with standard DOM techniques: just create a new
+        &lt;style&gt; element and insert it into the document head, then use its innerHTML property
+        to set stylesheet content. In IE8 and before, however, a new <em>CSSStyleSheet</em> object is
+        created with the nonstandard method <em>document.createStyleSheet()</em>, and stylesheet
+        text is specified using the <em>cssText</em> property.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Creating a new stylesheet
+         * Add a stylesheet to the document and populate it with the specified styles.
+         * The styles argument can be a string or an object. If it is a string, it
+         * is treated as the text of the stylesheet. If it is an object, then each
+         * property defines a style rule to be added to the stylesheet. Property
+         * names are selectors and their values are the corresponding styles
+         */
+        function addStyles(styles) {
+            // First, create a new stylesheet
+            var styleElt, styleSheet;
+            if (document.createStyleSheet) { // If the IE API is defined, use it
+                styleSheet = document.createStyleSheet();
+            }
+            else {
+                var head = document.getElementsByTagName("head")[0]
+                styleElt = document.createElement("style"); // New &lt;style&gt; element
+                head.appendChild(styleElt);                 // Insert it into &lt;head&gt;
+                // Now the new stylesheet should be the last one
+                styleSheet = document.styleSheets[document.styleSheets.length-1]
+            }
+
+            // Now insert the styles into it
+            if (typeof styles === "string") {
+                // The argument is stylesheet text
+                if (styleElt) styleElt.innerHTML = styles;
+                else styleSheet.cssText = styles; // The IE API
+            }
+            else {
+                // The argument is an object of individual rules to insert
+                var i = 0;
+                for(selector in styles) {
+                    if (styleSheet.insertRule) {
+                        var rule = selector + " {" + styles[selector] + "}";
+                        styleSheet.insertRule(rule, i++);
+                    }
+                    else {
+                        styleSheet.addRule(selector, styles[selector], i++);
+                    }
+                }
+            }
+        }
+        </code></pre>
+    </article>
+    </main>
+
+    <footer role="contentinfo">
+        <p class="copyright"><small>&copy; copyright 2018 upper. all rights reserved.</small></p>
+    </footer>
+</div>
+
+<script>
+/**
+ * Example: An automatically generated table of contents
+ *
+ * TOC.js: create a table of contents for a document.
+ *
+ * This module registers an anonymous function that runs automatically
+ * when the document finishes loading. When it runs, the function first
+ * looks for a document element with an id of "TOC". If there is no
+ * such element it creates one at the start of the document.
+ *
+ * Next, the function finds all &lt;h1&gt; through &lt;h6&gt; tags, treats them as
+ * section titles, and creates a table of contents within the TOC 
+ * element. The function adds section numbers to each section heading
+ * and wraps the headings in named anchors so that the TOC can link to
+ * them. The generated anchors have names that begin with "TOC", so
+ * you should avoid this prefix in your own HTML.
+ *
+ * The entries in the generated TOC can be styled with CSS. All entries have
+ * a class 'TOCEntry'. Entries also have a class that corresponds to the level
+ * of the section heading. &lt;h1&gt; tags generate entries of class "TOCLevel1",
+ * &lt;h2&gt; tags generate entries of class "TOCLevel2", and so on. Section numbers
+ * inserted into headings have class "TOCSectNum".
+ *
+ * You might use this module with a stylesheet like this:
+ *
+ * #TOC { border: solid black 1px; margin: 10px; padding: 10px; }
+ * .TOCEntry { font-family: sans-serif; }
+ * .TOCEntry a { text-decoration: none; }
+ * .TOCLevel1 { font-size: 16pt; font-weight: bold; }
+ * .TOCLevel2 { font-size: 12pt; margin-left: .5in; }
+ * .TOCSectNum:after { content: ": "; }
+ *
+ * That final line generates a colon and space after section numbers. To hide
+ * the section numbers, use this:
+ *
+ * .TOCSectNum { display: none }
+ *
+ * This module requires the onLoad() utility function.
+ **/
+window.onload = function() {
+    // Find the TOC container element.
+    // If there isn't one, create one at the start of the document.
+    var toc = document.getElementById("TOC");
+    if (!toc) {
+        toc = document.createElement("div");
+        toc.id = "TOC";
+        document.body.insertBefore(toc, document.body.firstChild);
+    }
+
+    // Find all section heading elements
+    var headings;
+    if (document.querySelectorAll) // Can we do it the easy way?
+        headings = document.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    else // Otherwise, find the headings the hard way
+        headings = findHeadings(document.body, []);
+
+    // Recursively traverse the document body looking for headings
+    function findHeadings(root, sects) {
+        for(var c = root.firstChild; c != null; c = c.nextSibling) {
+            if (c.nodeType !== 1) continue;
+            if (c.tagName.length == 2 && c.tagName.charAt(0) == "H")
+                sects.push(c);
+            else
+                findHeadings(c, sects);
+        }
+        return sects;
+    }
+
+    // Initialize an array that keeps track of section numbers.
+    var sectionNumbers = [0,0,0,0,0,0];
+
+    // Now loop through the section header elements we found.
+    for(var h = 0; h < headings.length; h++) {
+        var heading = headings[h];
+
+        // Skip the section heading if it is inside the TOC container.
+        if (heading.parentNode == toc) continue;
+
+        // Figure out what level heading it is.
+        var level = parseInt(heading.tagName.charAt(1));
+        if (isNaN(level) || level < 1 || level > 6) continue;
+
+        // Increment the section number for this heading level
+        // and reset all lower heading level numbers to zero.
+        sectionNumbers[level-1]++;
+        for(var i = level; i < 6; i++) sectionNumbers[i] = 0;
+
+        // Now combine section numbers for all heading levels
+        // to produce a section number like 2.3.1.
+        var sectionNumber = sectionNumbers.slice(0,level).join(".")
+
+        // Add the section number to the section header title.
+        // We place the number in a <span> to make it styleable.
+        var span = document.createElement("span");
+        span.className = "TOCSectNum";
+        span.innerHTML = sectionNumber;
+        heading.insertBefore(span, heading.firstChild);
+
+        // Wrap the heading in a named anchor so we can link to it.
+        var anchor = document.createElement("a");
+        anchor.name = "TOC"+sectionNumber;
+        heading.parentNode.insertBefore(anchor, heading);
+        anchor.appendChild(heading);
+
+        // Now create a link to this section.
+        var link = document.createElement("a");
+        link.href = "#TOC" + sectionNumber; // Link destination
+        link.innerHTML = heading.innerHTML; // Link text is same as heading
+
+        // Place the link in a div that is styleable based on the level.
+        var entry = document.createElement("div");
+        entry.className = "TOCEntry TOCLevel" + level;
+        entry.appendChild(link);
+
+        // And add the div to the TOC container.
+        toc.appendChild(entry);
+    }
+
+    // set indent for p element
+    var list = document.getElementsByTagName('p');
+    for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        var html = item.outerHTML.replace(/<br ?\/?>/gi, '</p><p>');
+        item.outerHTML = html;
+    }
+}
+
+
+/*
+ * Display error messages in a dialog box, but never more than 3.
+ * During development, used to explicitly notify when an error occurs.
+ */
+window.onerror = function(msg, url, line) {
+    if (onerror.num++ < onerror.max) {
+        alert("[ERROR]\nmsg> " + msg + "\nurl> " + url + "\nline> " + line);
+        return true;
+    }
+}
+onerror.max = 3;
+onerror.num = 0;
+
+
+// Convert element e to relative positioning and "shake" it left and right.
+// The first argument can be an element object or the id of an element.
+// If a function is passed as the second argument, it will be invoked
+// with e as an argument when the animation is complete.
+// The 3rd argument specifies how far to shake e. The default is 5 pixels.
+// The 4th argument specifies how long to shake for. The default is 500 ms.
+function shake(e, oncomplete, distance, time) {
+    // Handle arguments
+    if (typeof e === "string") e = document.getElementById(e);
+    if (!time) time = 500;
+    if (!distance) distance = 5;
+
+    var originalStyle = e.style.cssText; // Save the original style of e
+    e.style.position = "relative";       // Make e relatively positioned
+    var start = (new Date()).getTime();  // Note the animation start time
+    animate();                           // Start the animation
+
+    // This function checks the elapsed time and updates the position of e.
+    // If the animation is complete, it restores e to its original state.
+    // Otherwise, it updates e's position and schedules itself to run again.
+    function animate() {
+        var now = (new Date()).getTime(); // Get current time
+        var elapsed = now-start;          // How long since we started
+        var fraction = elapsed/time;      // What fraction of total time?
+
+        if (fraction < 1) { // If the animation is not yet complete
+            // Compute the x position of e as a function of animation
+            // completion fraction. We use a sinusoidal function, and multiply
+            // the completion fraction by 4pi, so that it shakes back and
+            // forth twice.
+            var x = distance * Math.sin(fraction*4*Math.PI);
+            e.style.left = x + "px";
+
+            // Try to run again in 25ms or at the end of the total time.
+            // We're aiming for a smooth 40 frames/second animation.
+            setTimeout(animate, Math.min(25, time-elapsed));
+        }
+        else { // Otherwise, the animation is complete
+            e.style.cssText = originalStyle // Restore the original style
+            if (oncomplete) oncomplete(e); // Invoke completion callback
+        }
+    }
+}
+
+
+// Fade e from fully opaque to fully transparent over time milliseconds.
+// Assume that e is fully opaque when this function is invoked.
+// oncomplete is an optional function that will be invoked with e as its
+// argument when the animation is done. If time is omitted, use 500ms.
+// This function does not work in IE, but could be modified to animate
+// IE's nonstandard filter property in addition to opacity.
+function fadeOut(e, oncomplete, time) {
+    if (typeof e === "string") e = document.getElementById(e);
+    if (!time) time = 500;
+
+    // We use Math.sqrt as a simple "easing function" to make the animation
+    // subtly nonlinear: it fades quickly at first and then slows down some.
+    var ease = Math.sqrt;
+
+    var start = (new Date()).getTime(); // Note the animation start time
+    animate(); // And start animating
+
+    function animate() {
+        var elapsed = (new Date()).getTime()-start; // elapsed time
+        var fraction = elapsed/time;                // As a fraction of total
+        if (fraction < 1) { // If the animation is not yet complete
+            var opacity = 1 - ease(fraction);  // Compute element opacity
+            e.style.opacity = String(opacity); // Set it on e
+            setTimeout(animate,                // Schedule another frame
+                       Math.min(25, time-elapsed));
+        }
+        else { // Otherwise, we are done
+            e.style.opacity = "0";         // Make e fully transparent
+            if (oncomplete) oncomplete(e); // Invoke completion callback
+        }
+    }
+}
+
+
+// Example: Querying computed styles and setting inline styles
+// Scale the text size of element e by the specified factor
+function scale(e, factor) {
+    // Use the computed style to query the current size of the text
+    var size = parseInt(window.getComputedStyle(e,"").fontSize);
+    // And use the inline style to enlarge that size
+    e.style.fontSize = factor*size + "px";
+}
+
+// Alter the background color of element e by the specified amount.
+// Factors > 1 lighten the color and factors < 1 darken it.
+function scaleColor(e, factor) {
+    var color = window.getComputedStyle(e, "").backgroundColor; // Query
+    var components = color.match(/[\d\.]+/g);          // Parse r,g,b, and a components
+    for(var i = 0; i < 3; i++) {                       // Loop through r, g and b
+        var x = Number(components[i]) * factor;        // Scale each one
+        x = Math.round(Math.min(Math.max(x, 0), 255)); // Round and set bounds
+        components[i] = String(x);
+    }
+    if (components.length == 3) // A rgb() color
+        e.style.backgroundColor = "rgb(" + components.join() + ")";
+    else                        // A rgba() color
+        e.style.backgroundColor = "rgba(" + components.join() + ")";
+}
+
+
+/*
+ * Example: classList(): treat className as a set of CSS classes
+ * Return the classList property of e, if it has one.
+ * Otherwise, return an object that simulates the DOMTokenList API for e.
+ * The returned object has contains(), add(), remove(), toggle() and toString()
+ * methods for testing and altering the set of classes of the element e.
+ * If the classList property is natively supported, the returned object is
+ * array-like and has length and array index properties. The simulated
+ * DOMTokenList is not array-like, but has a toArray() method that returns
+ * a true-array snapshot of the element is class names.
+ */
+function classList(e) {
+    if (e.classList) return e.classList; // Return e.classList if it exists
+    else return new CSSClassList(e);     // Otherwise try to fake it
+}
+
+// CSSClassList is a JavaScript class that simulates DOMTokenList
+function CSSClassList(e) { this.e = e; }
+
+// Return true if e.className contains the class c, false otherwise
+CSSClassList.prototype.contains = function(c) {
+    // Check that c is a valid class name
+    if (c.length === 0 || c.indexOf(" ") != -1)
+        throw new Error("Invalid class name: '" + c + "'");
+
+    // Check common cases first
+    var classes = this.e.className;
+    if (!classes) return false;     // e has no classes at all
+    if (classes === c) return true; // e has one class that matches exactly
+
+    // Otherwise, use a RegExp to search for c as a word by itself
+    // \b in a regular expression requires a match at a word boundary.
+    return classes.search("\\b" + c + "\\b") != -1;
+};
+
+// Add c to the e.className if it is not already present
+CSSClassList.prototype.add = function(c) {
+    if (this.contains(c)) return; // Do nothing if already present
+    var classes = this.e.className;
+    if (classes && classes[classes.length-1] != " ")
+        c = " " + c;       // Add a space if we need one
+    this.e.className += c; // Add c to the className
+};
+
+// Remove all occurrences of c from e.className
+CSSClassList.prototype.remove = function(c) {
+    // Make sure c is a valid class name
+    if (c.length === 0 || c.indexOf(" ") != -1)
+        throw new Error("Invalid class name: '" + c + "'");
+    // Remove all occurances of c as a word, plus any trailing space
+    var pattern = new RegExp("\\b" + c + "\\b\\s*", "g");
+    this.e.className = this.e.className.replace(pattern, "");
+};
+
+// Add c to e.className if it is not already present and return true.
+// Otherwise, remove all occurrences of c from e.className and return false.
+CSSClassList.prototype.toggle = function(c) {
+    if (this.contains(c)) { // If e.className contains c
+        this.remove(c);     // then remove it.
+        return false;
+    }
+    else {                  // Otherwise:
+        this.add(c);        // add it.
+        return true;
+    }
+};
+
+// Return e.className itself
+CSSClassList.prototype.toString = function() { return this.e.className; };
+
+// Return of the names in e.className
+CSSClassList.prototype.toArray = function() {
+    return this.e.className.match(/\b\w+\b/g) || [];
+};
+
+
+/*
+ * Example: Creating a new stylesheet
+ * Add a stylesheet to the document and populate it with the specified styles.
+ * The styles argument can be a string or an object. If it is a string, it
+ * is treated as the text of the stylesheet. If it is an object, then each
+ * property defines a style rule to be added to the stylesheet. Property
+ * names are selectors and their values are the corresponding styles
+ */
+function addStyles(styles) {
+    // First, create a new stylesheet
+    var styleElt, styleSheet;
+    if (document.createStyleSheet) { // If the IE API is defined, use it
+        styleSheet = document.createStyleSheet();
+    }
+    else {
+        var head = document.getElementsByTagName("head")[0]
+        styleElt = document.createElement("style"); // New <style> element
+        head.appendChild(styleElt);                 // Insert it into <head>
+        // Now the new stylesheet should be the last one
+        styleSheet = document.styleSheets[document.styleSheets.length-1]
+    }
+
+    // Now insert the styles into it
+    if (typeof styles === "string") {
+        // The argument is stylesheet text
+        if (styleElt) styleElt.innerHTML = styles;
+        else styleSheet.cssText = styles; // The IE API
+    }
+    else {
+        // The argument is an object of individual rules to insert
+        var i = 0;
+        for(selector in styles) {
+            if (styleSheet.insertRule) {
+                var rule = selector + " {" + styles[selector] + "}";
+                styleSheet.insertRule(rule, i++);
+            }
+            else {
+                styleSheet.addRule(selector, styles[selector], i++);
+            }
+        }
+    }
+}
+</script>
+
+</body>
+</html>

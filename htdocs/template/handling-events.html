@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript: Handling Events</title>
+    <style type="text/css">
+    body {
+      margin: 0;
+      font: 100%/1.2 Georgia, "Times New Roman", serif;
+      padding-left: 15px;
+      padding-right: 15px;
+      max-width: 65%;
+    }
+
+    h1 {
+      color: #212121;
+      font-family: 'Lato', sans-serif;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: -2px;
+      line-height: .975;
+      margin-bottom: .4125em;
+    }
+
+    h2,
+    h3 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 400;
+      font-size: 1.275em;
+    }
+
+    p {
+      text-indent: 2em;
+    }
+
+    em,
+    li {
+        /* font-weight: bold; */
+    }
+
+    #TOC {
+        border: solid black 1px;
+        margin: 10px;
+        padding: 10px; 
+        position: fixed;
+        top: 1em;
+        right: 0.5em;
+        max-width: 30%;
+    }
+
+    .TOCEntry { font-family: sans-serif; }
+    .TOCEntry a { text-decoration: none; }
+    .TOCLevel1 { font-size: 11pt; font-weight: bold; }
+    .TOCLevel2 { font-size: 10pt; margin-left: .2in; }
+    .TOCLevel3 { font-size: 9.5pt; margin-left: .4in; }
+    .TOCSectNum:after { content: " "; }
+    </style>
+
+    <script>
+    /*
+     * Example: Invoking functions when the document is ready
+     *
+     * Pass a function to whenReady() and it will be invoked (as a method of the
+     * document) when the document is parsed and ready for manipulation. Registered
+     * functions are triggered by the first DOMContentLoaded, readystatechange, or
+     * load event that occurs. Once the document is ready and all functions have
+     * been invoked, any functions passed to whenReady() will be invoked
+     * immediately.
+     */
+    var whenReady = (function() { // This function returns the whenReady() function
+        var funcs = [];           // The functions to run when we get an event
+        var ready = false;        // Switches to true when the handler is triggered
+
+        // The event handler invoked when the document becomes ready
+        function handler(e) {
+            // If we ave already run once, just return
+            if (ready) return;
+
+            // If this was a readystatechange event where the state changed to
+            // something other than 'complete', then we are not ready yet
+            if (e.type === "readystatechange" && document.readyState !== "complete")
+                return;
+
+            // Run all registered functions.
+            // Note that we look up funcs.length each time, in case calling
+            // one of these functions causes more functions to be registered.
+            for(var i = 0; i < funcs.length; i++)
+                funcs[i].call(document);
+
+            // Now set the ready flag to true and forget the functions
+            ready = true;
+            funcs = null;
+        }
+
+        // Register the handler for any event we might receive
+        if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", handler, false);
+            document.addEventListener("readystatechange", handler, false);
+            window.addEventListener("load", handler, false);
+        }
+        else if (document.attachEvent) {
+            document.attachEvent("onreadystatechange", handler);
+            window.attachEvent("onload", handler);
+        }
+
+        // Return the whenReady function
+        return function whenReady(f) {
+            if (ready) f.call(document); // If already ready, just run it
+            else funcs.push(f);          // Otherwise, queue it for later.
+        }
+    }());
+
+    whenReady(function() { console.log("The first whenReady()"); });
+    </script>
+</head>
+<body>
+<div class="page">
+    <header class="masthead" role="banner">
+        <p>
+        Client-side JavaScript programs use an asynchronous event-driven programming model.
+        In this style of programming, the web browser generates an
+        event whenever something interesting happens to the document or browser or to some
+        element or object associated with it. 
+        </p>
+    </header>
+
+    <main class="main" role="main">
+    <article>
+        <h1 id="types-of-events">Types of Events</h1>
+
+        <h2 id="legacy-event-types">Legacy Event Types</h2>
+        <p>
+        The events you’ll use most often in your web apps are generally the ones that have been
+        around the longest and are universally supported: events for dealing with the mouse,
+        the keyboard, HTML forms, and the Window object. 
+        </p>
+
+        <h3 id="form-events">Form events</h3>
+        <p>
+        Forms and hyperlinks were the first scriptable elements in a web page, way back in the
+        early days of the Web and of JavaScript. This means that form events are some of the
+        most stable and well-supported of all event types. &lt;form&gt; elements fire submit events
+        when the form is submitted and reset events when the form is reset.
+        </p>
+
+        <h3 id="window-events">Window events</h3>
+        <p>
+        The <em>load</em> event is the most important of these events: it is fired when a document and
+        all of its external resources (such as images) are fully loaded and displayed to the user.
+        The <em>unload</em> event is the opposite of load: it is triggered when the user is navigating away
+        from a document. 
+        The <em>onerror</em> property of the Window object is something like an event handler, and it
+        is triggered in response to JavaScript errors.
+        The <em>focus</em> and <em>blur</em> events described above for form elements are also used as Window
+        events: they are triggered on a window when that browser window receives or loses
+        keyboard focus from the operating system.
+        The <em>resize</em> and <em>scroll</em> events are fired on a window when the user resizes or
+        scrolls the browser window.
+        </p>
+
+        <h3 id="mouse-events">Mouse events</h3>
+        <p>
+        Mouse events are generated when the user moves or clicks the mouse over a document.
+        The <em>clientX</em> and <em>clientY</em> properties specify the position of the mouse in
+        window coordinates. The <em>button</em> and <em>which</em> properties specify which mouse button (if
+        any) was pressed. The <em>altKey</em>, <em>ctrlKey</em>, <em>metaKey</em>, and <em>shiftKey</em> properties are set
+        to true when the corresponding keyboard modifier keys are held down. And for <em>click</em>
+        events, the <em>detail</em> property specifies whether this was a single, double, or triple click.
+        </p>
+
+
+        <h3 id="key-events">Key events</h3>
+        <p>
+        When the web browser has keyboard focus, it generates events each time the user
+        presses or releases a key on the keyboard.
+        </p>
+
+        <h2 id="dom-events">DOM Events</h2>
+        <p>
+        The DOM Level 3 Events specification has been under development by the W3C for
+        about a decade. 
+        </p>
+
+        <h2 id="html5-events">HTML5 Events</h2>
+        <p>
+        HTML5 and related standards define a host of new APIs for web applications.
+        One of the widely advertised features of HTML is inclusion of &lt;audio&gt; and &lt;video&gt;
+        elements for playing sound and video.
+        The HTML5 drag-and-drop API allows JavaScript applications to participate 
+        in OSbased drag-and-drop operations, transferring data between web applications and native applications.
+        HTML5 defines a history management mechanism that allows web applications to interact with the browser’s Back and Forward buttons.
+        HTML5 defines a lot of new features for HTML forms. 
+        HTML5 includes support for offline web applications that can be installed
+        locally in an application cache so that they can run even when the browser is offline.
+        </p>
+
+        <h2 id="touchscreen-and-mobile-events">Touchscreen and Mobile Events</h2>
+        <p>
+        The widespread adoption of powerful mobile devices, particularly those with
+        touchscreens, has required the creation of new categories of events.
+        you can find more
+        information at the <b>Apple Developer Center</b>.
+        </p>
+    </article>
+
+    <article>
+        <h1 id="registering-event-handlers">Registering Event Handlers</h1>
+
+        <h2 id="setting-event-handler-properties">Setting Event Handler Properties</h2>
+        <p>
+        The simplest way to register an event handler is by setting a property of the event target
+        to the desired event handler function.
+        </p>
+
+        <pre><code>
+        // Set the onload property of the Window object to a function.
+        // The function is the event handler: it is invoked when the document loads.
+        window.onload = function() {
+            // Look up a &lt;form&gt; element
+            var elt = document.getElementById("shipping_address");
+            // Register an event handler function that will be invoked right
+            // before the form is submitted.
+            elt.onsubmit = function() { return validate(this); }
+        }
+        </code></pre>
+
+
+        <h2 id="setting-event-handler-attributes">Setting Event Handler Attributes</h2>
+        <p>
+        The event handler properties of a document element can also be set as attributes on
+        the corresponding HTML tag. 
+        </p>
+
+        <pre><code>
+        &lt;button onclick="alert('Thank you');"&gt;Click Here&lt;/button&gt;
+
+        // When you specify a string of JavaScript code as the value of an HTML event handler
+        // attribute, the browser converts your string into a function that looks something like this:
+        function(event) {
+            with(document) {
+                with(this.form || {}) {
+                    with(this) {
+                        /* your code here */
+                    }
+                }
+            }
+        }
+        </code></pre>
+
+        <h2 id="addeventlistener">addEventListener()</h2>
+        <p>
+        addEventListener() takes three arguments. <br />
+        The first is the event type for which the handler is being registered. <br />
+        The second argument to addEventListener() is the function that should be invoked when the specified type of event occurs.<br />
+        The final argument to addEventListener() is a boolean value. Normally, you’ll pass false for this
+        argument. If you pass true instead, your function is registered as a capturing event
+        handler and is invoked at a different phase of event dispatch. 
+        </p>
+
+        <pre><code>
+        // The code below registers two handlers for the click event on a &lt;button&gt; element.
+        // Calling addEventListener() with “click” as its first argument does not affect the value of the onclick property.
+        // In the code, a button click will generate two alert() dialog boxes.
+        &lt;button id="mybutton"&gt;Click me&lt;/button&gt;
+        &lt;script&gt;
+        var b = document.getElementById("mybutton");
+        b.onclick = function() { alert("Thanks for clicking me!"); };
+        b.addEventListener("click", function() { alert("Thanks again!"); }, false);
+        &lt;/script&gt;
+        </code></pre>
+
+        <p>
+        addEventListener() is paired with a removeEventListener() method that expects the
+        same three arguments but removes an event handler function from an object rather
+        than adding it.
+        </p>
+
+        <code><pre>
+        // For example, when you get a mousedown event, you might register temporary capturing event handlers
+        // for mousemove and mouseup events so that you can see if the user drags the mouse.
+        // You’d then deregister these handlers when the mouseup event arrives. 
+        // In such a situation, your event handler removal code might look like this:
+        document.removeEventListener("mousemove", handleMouseMove, true);
+        document.removeEventListener("mouseup", handleMouseUp, true);
+        </code></pre>
+
+        <h2 id="attachevent">attachEvent()</h2>
+        <p>
+        Internet Explorer, prior to IE9, does not support addEventListener() and
+        removeEventListener(). In IE5 and later, it defines similar methods attachEvent() and
+        detachEvent().
+        </p>
+
+        <pre><code>
+        // It is common to see event handler registration code that uses addEventListener() in
+        // browsers that support it and otherwise uses attachEvent():
+        var b = document.getElementById("mybutton");
+        var handler = function() { alert("Thanks!"); };
+        if (b.addEventListener)
+            b.addEventListener("click", handler, false);
+        else if (b.attachEvent)
+            b.attachEvent("onclick", handler);
+        </code></pre>
+    </article>
+
+    <article>
+        <h1 id="event-handler-invocation">Event Handler Invocation</h1>
+
+        <h2 id="event-handler-argument">Event Handler Argument</h2>
+        <p>
+        Event handlers are normally invoked with an event object as their single argument. 
+        The properties of the event object provide details about the event. <br />
+        In IE8 and before, event handlers registered by setting a property are not passed an
+        event object when they are invoked. Instead, the event object is available through the
+        global variable window.event. 
+        </p>
+
+        <pre><code>
+        // For portability, you can write event handlers like this,
+        // so that they use the window.event if no argument is supplied:
+        function handler(event) {
+            event = event || window.event;
+            // Handler code goes here
+        }
+        </code></pre>
+
+
+        <h2 id="event-handler-context">Event Handler Context</h2>
+        <p>
+        <pre><code>
+        // When you register an event handler by setting a property,
+        // it looks as if you are defining a new method on the document element:
+        e.onclick = function() { /* handler code */ };
+        </code></pre>
+        Event handlers are invoked as methods of the object on which they are defined. 
+        That is, within the body of an event handler, the <em>this</em> keyword refers to the event target.
+        Handlers are invoked with the target as their <em>this</em> value even when registered using addEventListener().
+        </p>
+
+        <p>
+        Unfortunately, however, this is not true for attachEvent(): handlers registered with attachEvent() are invoked as functions,
+        and their <em>this</em> value is the global (Window) object. 
+        </p>
+
+        <pre><code>
+        /*
+         * Register the specified handler function to handle events of the specified
+         * type on the specified target. Ensure that the handler will always be
+         * invoked as a method of the target.
+         *
+         * Note that event handlers registered using this method cannot be removed, since the
+         * wrapper function passed to attachEvent() is not retained anywhere to be passed to
+         * detachEvent().
+         */
+        function addEvent(target, type, handler) {
+            if (target.addEventListener)
+                target.addEventListener(type, handler, false);
+            else
+                target.attachEvent("on" + type,
+                                   function(event) {
+                                       // Invoke the handler as a method of target,
+                                       // passing on the event object
+                                       return handler.call(target, event);
+                                   });
+        }
+        </code></pre>
+
+        <h2 id="event-handler-scope">Event Handler Scope</h2>
+        <p>
+        Like all JavaScript functions, event handlers are lexically scoped. They are executed in
+        the scope in which they are defined, not the scope from which they are invoked, and
+        they can access any local variables from that scope. 
+        </p>
+
+
+        <h2 id="handler-return-value">Handler Return Value</h2>
+        <p>
+        The return value of an event handler registered by setting an object property or an
+        HTML attribute is sometimes significant. In general, a return value of false tells the
+        browser that it should not perform the default action associated with the event. 
+        </p>
+
+        <p>
+        It is important to understand that event handler return values are significant only for
+        handlers registered as properties. We’ll see below that event handlers registered with
+        addEventListener() or attachEvent() must instead call the preventDefault() method
+        or set the returnValue property of the event object.
+        </p>
+
+        <h2 id="invocation-order">Invocation Order</h2>
+        <p>
+        When an appropriate event occurs, the browser must
+        invoke all of the handlers, following these rules of invocation order:<br />
+        1. Handlers registered by setting an object property or HTML attribute, if any, are
+        always invoked first.<br />
+        2. Handlers registered with addEventListener() are invoked in the order in which
+        they were registered.<br />
+        3. Handlers registered with attachEvent() may be invoked in any order and your code
+        should not depend on sequential invocation.
+        </p>
+
+
+        <h2 id="event-propagation">Event Propagation</h2>
+        <p>
+        After the event handlers registered on the target element are invoked, most events
+        “bubble” up the DOM tree. The event handlers of the target’s parent are invoked. Then
+        the handlers registered on the target’s grandparent are invoked. This continues up to
+        the Document object, and then beyond to the Window object. 
+        </p>
+
+
+        <h2 id="event-cancellation">Event Cancellation</h2>
+        <p>
+        The return value of event handlers registered as properties can
+        be used to cancel the browser’s default action for the event. In browsers that support
+        <em>addEventListener</em>(), you can also cancel the default action for an event by invoking the
+        <em>preventDefault</em>() method of the event object. In IE prior to IE9, however, you do the
+        same by setting the <em>returnValue</em> property of the event object to <em>false</em>. 
+        </p>
+
+        <pre><code>
+        // The following code shows a dummy event handler that uses all three cancellation techniques:
+        function cancelHandler(event) {
+            var event = event || window.event; // For IE
+
+            /* Do something to handle the event here */
+
+            // Now cancel the default action associated with the event
+            if (event.preventDefault) event.preventDefault(); // Standard technique
+            if (event.returnValue) event.returnValue = false; // IE
+            return false; // For handlers registered as object properties
+        }
+        </code></pre>
+    </article>
+
+
+    <article>
+        <h1 id="document-load-events">Document Load Events</h1>
+        <p>
+        Most web applications need notification from the web browser to tell them when the
+        document has been loaded and is ready to be manipulated. The <em>load</em> event on the
+        Window object serves this purpose. The <em>load</em> event does not fire
+        until a document and all of its images are fully loaded.<br />
+        The <em>DOMContentLoaded</em> event is fired when the document has been loaded and
+        parsed and any deferred scripts have been executed. Images and <em>async</em> scripts may still
+        be loading, but the document is ready to be manipulated. <br />
+        The <em>document.readyState</em> property changes as the document loads. 
+        In IE, each change in state is accompanied by a <em>readystatechange</em> event on the Document object,
+        and it is possible to use this event to determine when IE reaches the “complete” state. 
+        HTML5 standardizes the <em>readystatechange</em> event, but fires it immediately before the <em>load</em> event,
+        so it is not clear that much advantage is gained by listening for “readystatechange” instead of “load”.
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Invoking functions when the document is ready
+         *
+         * Pass a function to whenReady() and it will be invoked (as a method of the
+         * document) when the document is parsed and ready for manipulation. Registered
+         * functions are triggered by the first DOMContentLoaded, readystatechange, or
+         * load event that occurs. Once the document is ready and all functions have
+         * been invoked, any functions passed to whenReady() will be invoked
+         * immediately.
+         */
+        var whenReady = (function() { // This function returns the whenReady() function
+            var funcs = [];    // The functions to run when we get an event
+            var ready = false; // Switches to true when the handler is triggered
+
+            // The event handler invoked when the document becomes ready
+            function handler(e) {
+                // If we ave already run once, just return
+                if (ready) return;
+
+                // If this was a readystatechange event where the state changed to
+                // something other than 'complete', then we are not ready yet
+                if (e.type === "readystatechange" && document.readyState !== "complete")
+                    return;
+
+                // Run all registered functions.
+                // Note that we look up funcs.length each time, in case calling
+                // one of these functions causes more functions to be registered.
+                for(var i = 0; i < funcs.length; i++)
+                    funcs[i].call(document);
+
+                // Now set the ready flag to true and forget the functions
+                ready = true;
+                funcs = null;
+            }
+
+            // Register the handler for any event we might receive
+            if (document.addEventListener) {
+                document.addEventListener("DOMContentLoaded", handler, false);
+                document.addEventListener("readystatechange", handler, false);
+                window.addEventListener("load", handler, false);
+            }
+            else if (document.attachEvent) {
+                document.attachEvent("onreadystatechange", handler);
+                window.attachEvent("onload", handler);
+            }
+
+            // Return the whenReady function
+            return function whenReady(f) {
+                if (ready) f.call(document); // If already ready, just run it
+                else funcs.push(f);          // Otherwise, queue it for later.
+            }
+        }());
+        </code></pre>
+
+        <fieldset>
+            <legend>TEST: whenReady()</legend>
+            <input type="text" id="load-one" style="display: none;" onclick="
+                function oneTest() { alert('one'); } whenReady(oneTest);
+            "/>
+            <label for="load-one">function oneTest() { alert('one'); } whenReady(oneTest);</label><br />
+            <input type="text" id="load-two" style="display: none;" onclick="
+                function twoTest() { alert('two'); } whenReady(twoTest);
+            "/>
+            <label for="load-two">function twoTest() { alert('two'); } whenReady(twoTest);</label><br />
+        </fieldset>
+    </article>
+
+
+    <article>
+        <h1 id="mouse-events">Mouse Events</h1>
+
+        <p>
+        There are quite a few mouse-related events. eg "click", "contextmenu", "dblclick", "mousedown",
+        "mouseup", "mousemove", "mouseover", "mouseout", "mouseenter", "mouseleave". All mouse events
+        except “mouseenter” and “mouseleave” bubble. <br />
+        1. The object passed to mouse event handlers has <em>clientX</em> and <em>clientY</em> properties that
+        specify the coordinates of the mouse pointer relative to the containing window. <br />
+        2. The <em>altKey</em>, <em>ctrlKey</em>, <em>metaKey</em>, and <em>shiftKey</em> properties specify 
+        whether various keyboard modifier keys were held down when the event occurred.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Querying the scrollbar positions of a window
+         * Return the current scrollbar offsets as the x and y properties of an object
+         */
+        function getScrollOffsets(w) {
+            // Use the specified window or the current window if no argument
+            w = w || window;
+
+            // This works for all browsers except IE versions 8 and before
+            if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+
+            // For IE (or any browser) in Standards mode
+            var d = w.document;
+            if (document.compatMode == "CSS1Compat")
+                return {x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
+
+            // For browsers in Quirks mode
+            return { x: d.body.scrollLeft, y: d.body.scrollTop };
+        }
+
+        /**
+         * Example: Dragging document elements
+         * Drag.js: drag absolutely positioned HTML elements.
+         *
+         * This module defines a single drag() function that is designed to be called
+         * from an onmousedown event handler. Subsequent mousemove events will
+         * move the specified element. A mouseup event will terminate the drag.
+         * This implementation works with both the standard and IE event models.
+         * It requires the getScrollOffsets() function.
+         *
+         * Arguments:
+         *
+         *   elementToDrag: the element that received the mousedown event or
+         *     some containing element. It must be absolutely positioned. Its
+         *     style.left and style.top values will be changed based on the user
+         *     is drag.
+         *
+         *   event: the Event object for the mousedown event.
+         **/
+        function drag(elementToDrag, event) {
+            // The initial mouse position, converted to document coordinates
+            var scroll = getScrollOffsets(); // A utility function from elsewhere
+            var startX = event.clientX + scroll.x;
+            var startY = event.clientY + scroll.y;
+
+            // The original position (in document coordinates) of the element
+            // that is going to be dragged. Since elementToDrag is absolutely
+            // positioned, we assume that its offsetParent is the document body.
+            var origX = elementToDrag.offsetLeft;
+            var origY = elementToDrag.offsetTop;
+
+            // Compute the distance between the mouse down event and the upper-left
+            // corner of the element. We will maintain this distance as the mouse moves.
+            var deltaX = startX - origX;
+            var deltaY = startY - origY;
+
+            // Register the event handlers that will respond to the mousemove events
+            // and the mouseup event that follow this mousedown event.
+            if (document.addEventListener) { // Standard event model
+                // Register capturing event handlers on the document
+                document.addEventListener("mousemove", moveHandler, true);
+                document.addEventListener("mouseup", upHandler, true);
+            }
+            else if (document.attachEvent) { // IE Event Model for IE5-8
+                // In the IE event model, we capture events by calling
+                // setCapture() on the element to capture them.
+                elementToDrag.setCapture();
+                elementToDrag.attachEvent("onmousemove", moveHandler);
+                elementToDrag.attachEvent("onmouseup", upHandler);
+                // Treat loss of mouse capture as a mouseup event.
+                elementToDrag.attachEvent("onlosecapture", upHandler);
+            }
+
+            // We have handled this event. Do not let anybody else see it.
+            if (event.stopPropagation) event.stopPropagation(); // Standard model
+            else event.cancelBubble = true;                     // IE
+
+            // Now prevent any default action.
+            if (event.preventDefault) event.preventDefault(); // Standard model
+            else event.returnValue = false;                   // IE
+
+            /**
+             * This is the handler that captures mousemove events when an element
+             * is being dragged. It is responsible for moving the element.
+             **/
+            function moveHandler(e) {
+                if (!e) e = window.event; // IE event Model
+
+                // Move the element to the current mouse position, adjusted by the
+                // position of the scrollbars and the offset of the initial click.
+                var scroll = getScrollOffsets();
+                elementToDrag.style.left = (e.clientX + scroll.x - deltaX) + "px";
+                elementToDrag.style.top = (e.clientY + scroll.y - deltaY) + "px";
+
+                // And do not let anyone else see this event.
+                if (e.stopPropagation) e.stopPropagation(); // Standard
+                else e.cancelBubble = true;                 // IE
+            }
+
+            /**
+             * This is the handler that captures the final mouseup event that
+             * occurs at the end of a drag.
+             **/
+            function upHandler(e) {
+                if (!e) e = window.event; // IE Event Model
+
+                // Unregister the capturing event handlers.
+                if (document.removeEventListener) { // DOM event model
+                    document.removeEventListener("mouseup", upHandler, true);
+                    document.removeEventListener("mousemove", moveHandler, true);
+                }
+                else if (document.detachEvent) {    // IE 5+ Event Model
+                    elementToDrag.detachEvent("onlosecapture", upHandler);
+                    elementToDrag.detachEvent("onmouseup", upHandler);
+                    elementToDrag.detachEvent("onmousemove", moveHandler);
+                    elementToDrag.releaseCapture();
+                }
+
+                // And do not let the event propagate any further.
+                if (e.stopPropagation) e.stopPropagation(); // Standard model
+                else e.cancelBubble = true;                 // IE
+            }
+        }
+        </code></pre>
+
+        <iframe id="drag-iframe" width="500px" height="300px" src="about:blank"> </iframe>
+        <script type="text/javascript">
+        function createElement(type, content) {
+            var newDiv = document.createElement(type);
+            var newContent = document.createTextNode(content);
+            newDiv.appendChild(newContent);  
+            return newDiv;
+        }
+        var p1 = createElement("p", "testing");
+        var p2 = createElement("p", "Test");
+        var p3 = createElement("p", "Test");
+        var div1 = createElement("div", "Drag Me");
+        var div2 = createElement("div", "");
+        div2.appendChild(div1);  
+        div2.appendChild(p1);
+        div2.appendChild(p2);
+        div2.appendChild(p3);
+
+        div1.setAttribute("style", "background-color: gray; border-bottom: dotted black; \
+            padding: 2px; font-family: sans-serif; font-weight: bold;");
+        div2.setAttribute("style", "position:absolute; left:10px; top:10x; \
+            width:100px; background-color: white; border: solid black;");
+
+        var doc = document.getElementById('drag-iframe').contentWindow.document;
+        doc.open();
+        doc.write('<html><body>test drag() in &lt;iframe&gt;</body></html>');
+        doc.close();
+        doc.body.appendChild(div2);
+
+        var handler = function(event) { drag(this.parentNode, event); };
+        if (div1.addEventListener)
+            div1.addEventListener("mousedown", handler, false);
+        else if (b.attachEvent)
+            div1.attachEvent("onmousedown", handler);
+        </script>
+
+        <div>
+        <!-- The element to be dragged -->
+        <div style="position:absolute; left:300px; top:8000px; width:100px;
+                    background-color: white; border: solid black;">
+            <!-- The "titlebar" to drag it with. Note the onmousedown attribute. -->
+            <div style="background-color: gray; border-bottom: dotted black;
+                        padding: 3px; font-family: sans-serif; font-weight: bold;"
+                 onmousedown="drag(this.parentNode, event);">
+            Drag Me <!-- The content of the titlebar -->
+            </div>
+            <!-- Content of the draggable element -->
+            <p>testing.</p><p>Test</p><p>Test</p>
+        </div>
+        </div>
+    </article>
+
+    <article>
+        <h1 id="mousewheel-events">Mousewheel Events</h1>
+
+        <p>
+        The event object passed to a “mousewheel” handler has a <em>wheelDelta</em> property that
+        specifies how far the user turned the wheel. One mousewheel “click” away from the
+        user is generally a delta of 120 and one click toward the user is -120.<br />
+        In Safari and Chrome, to support Apple’s mice that include a two-dimensional trackball instead of
+        a one-dimensional mousewheel, the event object has <em>wheelDeltaX</em> and <em>wheelDeltaY</em>
+        properties in addition to <em>wheelDelta</em>, and <em>wheelDelta</em> and <em>wheelDeltaY</em> are always the
+        same value.<br />
+        In Firefox you can the nonstandard <em>DOMMouseScroll</em> event instead of mousewheel
+        and use the <em>detail</em> property of the event object instead of <em>wheelDelta</em>. The scaling and
+        sign of this <em>detail</em> property is different than <em>wheelDelta</em>, however: multiply <em>detail</em> by
+        -40 to compute the equivalent <em>wheelDelta</em> value.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Example: Handling mousewheel events
+         *
+         * Enclose the content element in a frame or viewport of the specified width
+         * and height (minimum 50x50). The optional contentX and contentY arguments
+         * specify the initial offset of the content relative to the frame.
+         * (If specified, they must be <= 0).
+         * The frame has mousewheel event handlers that allow the user to pan the
+         * element, and to shrink or enlarge the frame.
+         */
+        function enclose(content, framewidth, frameheight, contentX, contentY) {
+            // These arguments are not just the initial values: they maintain the
+            // current state and are used and modified by the mousewheel handler.
+            framewidth = Math.max(framewidth, 50);
+            frameheight = Math.max(frameheight, 50);
+            contentX = Math.min(contentX, 0) || 0;
+            contentY = Math.min(contentY, 0) || 0;
+
+            // Create the frame element and set a CSS classname and styles
+            var frame = document.createElement("div");
+            frame.className = "enclosure";             // So we can define styles in a stylesheet
+            frame.style.width = framewidth + "px";     // Set the frame size.
+            frame.style.height = frameheight + "px";
+            frame.style.overflow = "hidden";           // No scrollbars, no overflow
+            frame.style.boxSizing = "border-box";      // Border-box simplifies the
+            frame.style.webkitBoxSizing = "border-box";// calculations for resizing
+            frame.style.MozBoxSizing = "border-box";   // the frame.
+
+            // Put the frame in the document and move the content elt into the frame.
+            content.parentNode.insertBefore(frame, content);
+            frame.appendChild(content);
+
+            // Position the element relative to the frame
+            content.style.position = "relative";
+            content.style.left = contentX + "px";
+            content.style.top = contentY + "px";
+
+            // We will need to work around some browser-specific quirks below
+            var isMacWebkit = (navigator.userAgent.indexOf("Macintosh") !== -1 &&
+                               navigator.userAgent.indexOf("WebKit") !== -1);
+            var isFirefox = (navigator.userAgent.indexOf("Gecko") !== -1);
+
+            // Register mousewheel event handlers.
+            frame.onwheel = wheelHandler;      // Future browsers
+            frame.onmousewheel = wheelHandler; // Most current browsers
+            if (isFirefox)                     // Firefox only
+                frame.addEventListener("DOMMouseScroll", wheelHandler, false);
+
+            function wheelHandler(event) {
+                var e = event || window.event; // Standard or IE event object
+
+                // Extract the amount of rotation from the event object, looking
+                // for properties of a wheel event object, a mousewheel event object
+                // (in both its 2D and 1D forms), and the Firefox DOMMouseScroll event.
+                // Scale the deltas so that one "click" toward the screen is 30 pixels.
+                // If future browsers fire both "wheel" and "mousewheel" for the same
+                // event, we will end up double-counting it here. Hopefully, however,
+                // cancelling the wheel event will prevent generation of mousewheel.
+                var deltaX = e.deltaX*-30 || // wheel event
+                          e.wheelDeltaX/4 || // mousewheel
+                                        0;   // property not defined
+                var deltaY = e.deltaY*-30 || // wheel event
+                          e.wheelDeltaY/4 || // mousewheel event in Webkit
+               (e.wheelDeltaY===undefined && // if there is no 2D property then
+                          e.wheelDelta/4) || // use the 1D wheel property
+                             e.detail*-10 || // Firefox DOMMouseScroll event
+                                        0;   // property not defined
+
+                // Most browsers generate one event with delta 120 per mousewheel click.
+                // On Macs, however, the mousewheels seem to be velocity-sensitive and
+                // the delta values are often larger multiples of 120, at
+                // least with the Apple Mouse. Use browser-testing to defeat this.
+                if (isMacWebkit) {
+                    deltaX /= 30;
+                    deltaY /= 30;
+                }
+
+                // If we ever get a mousewheel or wheel event in (a future version of)
+                // Firefox, then we do not need DOMMouseScroll anymore.
+                if (isFirefox && e.type !== "DOMMouseScroll")
+                    frame.removeEventListener("DOMMouseScroll", wheelHandler, false);
+
+                // Get the current dimensions of the content element
+                var contentbox = content.getBoundingClientRect();
+                var contentwidth = contentbox.right - contentbox.left;
+                var contentheight = contentbox.bottom - contentbox.top;
+
+                if (e.altKey) { // If Alt key is held down, resize the frame
+                    if (deltaX) {
+                        framewidth -= deltaX;  // New width, but not bigger than the
+                        framewidth = Math.min(framwidth, contentwidth); // content
+                        framewidth = Math.max(framewidth,50);  // and no less than 50.
+                        frame.style.width = framewidth + "px"; // Set it on frame
+                    }
+                    if (deltaY) {
+                        frameheight -= deltaY; // Do the same for the frame height
+                        frameheight = Math.min(frameheight, contentheight);
+                        frameheight = Math.max(frameheight-deltaY, 50);
+                        frame.style.height = frameheight + "px";
+                    }
+                }
+                else { // Without the Alt modifier, pan the content within the frame
+                    if (deltaX) {
+                        // Do not scroll more than this
+                        var minoffset = Math.min(framewidth-contentwidth, 0);
+                        // Add deltaX to contentX, but do not go lower than minoffset
+                        contentX = Math.max(contentX + deltaX, minoffset);
+                        contentX = Math.min(contentX, 0);     // or higher than 0
+                        content.style.left = contentX + "px"; // Set new offset
+                    }
+                    if (deltaY) {
+                        var minoffset = Math.min(frameheight - contentheight, 0);
+                        // Add deltaY to contentY, but do not go lower than minoffset
+                        contentY = Math.max(contentY + deltaY, minoffset);
+                        contentY = Math.min(contentY, 0);    // Or higher than 0
+                        content.style.top = contentY + "px"; // Set the new offset.
+                    }
+                }
+
+                // Do not let this event bubble. Prevent any default action.
+                // This stops the browser from using the mousewheel event to scroll
+                // the document. Hopefully calling preventDefault() on a wheel event
+                // will also prevent the generation of a mousewheel event for the
+                // same rotation.
+                if (e.preventDefault) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+                e.cancelBubble = true; // IE events
+                e.returnValue = false; // IE events
+                return false;
+            }
+        }
+        </code></pre>
+
+        <style>div.enclosure { border: solid black 10px; margin: 10px; }</style>
+        <img id="content" src="http://pic109.huitu.com/res/20180915/1638701_20180915153157054020_1.jpg" onclick="
+            enclose(document.getElementById('content'),400,200,-200,-300);
+        "/>
+    </article>
+
+    <article>
+        <h1 id="drag-and-drop-events">Drag and Drop Events</h1>
+
+        <p>
+        All DnD(Drag-and-drop) event handlers are passed an event object that is like a mouse event object,
+        with the addition of a <em>dataTransfer</em> property. This property refers to a <em>DataTransfer</em> object that
+        defines the methods and properties of the DnD API.<br />
+        Any document element that has the HTML <em>draggable</em> attribute is a drag source.
+        When the user begins a mouse drag over a drag source, the browser does not select the element content:
+        instead, it fires a <em>dragstart</em> event on the element. Your handler for that event should
+        call <em>dataTransfer.setData()</em> to specify the data that the drag
+        source is making available. (when the new html5 api is implemented, you might
+        call <em>datatransfer.items.add()</em> instead.) Your handler may also want to set
+        <em>dataTransfer.effectAllowed</em> to specify which of the “move”, “copy”, and “link” transfer operations
+        are supported and it might want to call <em>dataTransfer.setDragImage()</em> or <em>dataTransfer.addElement()</em>
+        to specify an image or document element to be used as the visual representation of the drag.
+
+        While the drag progresses, the browser fires drag events on the drag source. You can
+        listen for these events if you want to update the drag image or alter the data being
+        offered, but it is not generally necessary to register “drag” handlers.<br />
+
+        When a drop occurs, the dragend event is fired. If your drag source supports a “move”
+        operation, it should check <em>dataTransfer.dropEffect</em> to see if a move operation was
+        actually performed. If so, the data has been transferred elsewhere, and you should delete
+        it from the drag source.<br />
+        </p>
+
+        <pre><code>
+        var dragAndDrop = function() {
+            var clock = document.getElementById("clock");
+            var icon = new Image();      // An image to drag
+            icon.src = "clock-icon.png"; // Image URL
+
+            // Display the time once every minute
+            function displayTime() {
+                var now = new Date();    // Get current time
+                var hrs = now.getHours(), mins = now.getMinutes();
+                if (mins < 10) mins = "0" + mins;
+                clock.innerHTML = hrs + ":" + mins; // Display current time
+                setTimeout(displayTime, 60000);     // Run again in 1 minute
+            }
+            displayTime();
+
+            // Make the clock draggable
+            // We can also do this with an HTML attribute: <span draggable="true">...
+            clock.draggable = true;
+
+            // Set up drag event handlers
+            clock.ondragstart = function(event) {
+                var event = event || window.event; // For IE compatability
+
+                // The dataTransfer property is key to the drag-and-drop API
+                var dt = event.dataTransfer;
+
+                // Tell the browser what is being dragged.
+                // The Date() constructor used as a function returns a timestamp string
+                dt.setData("Text", Date() + "\n");
+
+                // Tell the browser to drag our icon to represent the timestamp, in
+                // browsers that support that. Without this line, the browser may
+                // use an image of the clock text as the value to drag.
+                if (dt.setDragImage) dt.setDragImage(icon, 0, 0);
+            };
+        };
+        </code></pre>
+
+        <script>
+        var dragAndDrop = function() {
+            var clock = document.getElementById("clock");
+            var icon = new Image();      // An image to drag
+            icon.src = "clock-icon.png"; // Image URL
+
+            // Display the time once every minute
+            function displayTime() {
+                var now = new Date();    // Get current time
+                var hrs = now.getHours(), mins = now.getMinutes();
+                if (mins < 10) mins = "0" + mins;
+                clock.innerHTML = hrs + ":" + mins; // Display current time
+                setTimeout(displayTime, 60000);     // Run again in 1 minute
+            }
+            displayTime();
+
+            // Make the clock draggable
+            // We can also do this with an HTML attribute: <span draggable="true">...
+            clock.draggable = true;
+
+            // Set up drag event handlers
+            clock.ondragstart = function(event) {
+                var event = event || window.event; // For IE compatability
+
+                // The dataTransfer property is key to the drag-and-drop API
+                var dt = event.dataTransfer;
+
+                // Tell the browser what is being dragged.
+                // The Date() constructor used as a function returns a timestamp string
+                dt.setData("Text", Date() + "\n");
+
+                // Tell the browser to drag our icon to represent the timestamp, in
+                // browsers that support that. Without this line, the browser may
+                // use an image of the clock text as the value to drag.
+                if (dt.setDragImage) dt.setDragImage(icon, 0, 0);
+            };
+        };
+        </script>
+        <style>
+        #clock { /* Make the clock look nice */
+            font: bold 24pt sans; background: #ddf; padding: 10px;
+            border: solid black 2px; border-radius: 10px;
+        }
+        </style>
+        <span id="clock" onclick="dragAndDrop()"></span><br /><br /><!-- The time is displayed here -->
+        <textarea cols=60 rows=10></textarea> <!-- You can drop timestamps here -->
+    </article>
+
+    <article>
+        <h1 id="text-events">Text Events</h1>
+
+        <p>
+        Browsers have three legacy events for keyboard input. The <b>keydown</b> and <b>keyup</b> events
+        are low-level events that are covered in the next section. The <b>keypress</b> event, however,
+        is a higher-level event that signals that a printable character has been generated. The
+        DOM Level 3 Events draft specification defines a more general <b>textinput</b> event triggered
+        whenever the user inputs text regardless of the source.<br />
+
+        The proposed <b>textinput</b> event and the currently implemented <b>textInput</b> event are
+        passed a simple event object with a <b>data</b> property that holds the input text. (Another
+        property, <b>inputMethod</b>, is proposed to specify the source of the input, but it has not yet
+        been implemented.) For keyboard input, the <b>data</b> property will usually hold only a
+        single character, but input from other sources may often include multiple characters.<br />
+
+        A <b>keypress</b> event represents a single character of input. The event object specifies that character as a numeric
+        Unicode codepoint, and you must use <b>String.fromCharCode()</b> to convert it to a string.
+        In most browsers, the <b>keyCode</b> property of the event object specifies the codepoint of
+        the input character. For historical reasons, however, Firefox uses the <b>charCode</b> property
+        instead. Most browser only fire keypress events when a printable character is generated.
+        Firefox, however, also fires “keypress” for nonprinting characters. To detect this case
+        (so you can ignore the nonprinting characters), you can look for an event object with
+        a <b>charCode</b> property that is defined but set to 0.
+        </p>
+
+        <pre><code>
+        /**
+         * Example: Filtering user input
+         * InputFilter.js: unobtrusive filtering of keystrokes for &lt;input&gt; elements
+         *
+         * This module finds all &lt;input type="text"&gt; elements in the document that
+         * have an "data-allowed-chars" attribute. It registers keypress, textInput, and
+         * textinput event handlers for any such element to restrict the user's input
+         * so that only characters that appear in the value of the attribute may be
+         * entered. If the &lt;input&gt; element also has an attribute named "data-messageid",
+         * the value of that attribute is taken to be the id of another document
+         * element. If the user types a character that is not allowed, the message
+         * element is made visible. If the user types a character that is allowed, the
+         * message element is hidden. This message id element is intended to offer
+         * an explanation to the user of why her keystroke was rejected. It should
+         * typically be styled with CSS so that it is initially invisible.
+         *
+         * Here is sample HTML that uses this module.
+         * Zipcode: &lt;input id="zip" type="text"
+         * data-allowed-chars="0123456789" data-messageid="zipwarn"&gt;
+         * &lt;span id="zipwarn" style="color:red;visibility:hidden"&gt;Digits only&lt;/span&gt;
+         *
+         * This module is purely unobtrusive: it does not define any symbols in
+         * the global namespace.
+         */
+        var filterUserInput = function () { 
+            // Find all &lt;input&gt; elements
+            var inputelts = document.getElementsByTagName("input");
+
+            // Loop through them all
+            for(var i = 0 ; i < inputelts.length; i++) {
+                var elt = inputelts[i];
+                // Skip those that aren't text fields or that don't have
+                // a data-allowed-chars attribute.
+                if (elt.type != "text" || !elt.getAttribute("data-allowed-chars"))
+                    continue;
+
+                // Register our event handler function on this input element
+                // keypress is a legacy event handler that works everywhere.
+                // textInput (mixed-case) is supported by Safari and Chrome in 2010.
+                // textinput (lowercase) is the version in the DOM Level 3 Events draft.
+                if (elt.addEventListener) {
+                    elt.addEventListener("keypress", filter, false);
+                    elt.addEventListener("textInput", filter, false);
+                    elt.addEventListener("textinput", filter, false);
+                }
+                else { // textinput not supported versions of IE w/o addEventListener()
+                    elt.attachEvent("onkeypress", filter);
+                }
+            }
+
+            // This is the keypress and textInput handler that filters the user is input
+            function filter(event) {
+                // Get the event object and the target element target
+                var e = event || window.event;         // Standard or IE model
+                var target = e.target || e.srcElement; // Standard or IE model
+                var text = null;                       // The text that was entered
+
+                // Get the character or text that was entered
+                if (e.type === "textinput" || e.type === "textInput")
+                    text = e.data;
+                else { // This was a legacy keypress event
+                    // Firefox uses charCode for printable key press events
+                    var code = e.charCode || e.keyCode;
+
+                    // If this keystroke is a function key of any kind, do not filter it
+                    if (code < 32 ||           // ASCII control character
+                        e.charCode == 0 ||     // Function key (Firefox only)
+                        e.ctrlKey || e.altKey) // Modifier key held down
+                        return;                // Do not filter this event
+
+                    // Convert character code into a string
+                    var text = String.fromCharCode(code);
+                }
+
+                // Now look up information we need from this input element
+                var allowed = target.getAttribute("data-allowed-chars"); // Legal chars
+                var messageid = target.getAttribute("data-messageid");   // Message id
+                if (messageid) // If there is a message id, get the element
+                    var messageElement = document.getElementById(messageid);
+
+                // Loop through the characters of the input text
+                for(var i = 0; i < text.length; i++) {
+                    var c = text.charAt(i);
+                    if (allowed.indexOf(c) == -1) { // Is this a disallowed character?
+                        // Display the message element, if there is one
+                        if (messageElement) messageElement.style.visibility = "visible";
+
+                        // Cancel the default action so the text is not inserted
+                        if (e.preventDefault) e.preventDefault();
+                        if (e.returnValue) e.returnValue = false;
+                        return false;
+                    }
+                }
+
+                // If all the characters were legal, hide the message if there is one.
+                if (messageElement) messageElement.style.visibility = "hidden";
+            }
+        };
+
+
+        // Example: Using the propertychange event to detect text input.
+        // force all input to uppercase in a cross-platform way.
+        function forceToUpperCase(element) {
+            if (typeof element === "string")
+                element = document.getElementById(element);
+            element.oninput = upcase;
+            element.onpropertychange = upcaseOnPropertyChange;
+
+            // Easy case: the handler for the input event
+            function upcase(event) { this.value = this.value.toUpperCase(); }
+
+            // Hard case: the handler for the propertychange event
+            function upcaseOnPropertyChange(event) {
+                var e = event || window.event;
+                // If the value property changed
+                if (e.propertyName === "value") {
+                    // Remove onpropertychange handler to avoid recursion
+                    this.onpropertychange = null;
+                    // Change the value to all uppercase
+                    this.value = this.value.toUpperCase();
+                    // And restore the original propertychange handler
+                    this.onpropertychange = upcaseOnPropertyChange;
+                }
+            }
+        }
+        </code></pre>
+
+        <input type=text onclick="filterUserInput()" oninput="this.value = this.value.toUpperCase();">
+    </article>
+
+    <article>
+        <h1 id="keyboard-events">Keyboard Events</h1>
+
+        <p>
+        The keydown and keyup events are fired when the user presses or releases a key on the keyboard.<br />
+
+        The event object associated with these events has a numeric <b>keyCode</b> property that
+        specifies which key was pressed. For keys that generate printable characters, the <b>keyCode</b>
+        is generally the Unicode encoding of the primary character that appears on the
+        key. Letter keys always generate uppercase <b>keyCode</b> values, regardless of the state of the
+        Shift key since that is what appears on the physical key. Similarly, number keys always
+        generate <b>keyCode</b> values for the digit that appears on the key, even if you are holding
+        down Shift in order to type a punctuation character. For nonprinting keys, the <b>keyCode</b>
+        property will be some other value. These <b>keyCode</b> values have never been standardized,
+        but reasonable cross-browser compatibility is possible.<br />
+
+        Like mouse event objects, key event objects have <b>altKey</b>, <b>ctrlKey</b>, <b>metaKey</b>, and <b>shiftKey</b>
+        properties, which are set to true if the corresponding modifier key is held down
+        when the event occurs.<br />
+        </p>
+
+        <pre><code>
+        /*
+         * Example: A Keymap class for keyboard shortcuts
+         * Keymap.js: bind key events to handler functions.
+         *
+         * This module defines a Keymap class. An instance of this class represents a
+         * mapping of key identifiers (defined below) to handler functions. A Keymap
+         * can be installed on an HTML element to handle keydown events. When such an
+         * event occurs, the Keymap uses its mapping to invoke the appropriate handler.
+         *
+         * When you create a Keymap, you can pass a JavaScript object that represents
+         * the initial set of bindings for the Keymap. The property names of this object
+         * are key identifers, and the property values are the handler functions.
+         * After a Keymap has been created, you can add new bindings by passing a key
+         * identifer and handler function to the bind() method. You can remove a
+         * binding by passing a key identifier to the unbind() method.
+         *
+         * To make use of a Keymap, call its install() method, passing an HTML element,
+         * such as the document object. install() adds an onkeydown event handler to
+         * the specified object. When this handler is invoked, it determines the key
+         * identifier of the pressed key and invokes the handler function, if any,
+         * bound to that key identifier. A single Keymap may be installed on more than
+         * one HTML element.
+         *
+         * Key Identifiers
+         *
+         * A key identifier is a case-insensitive string representation of a key plus
+         * any modifier keys that are held down at the same time. The key name is
+         * usually the (unshifted) text on the key. Legal key names include "A", "7",
+         * "F2", "PageUp", "Left", "Backspace", and "Esc".
+         *
+         * See the Keymap.keyCodeToKeyName object in this module for a list of names.
+         * These are a subset of the names defined by the DOM Level 3 standard and
+         * this class will use the key property of the event object when implemented.
+         *
+         * A key identifier may also include modifier key prefixes. These prefixes are
+         * Alt, Ctrl, Meta, and Shift. They are case-insensitive, and must be separated
+         * from the key name and from each other with spaces or with an underscore,
+         * hyphen, or +. For example: "SHIFT+A", "Alt_F2", "meta-v", and "ctrl alt left".
+         * On Macs, Meta is the Command key and Alt is the Option key. Some browsers
+         * map the Windows key to the Meta modifier.
+         *
+         * Handler Functions
+         *
+         * Handlers are invoked as methods of the document or document element on which
+         * the keymap is installed and are passed two arguments:
+         * 1) the event object for the keydown event
+         * 2) the key identifier of the key that was pressed
+         * The handler return value becomes the return value of the keydown handler.
+         * If a handler function returns false, the keymap will stop bubbling and
+         * cancel any default action associated with the keydown event.
+         *
+         * Limitations
+         *
+         * It is not possible to bind a handler function to all keys. The operating
+         * system traps some key sequences (Alt-F4, for example). And the browser
+         * itself may trap others (Ctrl-S, for example). This code is browser, OS,
+         * and locale-dependent. Function keys and modified function keys work well,
+         * and unmodified alphanumeric keys work well. The combination of Ctrl and Alt
+         * with alphanumeric characters is less robust.
+         *
+         * Most punctuation characters that do not require the Shift key (`=[];',./\
+         * but not hyphen) on standard US keyboard layouts are supported. But they are
+         * not particularly portable to other keyboard layouts and should be avoided.
+         */
+
+        // This is the constructor function
+        function Keymap(bindings) {
+            this.map = {};  // Define the key identifier->handler map
+            if (bindings) { // Copy initial bindings into it
+                for(name in bindings) this.bind(name, bindings[name]);
+            }
+        }
+
+        // Bind the specified key identifier to the specified handler function
+        Keymap.prototype.bind = function(key, func) {
+            this.map[Keymap.normalize(key)] = func;
+        };
+
+        // Delete the binding for the specified key identifier
+        Keymap.prototype.unbind = function(key) {
+            delete this.map[Keymap.normalize(key)];
+        };
+
+        // Install this Keymap on the specified HTML element
+        Keymap.prototype.install = function(element) {
+            // This is the event-handler function
+            var keymap = this;
+            function handler(event) { return keymap.dispatch(event, element); }
+
+            // Now install it
+            if (element.addEventListener)
+                element.addEventListener("keydown", handler, false);
+            else if (element.attachEvent)
+                element.attachEvent("onkeydown", handler);
+        };
+
+        // This method dispatches key events based on the keymap bindings.
+        Keymap.prototype.dispatch = function(event, element) {
+            // We start off with no modifiers and no key name
+            var modifiers = ""
+            var keyname = null;
+
+            // Build the modifier string in canonical lowercase alphabetical order.
+            if (event.altKey) modifiers += "alt_";
+            if (event.ctrlKey) modifiers += "ctrl_";
+            if (event.metaKey) modifiers += "meta_";
+            if (event.shiftKey) modifiers += "shift_";
+
+            // The keyname is easy if the DOM Level 3 key property is implemented:
+            if (event.key) keyname = event.key;
+            // Use the keyIdentifier on Safari and Chrome for function key names
+            else if (event.keyIdentifier && event.keyIdentifier.substring(0,2) !== "U+")
+                keyname = event.keyIdentifier;
+            // Otherwise, use the keyCode property and the code-to-name map below
+            else keyname = Keymap.keyCodeToKeyName[event.keyCode];
+
+            // If we couldn't figure out a key name, just return and ignore the event.
+            if (!keyname) return;
+
+            // The canonical key id is modifiers plus lowercase key name
+            var keyid = modifiers + keyname.toLowerCase();
+
+            // Now see if the key identifier is bound to anything
+            var handler = this.map[keyid];
+            if (handler) { // If there is a handler for this key, handle it
+                // Invoke the handler function
+                var retval = handler.call(element, event, keyid);
+
+                // If the handler returns false, cancel default and prevent bubbling
+                if (retval === false) {
+                    if (event.stopPropagation) event.stopPropagation(); // DOM model
+                    else event.cancelBubble = true;                     // IE model
+                    if (event.preventDefault) event.preventDefault();   // DOM
+                    else event.returnValue = false;                     // IE
+                }
+
+                // Return whatever the handler returned
+                return retval;
+            }
+        };
+
+        // Utility function to convert a key identifier to canonical form.
+        // On non-Macintosh hardware, we could map "meta" to "ctrl" here, so that
+        // Meta-C would be "Command-C" on the Mac and "Ctrl-C" everywhere else.
+        Keymap.normalize = function(keyid) {
+            keyid = keyid.toLowerCase();           // Everything lowercase
+            var words = keyid.split(/\s+|[\-+_]/); // Split modifiers from name
+            var keyname = words.pop();             // keyname is the last word
+            keyname = Keymap.aliases[keyname] || keyname; // Is it an alias?
+            words.sort();                          // Sort remaining modifiers
+            words.push(keyname);                   // Add the normalized name back
+            return words.join("_");                // Concatenate them all
+        };
+
+        Keymap.aliases = {     // Map common key aliases to their "official"
+            "escape":"esc",    // key names used by DOM Level 3 and by
+            "delete":"del",    // the key code to key name map below.
+            "return":"enter",  // Both keys and values must be lowercase here.
+            "ctrl":"control",
+            "space":"spacebar",
+            "ins":"insert"
+        };
+
+        // The legacy keyCode property of the keydown event object is not standardized
+        // But the following values seem to work for most browsers and OSes.
+        Keymap.keyCodeToKeyName = {
+            // Keys with words or arrows on them
+            8:"Backspace", 9:"Tab", 13:"Enter", 16:"Shift", 17:"Control", 18:"Alt",
+            19:"Pause", 20:"CapsLock", 27:"Esc", 32:"Spacebar", 33:"PageUp",
+            34:"PageDown", 35:"End", 36:"Home", 37:"Left", 38:"Up", 39:"Right",
+            40:"Down", 45:"Insert", 46:"Del",
+
+            // Number keys on main keyboard (not keypad)
+            48:"0",49:"1",50:"2",51:"3",52:"4",53:"5",54:"6",55:"7",56:"8",57:"9",
+
+            // Letter keys. Note that we don't distinguish upper and lower case
+            65:"A", 66:"B", 67:"C", 68:"D", 69:"E", 70:"F", 71:"G", 72:"H", 73:"I",
+            74:"J", 75:"K", 76:"L", 77:"M", 78:"N", 79:"O", 80:"P", 81:"Q", 82:"R",
+            83:"S", 84:"T", 85:"U", 86:"V", 87:"W", 88:"X", 89:"Y", 90:"Z",
+
+            // Keypad numbers and punctuation keys. (Opera does not support these.)
+            96:"0",97:"1",98:"2",99:"3",100:"4",101:"5",102:"6",103:"7",104:"8",105:"9",
+            106:"Multiply", 107:"Add", 109:"Subtract", 110:"Decimal", 111:"Divide",
+
+            // Function keys
+            112:"F1", 113:"F2", 114:"F3", 115:"F4", 116:"F5", 117:"F6",
+            118:"F7", 119:"F8", 120:"F9", 121:"F10", 122:"F11", 123:"F12",
+            124:"F13", 125:"F14", 126:"F15", 127:"F16", 128:"F17", 129:"F18",
+            130:"F19", 131:"F20", 132:"F21", 133:"F22", 134:"F23", 135:"F24",
+
+            // Punctuation keys that don't require holding down Shift
+            // Hyphen is nonportable: FF returns same code as Subtract
+            59:";", 61:"=", 186:";", 187:"=", // Firefox and Opera return 59,61
+            188:",", 190:".", 191:"/", 192:"`", 219:"[", 220:"\\", 221:"]", 222:"'"
+        };
+        </code></pre>
+    </article>
+    </main>
+
+    <footer role="contentinfo">
+        <p class="copyright"><small>&copy; copyright 2018 upper. all rights reserved.</small></p>
+    </footer>
+</div>
+
+<script>
+/**
+ * Example: An automatically generated table of contents
+ *
+ * TOC.js: create a table of contents for a document.
+ *
+ * This module registers an anonymous function that runs automatically
+ * when the document finishes loading. When it runs, the function first
+ * looks for a document element with an id of "TOC". If there is no
+ * such element it creates one at the start of the document.
+ *
+ * Next, the function finds all &lt;h1&gt; through &lt;h6&gt; tags, treats them as
+ * section titles, and creates a table of contents within the TOC
+ * element. The function adds section numbers to each section heading
+ * and wraps the headings in named anchors so that the TOC can link to
+ * them. The generated anchors have names that begin with "TOC", so
+ * you should avoid this prefix in your own HTML.
+ * The entries in the generated TOC can be styled with CSS. All entries have
+ * a class "TOCEntry". Entries also have a class that corresponds to the level
+ * of the section heading. &lt;h1&gt; tags generate entries of class "TOCLevel1",
+ * &lt;h2&gt; tags generate entries of class "TOCLevel2", and so on. Section numbers
+ * inserted into headings have class "TOCSectNum".
+ *
+ * You might use this module with a stylesheet like this:
+ *
+ * #TOC { border: solid black 1px; margin: 10px; padding: 10px; }
+ * .TOCEntry { font-family: sans-serif; }
+ * .TOCEntry a { text-decoration: none; }
+ * .TOCLevel1 { font-size: 16pt; font-weight: bold; }
+ * .TOCLevel2 { font-size: 12pt; margin-left: .5in; }
+ * .TOCSectNum:after { content: ": "; }
+ *
+ * That final line generates a colon and space after section numbers. To hide
+ * the section numbers, use this:
+ *
+ * .TOCSectNum { display: none }
+ *
+ * This module requires the onLoad() utility function.
+ **/
+window.onload = function() {
+    // Find the TOC container element.
+    // If there isn't one, create one at the start of the document.
+    var toc = document.getElementById("TOC");
+    if (!toc) {
+        toc = document.createElement("div");
+        toc.id = "TOC";
+        document.body.insertBefore(toc, document.body.firstChild);
+    }
+
+    // Find all section heading elements
+    var headings;
+    if (document.querySelectorAll) // Can we do it the easy way?
+        headings = document.querySelectorAll("h1,h2,h3,h4,h5,h6");
+    else // Otherwise, find the headings the hard way
+        headings = findHeadings(document.body, []);
+
+    // Recursively traverse the document body looking for headings
+    function findHeadings(root, sects) {
+        for(var c = root.firstChild; c != null; c = c.nextSibling) {
+            if (c.nodeType !== 1) continue;
+            if (c.tagName.length == 2 && c.tagName.charAt(0) == "H")
+                sects.push(c);
+            else
+                findHeadings(c, sects);
+        }
+        return sects;
+    }
+
+    // Initialize an array that keeps track of section numbers.
+    var sectionNumbers = [0,0,0,0,0,0];
+
+    // Now loop through the section header elements we found.
+    for(var h = 0; h < headings.length; h++) {
+        var heading = headings[h];
+
+        // Skip the section heading if it is inside the TOC container.
+        if (heading.parentNode == toc) continue;
+
+        // Figure out what level heading it is.
+        var level = parseInt(heading.tagName.charAt(1));
+        if (isNaN(level) || level < 1 || level > 6) continue;
+
+        // Increment the section number for this heading level
+        // and reset all lower heading level numbers to zero.
+        sectionNumbers[level-1]++;
+        for(var i = level; i < 6; i++) sectionNumbers[i] = 0;
+
+        // Now combine section numbers for all heading levels
+        // to produce a section number like 2.3.1.
+        var sectionNumber = sectionNumbers.slice(0,level).join(".")
+
+        // Add the section number to the section header title.
+        // We place the number in a <span> to make it styleable.
+        var span = document.createElement("span");
+        span.className = "TOCSectNum";
+        span.innerHTML = sectionNumber;
+        heading.insertBefore(span, heading.firstChild);
+
+        // Wrap the heading in a named anchor so we can link to it.
+        var anchor = document.createElement("a");
+        anchor.name = "TOC"+sectionNumber;
+        heading.parentNode.insertBefore(anchor, heading);
+        anchor.appendChild(heading);
+
+        // Now create a link to this section.
+        var link = document.createElement("a");
+        link.href = "#TOC" + sectionNumber; // Link destination
+        link.innerHTML = heading.innerHTML; // Link text is same as heading
+
+        // Place the link in a div that is styleable based on the level.
+        var entry = document.createElement("div");
+        entry.className = "TOCEntry TOCLevel" + level;
+        entry.appendChild(link);
+
+        // And add the div to the TOC container.
+        toc.appendChild(entry);
+    }
+
+    // set indent for p element
+    var list = document.getElementsByTagName('p');
+    for(var i = 0; i < list.length; i++) {
+        var item = list[i];
+        var html = item.outerHTML.replace(/<br ?\/?>/gi, '</p><p>');
+        item.outerHTML = html;
+    }
+}
+
+
+/*
+ * Display error messages in a dialog box, but never more than 3.
+ * During development, used to explicitly notify when an error occurs.
+ */
+window.onerror = function(msg, url, line) {
+    if (onerror.num++ < onerror.max) {
+        alert("[ERROR]\nmsg> " + msg + "\nurl> " + url + "\nline> " + line);
+        return true;
+    }
+}
+onerror.max = 3;
+onerror.num = 0;
+
+
+/*
+ * Register the specified handler function to handle events of the specified
+ * type on the specified target. Ensure that the handler will always be
+ * invoked as a method of the target.
+ *
+ * Note that event handlers registered using this method cannot be removed, since the
+ * wrapper function passed to attachEvent() is not retained anywhere to be passed to
+ * detachEvent().
+ */
+function addEvent(target, type, handler) {
+    if (target.addEventListener)
+        target.addEventListener(type, handler, false);
+    else
+        target.attachEvent("on" + type,
+                           function(event) {
+                               // Invoke the handler as a method of target,
+                               // passing on the event object
+                               return handler.call(target, event);
+                           });
+}
+
+/*
+ * Example: Querying the scrollbar positions of a window
+ * Return the current scrollbar offsets as the x and y properties of an object
+ */
+function getScrollOffsets(w) {
+    // Use the specified window or the current window if no argument
+    w = w || window;
+
+    // This works for all browsers except IE versions 8 and before
+    if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+
+    // For IE (or any browser) in Standards mode
+    var d = w.document;
+    if (document.compatMode == "CSS1Compat")
+        return {x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
+
+    // For browsers in Quirks mode
+    return { x: d.body.scrollLeft, y: d.body.scrollTop };
+}
+
+/**
+ * Example: Dragging document elements
+ * Drag.js: drag absolutely positioned HTML elements.
+ *
+ * This module defines a single drag() function that is designed to be called
+ * from an onmousedown event handler. Subsequent mousemove events will
+ * move the specified element. A mouseup event will terminate the drag.
+ * This implementation works with both the standard and IE event models.
+ * It requires the getScrollOffsets() function.
+ *
+ * Arguments:
+ *
+ *   elementToDrag: the element that received the mousedown event or
+ *     some containing element. It must be absolutely positioned. Its
+ *     style.left and style.top values will be changed based on the user
+ *     is drag.
+ *
+ *   event: the Event object for the mousedown event.
+ **/
+function drag(elementToDrag, event) {
+    // The initial mouse position, converted to document coordinates
+    var scroll = getScrollOffsets(); // A utility function from elsewhere
+    var startX = event.clientX + scroll.x;
+    var startY = event.clientY + scroll.y;
+
+    // The original position (in document coordinates) of the element
+    // that is going to be dragged. Since elementToDrag is absolutely
+    // positioned, we assume that its offsetParent is the document body.
+    var origX = elementToDrag.offsetLeft;
+    var origY = elementToDrag.offsetTop;
+
+    // Compute the distance between the mouse down event and the upper-left
+    // corner of the element. We will maintain this distance as the mouse moves.
+    var deltaX = startX - origX;
+    var deltaY = startY - origY;
+
+    // Register the event handlers that will respond to the mousemove events
+    // and the mouseup event that follow this mousedown event.
+    if (document.addEventListener) { // Standard event model
+        // Register capturing event handlers on the document
+        document.addEventListener("mousemove", moveHandler, true);
+        document.addEventListener("mouseup", upHandler, true);
+    }
+    else if (document.attachEvent) { // IE Event Model for IE5-8
+        // In the IE event model, we capture events by calling
+        // setCapture() on the element to capture them.
+        elementToDrag.setCapture();
+        elementToDrag.attachEvent("onmousemove", moveHandler);
+        elementToDrag.attachEvent("onmouseup", upHandler);
+        // Treat loss of mouse capture as a mouseup event.
+        elementToDrag.attachEvent("onlosecapture", upHandler);
+    }
+
+    // We have handled this event. Do not let anybody else see it.
+    if (event.stopPropagation) event.stopPropagation(); // Standard model
+    else event.cancelBubble = true;                     // IE
+
+    // Now prevent any default action.
+    if (event.preventDefault) event.preventDefault(); // Standard model
+    else event.returnValue = false;                   // IE
+
+    /**
+     * This is the handler that captures mousemove events when an element
+     * is being dragged. It is responsible for moving the element.
+     **/
+    function moveHandler(e) {
+        if (!e) e = window.event; // IE event Model
+
+        // Move the element to the current mouse position, adjusted by the
+        // position of the scrollbars and the offset of the initial click.
+        var scroll = getScrollOffsets();
+        elementToDrag.style.left = (e.clientX + scroll.x - deltaX) + "px";
+        elementToDrag.style.top = (e.clientY + scroll.y - deltaY) + "px";
+
+        // And do not let anyone else see this event.
+        if (e.stopPropagation) e.stopPropagation(); // Standard
+        else e.cancelBubble = true;                 // IE
+    }
+
+    /**
+     * This is the handler that captures the final mouseup event that
+     * occurs at the end of a drag.
+     **/
+    function upHandler(e) {
+        if (!e) e = window.event; // IE Event Model
+
+        // Unregister the capturing event handlers.
+        if (document.removeEventListener) { // DOM event model
+            document.removeEventListener("mouseup", upHandler, true);
+            document.removeEventListener("mousemove", moveHandler, true);
+        }
+        else if (document.detachEvent) {    // IE 5+ Event Model
+            elementToDrag.detachEvent("onlosecapture", upHandler);
+            elementToDrag.detachEvent("onmouseup", upHandler);
+            elementToDrag.detachEvent("onmousemove", moveHandler);
+            elementToDrag.releaseCapture();
+        }
+
+        // And do not let the event propagate any further.
+        if (e.stopPropagation) e.stopPropagation(); // Standard model
+        else e.cancelBubble = true;                 // IE
+    }
+}
+
+
+/*
+ * Example: Handling mousewheel events
+ *
+ * Enclose the content element in a frame or viewport of the specified width
+ * and height (minimum 50x50). The optional contentX and contentY arguments
+ * specify the initial offset of the content relative to the frame.
+ * (If specified, they must be <= 0).
+ * The frame has mousewheel event handlers that allow the user to pan the
+ * element, and to shrink or enlarge the frame.
+ */
+function enclose(content, framewidth, frameheight, contentX, contentY) {
+    // These arguments are not just the initial values: they maintain the
+    // current state and are used and modified by the mousewheel handler.
+    framewidth = Math.max(framewidth, 50);
+    frameheight = Math.max(frameheight, 50);
+    contentX = Math.min(contentX, 0) || 0;
+    contentY = Math.min(contentY, 0) || 0;
+
+    // Create the frame element and set a CSS classname and styles
+    var frame = document.createElement("div");
+    frame.className = "enclosure";             // So we can define styles in a stylesheet
+    frame.style.width = framewidth + "px";     // Set the frame size.
+    frame.style.height = frameheight + "px";
+    frame.style.overflow = "hidden";           // No scrollbars, no overflow
+    frame.style.boxSizing = "border-box";      // Border-box simplifies the
+    frame.style.webkitBoxSizing = "border-box";// calculations for resizing
+    frame.style.MozBoxSizing = "border-box";   // the frame.
+
+    // Put the frame in the document and move the content elt into the frame.
+    content.parentNode.insertBefore(frame, content);
+    frame.appendChild(content);
+
+    // Position the element relative to the frame
+    content.style.position = "relative";
+    content.style.left = contentX + "px";
+    content.style.top = contentY + "px";
+
+    // We will need to work around some browser-specific quirks below
+    var isMacWebkit = (navigator.userAgent.indexOf("Macintosh") !== -1 &&
+                       navigator.userAgent.indexOf("WebKit") !== -1);
+    var isFirefox = (navigator.userAgent.indexOf("Gecko") !== -1);
+
+    // Register mousewheel event handlers.
+    frame.onwheel = wheelHandler;      // Future browsers
+    frame.onmousewheel = wheelHandler; // Most current browsers
+    if (isFirefox)                     // Firefox only
+        frame.addEventListener("DOMMouseScroll", wheelHandler, false);
+
+    function wheelHandler(event) {
+        var e = event || window.event; // Standard or IE event object
+
+        // Extract the amount of rotation from the event object, looking
+        // for properties of a wheel event object, a mousewheel event object
+        // (in both its 2D and 1D forms), and the Firefox DOMMouseScroll event.
+        // Scale the deltas so that one "click" toward the screen is 30 pixels.
+        // If future browsers fire both "wheel" and "mousewheel" for the same
+        // event, we will end up double-counting it here. Hopefully, however,
+        // cancelling the wheel event will prevent generation of mousewheel.
+        var deltaX = e.deltaX*-30 || // wheel event
+                  e.wheelDeltaX/4 || // mousewheel
+                                0;   // property not defined
+        var deltaY = e.deltaY*-30 || // wheel event
+                  e.wheelDeltaY/4 || // mousewheel event in Webkit
+       (e.wheelDeltaY===undefined && // if there is no 2D property then
+                  e.wheelDelta/4) || // use the 1D wheel property
+                     e.detail*-10 || // Firefox DOMMouseScroll event
+                                0;   // property not defined
+
+        // Most browsers generate one event with delta 120 per mousewheel click.
+        // On Macs, however, the mousewheels seem to be velocity-sensitive and
+        // the delta values are often larger multiples of 120, at
+        // least with the Apple Mouse. Use browser-testing to defeat this.
+        if (isMacWebkit) {
+            deltaX /= 30;
+            deltaY /= 30;
+        }
+
+        // If we ever get a mousewheel or wheel event in (a future version of)
+        // Firefox, then we do not need DOMMouseScroll anymore.
+        if (isFirefox && e.type !== "DOMMouseScroll")
+            frame.removeEventListener("DOMMouseScroll", wheelHandler, false);
+
+        // Get the current dimensions of the content element
+        var contentbox = content.getBoundingClientRect();
+        var contentwidth = contentbox.right - contentbox.left;
+        var contentheight = contentbox.bottom - contentbox.top;
+
+        if (e.altKey) { // If Alt key is held down, resize the frame
+            if (deltaX) {
+                framewidth -= deltaX;  // New width, but not bigger than the
+                framewidth = Math.min(framwidth, contentwidth); // content
+                framewidth = Math.max(framewidth,50);  // and no less than 50.
+                frame.style.width = framewidth + "px"; // Set it on frame
+            }
+            if (deltaY) {
+                frameheight -= deltaY; // Do the same for the frame height
+                frameheight = Math.min(frameheight, contentheight);
+                frameheight = Math.max(frameheight-deltaY, 50);
+                frame.style.height = frameheight + "px";
+            }
+        }
+        else { // Without the Alt modifier, pan the content within the frame
+            if (deltaX) {
+                // Do not scroll more than this
+                var minoffset = Math.min(framewidth-contentwidth, 0);
+                // Add deltaX to contentX, but do not go lower than minoffset
+                contentX = Math.max(contentX + deltaX, minoffset);
+                contentX = Math.min(contentX, 0);     // or higher than 0
+                content.style.left = contentX + "px"; // Set new offset
+            }
+            if (deltaY) {
+                var minoffset = Math.min(frameheight - contentheight, 0);
+                // Add deltaY to contentY, but do not go lower than minoffset
+                contentY = Math.max(contentY + deltaY, minoffset);
+                contentY = Math.min(contentY, 0);    // Or higher than 0
+                content.style.top = contentY + "px"; // Set the new offset.
+            }
+        }
+
+        // Do not let this event bubble. Prevent any default action.
+        // This stops the browser from using the mousewheel event to scroll
+        // the document. Hopefully calling preventDefault() on a wheel event
+        // will also prevent the generation of a mousewheel event for the
+        // same rotation.
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        e.cancelBubble = true; // IE events
+        e.returnValue = false; // IE events
+        return false;
+    }
+}
+
+
+/**
+ * Example: Filtering user input
+ * InputFilter.js: unobtrusive filtering of keystrokes for &lt;input&gt; elements
+ *
+ * This module finds all &lt;input type="text"&gt; elements in the document that
+ * have an "data-allowed-chars" attribute. It registers keypress, textInput, and
+ * textinput event handlers for any such element to restrict the user's input
+ * so that only characters that appear in the value of the attribute may be
+ * entered. If the &lt;input&gt; element also has an attribute named "data-messageid",
+ * the value of that attribute is taken to be the id of another document
+ * element. If the user types a character that is not allowed, the message
+ * element is made visible. If the user types a character that is allowed, the
+ * message element is hidden. This message id element is intended to offer
+ * an explanation to the user of why her keystroke was rejected. It should
+ * typically be styled with CSS so that it is initially invisible.
+ *
+ * Here is sample HTML that uses this module.
+ * Zipcode: &lt;input id="zip" type="text"
+ * data-allowed-chars="0123456789" data-messageid="zipwarn"&gt;
+ * &lt;span id="zipwarn" style="color:red;visibility:hidden"&gt;Digits only&lt;/span&gt;
+ *
+ * This module is purely unobtrusive: it does not define any symbols in
+ * the global namespace.
+ */
+var filterUserInput = function () { // Run this function when the document is loaded
+    // Find all &lt;input&gt; elements
+    var inputelts = document.getElementsByTagName("input");
+
+    // Loop through them all
+    for(var i = 0 ; i < inputelts.length; i++) {
+        var elt = inputelts[i];
+        // Skip those that are not text fields or that do not have
+        // a data-allowed-chars attribute.
+        if (elt.type != "text" || !elt.getAttribute("data-allowed-chars"))
+            continue;
+
+        // Register our event handler function on this input element
+        // keypress is a legacy event handler that works everywhere.
+        // textInput (mixed-case) is supported by Safari and Chrome in 2010.
+        // textinput (lowercase) is the version in the DOM Level 3 Events draft.
+        if (elt.addEventListener) {
+            elt.addEventListener("keypress", filter, false);
+            elt.addEventListener("textInput", filter, false);
+            elt.addEventListener("textinput", filter, false);
+        }
+        else { // textinput not supported versions of IE w/o addEventListener()
+            elt.attachEvent("onkeypress", filter);
+        }
+    }
+
+    // This is the keypress and textInput handler that filters the user is input
+    function filter(event) {
+        // Get the event object and the target element target
+        var e = event || window.event;         // Standard or IE model
+        var target = e.target || e.srcElement; // Standard or IE model
+        var text = null;                       // The text that was entered
+
+        // Get the character or text that was entered
+        if (e.type === "textinput" || e.type === "textInput")
+            text = e.data;
+        else { // This was a legacy keypress event
+            // Firefox uses charCode for printable key press events
+            var code = e.charCode || e.keyCode;
+
+            // If this keystroke is a function key of any kind, do not filter it
+            if (code < 32 ||           // ASCII control character
+                e.charCode == 0 ||     // Function key (Firefox only)
+                e.ctrlKey || e.altKey) // Modifier key held down
+                return;                // Do not filter this event
+
+            // Convert character code into a string
+            var text = String.fromCharCode(code);
+        }
+
+        // Now look up information we need from this input element
+        var allowed = target.getAttribute("data-allowed-chars"); // Legal chars
+        var messageid = target.getAttribute("data-messageid");   // Message id
+        if (messageid) // If there is a message id, get the element
+            var messageElement = document.getElementById(messageid);
+
+        // Loop through the characters of the input text
+        for(var i = 0; i < text.length; i++) {
+            var c = text.charAt(i);
+            if (allowed.indexOf(c) == -1) { // Is this a disallowed character?
+                // Display the message element, if there is one
+                if (messageElement) messageElement.style.visibility = "visible";
+
+                // Cancel the default action so the text is not inserted
+                if (e.preventDefault) e.preventDefault();
+                if (e.returnValue) e.returnValue = false;
+                return false;
+            }
+        }
+
+        // If all the characters were legal, hide the message if there is one.
+        if (messageElement) messageElement.style.visibility = "hidden";
+    }
+};
+
+
+// Example: Using the propertychange event to detect text input.
+// force all input to uppercase in a cross-platform way.
+function forceToUpperCase(element) {
+    if (typeof element === "string")
+        element = document.getElementById(element);
+    element.oninput = upcase;
+    element.onpropertychange = upcaseOnPropertyChange;
+
+    // Easy case: the handler for the input event
+    function upcase(event) { this.value = this.value.toUpperCase(); }
+
+    // Hard case: the handler for the propertychange event
+    function upcaseOnPropertyChange(event) {
+        var e = event || window.event;
+        // If the value property changed
+        if (e.propertyName === "value") {
+            // Remove onpropertychange handler to avoid recursion
+            this.onpropertychange = null;
+            // Change the value to all uppercase
+            this.value = this.value.toUpperCase();
+            // And restore the original propertychange handler
+            this.onpropertychange = upcaseOnPropertyChange;
+        }
+    }
+}
+
+
+/*
+ * Example: A Keymap class for keyboard shortcuts
+ * Keymap.js: bind key events to handler functions.
+ *
+ * This module defines a Keymap class. An instance of this class represents a
+ * mapping of key identifiers (defined below) to handler functions. A Keymap
+ * can be installed on an HTML element to handle keydown events. When such an
+ * event occurs, the Keymap uses its mapping to invoke the appropriate handler.
+ *
+ * When you create a Keymap, you can pass a JavaScript object that represents
+ * the initial set of bindings for the Keymap. The property names of this object
+ * are key identifers, and the property values are the handler functions.
+ * After a Keymap has been created, you can add new bindings by passing a key
+ * identifer and handler function to the bind() method. You can remove a
+ * binding by passing a key identifier to the unbind() method.
+ *
+ * To make use of a Keymap, call its install() method, passing an HTML element,
+ * such as the document object. install() adds an onkeydown event handler to
+ * the specified object. When this handler is invoked, it determines the key
+ * identifier of the pressed key and invokes the handler function, if any,
+ * bound to that key identifier. A single Keymap may be installed on more than
+ * one HTML element.
+ *
+ * Key Identifiers
+ *
+ * A key identifier is a case-insensitive string representation of a key plus
+ * any modifier keys that are held down at the same time. The key name is
+ * usually the (unshifted) text on the key. Legal key names include "A", "7",
+ * "F2", "PageUp", "Left", "Backspace", and "Esc".
+ *
+ * See the Keymap.keyCodeToKeyName object in this module for a list of names.
+ * These are a subset of the names defined by the DOM Level 3 standard and
+ * this class will use the key property of the event object when implemented.
+ *
+ * A key identifier may also include modifier key prefixes. These prefixes are
+ * Alt, Ctrl, Meta, and Shift. They are case-insensitive, and must be separated
+ * from the key name and from each other with spaces or with an underscore,
+ * hyphen, or +. For example: "SHIFT+A", "Alt_F2", "meta-v", and "ctrl alt left".
+ * On Macs, Meta is the Command key and Alt is the Option key. Some browsers
+ * map the Windows key to the Meta modifier.
+ *
+ * Handler Functions
+ *
+ * Handlers are invoked as methods of the document or document element on which
+ * the keymap is installed and are passed two arguments:
+ * 1) the event object for the keydown event
+ * 2) the key identifier of the key that was pressed
+ * The handler return value becomes the return value of the keydown handler.
+ * If a handler function returns false, the keymap will stop bubbling and
+ * cancel any default action associated with the keydown event.
+ *
+ * Limitations
+ *
+ * It is not possible to bind a handler function to all keys. The operating
+ * system traps some key sequences (Alt-F4, for example). And the browser
+ * itself may trap others (Ctrl-S, for example). This code is browser, OS,
+ * and locale-dependent. Function keys and modified function keys work well,
+ * and unmodified alphanumeric keys work well. The combination of Ctrl and Alt
+ * with alphanumeric characters is less robust.
+ *
+ * Most punctuation characters that do not require the Shift key (`=[];',./\
+ * but not hyphen) on standard US keyboard layouts are supported. But they are
+ * not particularly portable to other keyboard layouts and should be avoided.
+ */
+
+// This is the constructor function
+function Keymap(bindings) {
+    this.map = {};  // Define the key identifier->handler map
+    if (bindings) { // Copy initial bindings into it
+        for(name in bindings) this.bind(name, bindings[name]);
+    }
+}
+
+// Bind the specified key identifier to the specified handler function
+Keymap.prototype.bind = function(key, func) {
+    this.map[Keymap.normalize(key)] = func;
+};
+
+// Delete the binding for the specified key identifier
+Keymap.prototype.unbind = function(key) {
+    delete this.map[Keymap.normalize(key)];
+};
+
+// Install this Keymap on the specified HTML element
+Keymap.prototype.install = function(element) {
+    // This is the event-handler function
+    var keymap = this;
+    function handler(event) { return keymap.dispatch(event, element); }
+
+    // Now install it
+    if (element.addEventListener)
+        element.addEventListener("keydown", handler, false);
+    else if (element.attachEvent)
+        element.attachEvent("onkeydown", handler);
+};
+
+// This method dispatches key events based on the keymap bindings.
+Keymap.prototype.dispatch = function(event, element) {
+    // We start off with no modifiers and no key name
+    var modifiers = ""
+    var keyname = null;
+
+    // Build the modifier string in canonical lowercase alphabetical order.
+    if (event.altKey) modifiers += "alt_";
+    if (event.ctrlKey) modifiers += "ctrl_";
+    if (event.metaKey) modifiers += "meta_";
+    if (event.shiftKey) modifiers += "shift_";
+
+    // The keyname is easy if the DOM Level 3 key property is implemented:
+    if (event.key) keyname = event.key;
+    // Use the keyIdentifier on Safari and Chrome for function key names
+    else if (event.keyIdentifier && event.keyIdentifier.substring(0,2) !== "U+")
+        keyname = event.keyIdentifier;
+    // Otherwise, use the keyCode property and the code-to-name map below
+    else keyname = Keymap.keyCodeToKeyName[event.keyCode];
+
+    // If we couldn't figure out a key name, just return and ignore the event.
+    if (!keyname) return;
+
+    // The canonical key id is modifiers plus lowercase key name
+    var keyid = modifiers + keyname.toLowerCase();
+
+    // Now see if the key identifier is bound to anything
+    var handler = this.map[keyid];
+    if (handler) { // If there is a handler for this key, handle it
+        // Invoke the handler function
+        var retval = handler.call(element, event, keyid);
+
+        // If the handler returns false, cancel default and prevent bubbling
+        if (retval === false) {
+            if (event.stopPropagation) event.stopPropagation(); // DOM model
+            else event.cancelBubble = true;                     // IE model
+            if (event.preventDefault) event.preventDefault();   // DOM
+            else event.returnValue = false;                     // IE
+        }
+
+        // Return whatever the handler returned
+        return retval;
+    }
+};
+
+// Utility function to convert a key identifier to canonical form.
+// On non-Macintosh hardware, we could map "meta" to "ctrl" here, so that
+// Meta-C would be "Command-C" on the Mac and "Ctrl-C" everywhere else.
+Keymap.normalize = function(keyid) {
+    keyid = keyid.toLowerCase();           // Everything lowercase
+    var words = keyid.split(/\s+|[\-+_]/); // Split modifiers from name
+    var keyname = words.pop();             // keyname is the last word
+    keyname = Keymap.aliases[keyname] || keyname; // Is it an alias?
+    words.sort();                          // Sort remaining modifiers
+    words.push(keyname);                   // Add the normalized name back
+    return words.join("_");                // Concatenate them all
+};
+
+Keymap.aliases = {     // Map common key aliases to their "official"
+    "escape":"esc",    // key names used by DOM Level 3 and by
+    "delete":"del",    // the key code to key name map below.
+    "return":"enter",  // Both keys and values must be lowercase here.
+    "ctrl":"control",
+    "space":"spacebar",
+    "ins":"insert"
+};
+
+// The legacy keyCode property of the keydown event object is not standardized
+// But the following values seem to work for most browsers and OSes.
+Keymap.keyCodeToKeyName = {
+    // Keys with words or arrows on them
+    8:"Backspace", 9:"Tab", 13:"Enter", 16:"Shift", 17:"Control", 18:"Alt",
+    19:"Pause", 20:"CapsLock", 27:"Esc", 32:"Spacebar", 33:"PageUp",
+    34:"PageDown", 35:"End", 36:"Home", 37:"Left", 38:"Up", 39:"Right",
+    40:"Down", 45:"Insert", 46:"Del",
+
+    // Number keys on main keyboard (not keypad)
+    48:"0",49:"1",50:"2",51:"3",52:"4",53:"5",54:"6",55:"7",56:"8",57:"9",
+
+    // Letter keys. Note that we don't distinguish upper and lower case
+    65:"A", 66:"B", 67:"C", 68:"D", 69:"E", 70:"F", 71:"G", 72:"H", 73:"I",
+    74:"J", 75:"K", 76:"L", 77:"M", 78:"N", 79:"O", 80:"P", 81:"Q", 82:"R",
+    83:"S", 84:"T", 85:"U", 86:"V", 87:"W", 88:"X", 89:"Y", 90:"Z",
+
+    // Keypad numbers and punctuation keys. (Opera does not support these.)
+    96:"0",97:"1",98:"2",99:"3",100:"4",101:"5",102:"6",103:"7",104:"8",105:"9",
+    106:"Multiply", 107:"Add", 109:"Subtract", 110:"Decimal", 111:"Divide",
+
+    // Function keys
+    112:"F1", 113:"F2", 114:"F3", 115:"F4", 116:"F5", 117:"F6",
+    118:"F7", 119:"F8", 120:"F9", 121:"F10", 122:"F11", 123:"F12",
+    124:"F13", 125:"F14", 126:"F15", 127:"F16", 128:"F17", 129:"F18",
+    130:"F19", 131:"F20", 132:"F21", 133:"F22", 134:"F23", 135:"F24",
+
+    // Punctuation keys that don't require holding down Shift
+    // Hyphen is nonportable: FF returns same code as Subtract
+    59:";", 61:"=", 186:";", 187:"=", // Firefox and Opera return 59,61
+    188:",", 190:".", 191:"/", 192:"`", 219:"[", 220:"\\", 221:"]", 222:"'"
+};
+</script>
+
+</body>
+</html>

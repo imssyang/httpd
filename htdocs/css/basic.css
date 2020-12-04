@@ -1,0 +1,455 @@
+/**
+ * Correct the line height in all browsers.
+ */
+html {
+  line-height: 1.15;
+}
+
+/**
+ * Correct `block` display not defined for HTML5 in IE 8/9.
+ */
+article,
+aside,
+figcaption,
+figure,
+footer,
+header,
+main,
+nav,
+section {
+  display: block;
+}
+
+/**
+ * Add border in all element only for test.
+ */
+* {
+    border-style: dashed;
+    border-width: thin;
+    border-color: #909090;
+}
+
+/**
+ * Remove the margin in all browsers.
+ */
+body {
+    margin: 0;
+    font-family: "宋体", Georgia, "Times New Roman", serif;
+    color: #212529;
+    background-color: #fff;
+}
+
+header {
+    width: 100%;
+    height: 2.3em;
+    position: fixed;
+    background-color: #eee;
+    top: 0;
+    z-index: 1000;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid blue;
+}
+
+header + * {
+    margin-top: 2.6em;
+}
+
+header a {
+    width: 15%;
+    /* 去掉链接中的下划线 */
+    text-decoration:none;
+}
+
+header .logo {
+    padding: 0 2%;
+    font-weight: normal;
+}
+
+header nav {
+    width: 85%;
+    display: flex;
+    align-items: center;
+}
+
+header nav ul {
+    /* 删除圆点。导航栏不需要列表项标记 */
+    list-style-type: none;
+}
+
+header nav ul.left {
+    width: 70%;
+}
+
+header nav ul.right {
+    width: 30%;
+}
+
+header nav ul.right li {
+    float: right;
+    margin-right: 5%;
+}
+
+header nav ul li {
+    display: inline-block;
+    padding: 0 2%;
+}
+
+header nav ul li a:hover,
+header nav ul li:hover > a {
+    color: #111;
+}
+
+header nav ul li:first-child {
+    padding-left: 0;
+}
+
+header nav ul li:last-child {
+    padding-right: 0;
+}
+
+header nav ul li.dropdown::after {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+}
+
+header nav ul li.dropdown div.menu {
+    display: none;
+    position: absolute;
+    margin-left: -2em;
+    min-width: 3.5rem;
+    background-color: #ccc;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+    z-index: 1000;
+    float: left;
+    padding: .2rem 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+}
+
+header nav ul li.dropdown:hover div.menu {
+    display: block;
+    left: auto;
+}
+
+.totop {
+    position: fixed;
+    background-color: #ddd;
+    bottom: 3em;
+    right: 3em;
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    vertical-align: baseline;
+}
+
+.totop a {
+    position: relative;
+    bottom: .6em;
+    text-decoration:none;
+}
+
+
+@media (max-width: 55em) {
+  header,
+  nav,
+  ul {
+    display: block;
+    float: none;
+  }
+}
+
+
+/**
+ * Correct the font size and margin on `h1` elements 
+ * within `section` and `article` contexts 
+ * in Chrome, Firefox, and Safari.
+ */
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0; /* top&bottom: 0.67em; left&right: 0 */
+}
+
+/**
+ * Remove the gray background on active links in IE 10.
+ */
+a {
+  background-color: transparent; /* 透明 */
+}
+
+/**
+ * Add the correct font weight in Chrome, Edge, and Safari.
+ */
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+ * Add the correct font size in all browsers.
+ */
+small {
+  font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` elements from affecting
+ * the line height in all browsers.
+ */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/**
+ * Remove the border on images inside links in IE 10.
+ */
+img {
+  border-style: none;
+}
+
+/**
+ * 1. Change the font styles in all browsers.
+ * 2. Remove the margin in Firefox and Safari.
+ */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+ * overflow 规定当内容溢出元素框时发生的事情.
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+button,
+input { /* 1 */
+  overflow: visible; /* 内容不会被修剪，会呈现在元素框之外 */
+}
+
+/**
+ * text-transform 属性控制文本的大小写.
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+button,
+select { /* 1 */
+  text-transform: none;
+}
+
+/**
+ * fieldset 元素可将表单内的元素分组.
+ * Correct the padding in Firefox.
+ */
+fieldset {
+  padding: 0.35em 0.75em 0.625em;
+}
+
+/**
+ * legend 元素为 fieldset 元素定义标题（caption）.
+ * 1. Correct the text wrapping in Edge and IE.
+ * 2. Correct the color inheritance from `fieldset` elements in IE.
+ * 3. Remove the padding so developers are not caught out when they zero out
+ *    `fieldset` elements in all browsers.
+ */
+legend {
+  box-sizing: border-box; /* 1 */
+  color: inherit; /* 2 */
+  display: table; /* 1 */
+  max-width: 100%; /* 1 */
+  padding: 0; /* 3 */
+  white-space: normal; /* 1 */
+}
+
+/**
+ * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+ */
+progress {
+  vertical-align: baseline;
+}
+
+/**
+ * Remove the default vertical scrollbar in IE 10+.
+ */
+textarea {
+  overflow: auto;
+}
+
+/**
+ * Add the correct display in Edge, IE 10+, and Firefox.
+ */
+details {
+  display: block;
+}
+
+/**
+ * Add the correct display in all browsers.
+ */
+summary {
+  display: list-item;
+}
+
+/**
+ * CSS的width属性默认是指内边距里内容区域的宽度。
+ * 对元素设置border-box后，width就包括了内容宽度、内边距和边框。
+ * 使得元素的显示宽度就等于width属性的值。
+ *
+ * before,after 伪类默认的display 是 inline， 
+ * 但难免有人会把它变成 block 来用，这时候统一box-sizing会好操作一些。
+ */
+*,
+::after,
+::before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+/* GENERAL
+-------------------------------------------*/
+
+/*
+.masthead-nav,
+nav ul {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+
+a {
+  color: #007bff;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+img {
+  <!-- 如果用width:100%，那么图片显示时会不考虑自身固有宽度，可能会被拉伸。 -->
+  max-width: 100%;
+}
+*/
+/*
+h1 {
+  color: #212121;
+  font-family: 'Lato', sans-serif;
+  font-size: 3.25em;
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: .975;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+*/
+
+
+/* Main Navigation
+-------------------------------------------*/
+/*
+@media (max-width: 991.98px)
+.navbar {
+  padding-right: .5rem;
+  padding-left: .5rem;
+}
+
+.navbar {
+  min-height: 4rem;
+  background-color: #563d7c;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.05), inset 0 -1px 0 rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+  color: #fff;
+}
+
+@media (max-width: 991.98px)
+.navbar-nav {
+  max-width: 100%;
+  height: 2.5rem;
+  margin-top: .25rem;
+  overflow: hidden;
+  font-size: .875rem;
+  padding-bottom: 2rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+
+
+.navbar li {
+  border-left: 1px solid #c8c8c8;
+  display: inline-block;
+  text-align: left;
+}
+
+.navbar li:first-child {
+  border-left: none;
+}
+
+.navbar li:last-child a {
+  padding-right: 0;
+}
+
+.navbar a {
+  color: #292929;
+  display: inline-block;
+  font-size: 1.125em; 
+  padding: .5em 1.15em .5em 1.4em;
+}
+
+.navbar a:hover {
+  color: #029443;
+  text-decoration: none;
+}
+*/

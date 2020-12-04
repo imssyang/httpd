@@ -1,0 +1,15 @@
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=https://httpd.apache.org/docs/2.4/
+
+[Service]
+Type=forking
+ExecStart=/opt/httpd/bin/apachectl start
+ExecStop=/opt/httpd/bin/apachectl stop
+ExecReload=/opt/httpd/bin/apachectl graceful
+PrivateTmp=true
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

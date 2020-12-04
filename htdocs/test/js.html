@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>JavaScript Test</title>
+</head>
+<body>
+    <p id="test">1523523</p>
+    <script>
+        var test = document.getElementById("test");
+        alert(test);
+
+        let code = prompt("Enter passcode", "123");
+        if (isNaN(code))
+            alert("code is NaN, not a number:", code);
+        console.log("passcode = ", code);
+        
+        var makeNoise = function() {
+            console.log("Pling");
+        }
+        console.log("makeNoise=", makeNoise());
+        console.log("C", "0", "2");
+
+        // Two emoji characters, horse and shoe
+        let horseShoe = "\ud83d\udc34\ud83d\udc5f";
+        console.log(horseShoe.length);
+        // → 4
+        console.log(horseShoe[0]);
+        // → (Invalid half-character)
+        console.log(horseShoe.charCodeAt(0));
+        // → 55357 (Code of the half-character)
+        console.log(horseShoe.codePointAt(0));
+        // → 128052 (Actual code for horse emoji)
+
+        let roseDragon = "\ud83c\udf45\ud83d\udc09";
+        for (let char of roseDragon) {
+            console.log(char);
+        }
+        let protoRabbit = {
+            speak(line) {
+                console.log(`The ${this.type} rabbit says '${line}'`);
+            }
+        };
+        let killerRabbit = Object.create(protoRabbit);
+        //killerRabbit.type = "killer";
+        killerRabbit.speak("SKREEEE!");
+
+        function canYouSpotTheProblem() {
+            //"use strict";
+            for (counter = 0; counter < 10; counter++) {
+                console.log("Happy happy");
+            }
+        }
+        canYouSpotTheProblem();
+
+        "use strict";
+        function Person(name) { this.name = name; }
+        let ferdinand = Person("Ferdinand");
+        console.log(name);
+    </script>
+</body>
+</html>
