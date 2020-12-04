@@ -2,6 +2,7 @@
 archive
 cache
 data
-log
+htdocs
+logs
 run
 
