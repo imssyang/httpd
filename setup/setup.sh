@@ -5,63 +5,57 @@ HOME=/opt/$APP
 SYSD=/etc/systemd/system
 SERFILE=httpd.service
 
-initialize() {
+init() {
+  if [[ ! -d $HOME/logs ]]; then
+    mkdir $HOME/logs
+    chmod 755 $HOME/logs
+  fi
+
   if [[ ! -s $SYSD/$SERFILE ]]; then
     ln -s $HOME/setup/$SERFILE $SYSD/$SERFILE
     echo "($APP) create symlink: $SYSD/$SERFILE --> $HOME/setup/$SERFILE"
   fi
 }
 
-deinitialize() {
+deinit() {
   if [[ -s $SYSD/$SERFILE ]]; then
     rm -rf $SYSD/$SERFILE
     echo "($APP) delete symlink: $SYSD/$SERFILE"
   fi
 }
 
-daemon_start() {
+start() {
   pgrep -x $APP >/dev/null
   if [[ $? != 0 ]]; then
 	systemctl start $SERFILE
     echo "($APP) $APP start!"
   fi
-  daemon_show
+  show
 }
 
-daemon_stop() {
+stop() {
   pgrep -x $APP >/dev/null
   if [[ $? == 0 ]]; then
     systemctl stop $SERFILE
     echo "($APP) $APP stop!"
   fi
-  daemon_show
+  show
 }
 
-daemon_show() {
+show() {
   ps -ef | grep $APP | grep -v 'grep'
 }
 
 case "$1" in
-  init)
-    initialize
-    ;;
-  deinit)
-    deinitialize
-    ;;
-  start)
-    daemon_start
-    ;;
-  stop)
-    daemon_stop
-    ;;
-  show)
-	daemon_show
-	;;
-  *)
-    SCRIPTNAME="${0##*/}"
-    echo "Usage: $SCRIPTNAME {init|deinit|start|stop|show}"
-    exit 3
-    ;;
+  init) init ;;
+  deinit) deinit ;;
+  start) start ;;
+  stop) stop ;;
+  show) show ;;
+  *) SCRIPTNAME="${0##*/}"
+     echo "Usage: $SCRIPTNAME {init|deinit|start|stop|show}"
+     exit 3
+     ;;
 esac
 
 exit 0
